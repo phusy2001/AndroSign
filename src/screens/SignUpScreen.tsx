@@ -16,7 +16,7 @@ function SignUpScreen() {
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
-      <Text>This is Settings Screen</Text>
+      <Text>This is Sign up Screen</Text>
     </View>
   );
 }
