@@ -8,6 +8,8 @@ import SettingsScreen from '../screens/SettingsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import CustomDrawer from './CustomDrawer';
+import StarredScreen from '../screens/StarredScreen';
+import TrashScreen from '../screens/TrashScreen';
 
 const AuthStack = createNativeStackNavigator();
 export const AuthStackScreen = () => (
@@ -33,6 +35,16 @@ export function AppNavigator() {
         <Drawer.Screen
           name="Settings"
           component={SettingsScreen}
+          options={{headerShown: false}}
+        />
+        <Drawer.Screen
+          name="Starred"
+          component={StarredScreen}
+          options={{headerShown: false}}
+        />
+        <Drawer.Screen
+          name="Trash"
+          component={TrashScreen}
           options={{headerShown: false}}
         />
       </Drawer.Navigator>

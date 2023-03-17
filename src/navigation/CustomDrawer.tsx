@@ -35,12 +35,12 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="star" size={24} color="#000" />}
             label="Được gắn sao"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Starred')}
           />
           <DrawerItem
             icon={() => <Icon name="trash-can" size={24} color="#000" />}
             label="Thùng rác"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Trash')}
           />
           <Divider bold={true} style={{marginTop: 62, marginBottom: 44}} />
           <DrawerItem
