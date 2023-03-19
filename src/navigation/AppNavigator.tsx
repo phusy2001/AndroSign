@@ -10,12 +10,17 @@ import SignUpScreen from '../screens/SignUpScreen';
 import CustomDrawer from './CustomDrawer';
 import StarredScreen from '../screens/StarredScreen';
 import TrashScreen from '../screens/TrashScreen';
+import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 
 const AuthStack = createNativeStackNavigator();
 export const AuthStackScreen = () => (
   <AuthStack.Navigator screenOptions={{headerShown: false}}>
     <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
     <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} />
+    <AuthStack.Screen
+      name="OTPVerificationScreen"
+      component={OTPVerificationScreen}
+    />
   </AuthStack.Navigator>
 );
 
