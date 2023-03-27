@@ -51,7 +51,9 @@ function SignUpScreen({navigation}) {
         marginRight: 30,
         flex: 1,
       }}>
-      <View style={{height: screenHeight - 100}}>
+      <KeyboardAvoidingView
+        behavior="position"
+        style={{height: screenHeight - 150}}>
         <Text
           style={{
             marginTop: 70,
@@ -173,12 +175,11 @@ function SignUpScreen({navigation}) {
             {errors.password2 && `${errors.password2.message}`}
           </Text>
         </View>
-      </View>
+      </KeyboardAvoidingView>
       <View
         style={{
           alignSelf: 'center',
           justifyContent: 'flex-end',
-          marginBottom: 10,
           width: '100%',
         }}>
         <Button

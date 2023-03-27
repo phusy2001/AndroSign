@@ -28,7 +28,8 @@ function OTPVerificationScreen({navigation}) {
           size={30}
           onPress={() => navigation.goBack()}
         />
-        <View
+        <KeyboardAvoidingView
+          behavior="position"
           style={{
             marginTop: 100,
           }}>
@@ -57,7 +58,7 @@ function OTPVerificationScreen({navigation}) {
             offTintColor={'black'}
             handleTextChange={e => (otp.current = e)}
           />
-        </View>
+        </KeyboardAvoidingView>
       </View>
       <View
         style={{

@@ -27,7 +27,9 @@ function LoginScreen({navigation}) {
   } = useForm({
     resolver: yupResolver(SignInSchema),
   });
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = async (data: any) => {
+    console.log(data);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -48,7 +50,8 @@ function LoginScreen({navigation}) {
           }}>
           Đăng nhập
         </Text>
-        <View
+        <KeyboardAvoidingView
+          behavior="position"
           style={{
             marginTop: 70,
           }}>
@@ -105,7 +108,7 @@ function LoginScreen({navigation}) {
           <Text style={{color: 'red'}}>
             {errors.password && `${errors.password.message}`}
           </Text>
-        </View>
+        </KeyboardAvoidingView>
         <Text
           style={{
             marginTop: 24,

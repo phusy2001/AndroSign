@@ -29,7 +29,7 @@ const Drawer = createDrawerNavigator();
 export function AppNavigator() {
   return (
     <NavigationContainer>
-      <Drawer.Navigator
+      {/* <Drawer.Navigator
         initialRouteName="Home"
         drawerContent={props => <CustomDrawer {...props} />}>
         <Drawer.Screen
@@ -52,7 +52,8 @@ export function AppNavigator() {
           component={TrashScreen}
           options={{headerShown: false}}
         />
-      </Drawer.Navigator>
+      </Drawer.Navigator> */}
+      <AuthStackScreen />
     </NavigationContainer>
   );
 }
