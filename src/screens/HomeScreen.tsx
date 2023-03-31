@@ -181,43 +181,44 @@ function HomeScreen() {
   const [sorting, setSortting] = React.useState<string>('1');
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={{justifyContent: 'space-between'}}>
-        <Appbar.Action icon="format-list-bulleted" onPress={_handleDrawer} />
-        <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
-      </Appbar.Header>
-      <View style={{marginLeft: 20, marginRight: 20}}>
-        <Text style={{fontSize: 20, fontWeight: '700'}}>Tài liệu</Text>
-        <Searchbar
-          style={{marginTop: 20}}
-          placeholder="Search"
-          onChangeText={onChangeSearch}
-          value={searchQuery}
+    <BottomSheetModalProvider>
+      <View style={styles.container}>
+        <Appbar.Header style={{justifyContent: 'space-between'}}>
+          <Appbar.Action icon="format-list-bulleted" onPress={_handleDrawer} />
+          <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
+        </Appbar.Header>
+        <View style={{marginLeft: 20, marginRight: 20}}>
+          <Text style={{fontSize: 20, fontWeight: '700'}}>Tài liệu</Text>
+          <Searchbar
+            style={{marginTop: 20}}
+            placeholder="Search"
+            onChangeText={onChangeSearch}
+            value={searchQuery}
+          />
+        </View>
+        <View style={styles.content}>
+          <FlashList
+            data={data}
+            renderItem={({item}) => (
+              <CustomListView
+                item={item}
+                onPressMoreFunction={handlePressMoreFunction}
+              />
+            )}
+            keyExtractor={(item: any) => item?.id}
+            onEndReached={loadData}
+            onEndReachedThreshold={0.5}
+            estimatedItemSize={100}
+            ListFooterComponent={renderFooter}
+          />
+        </View>
+        <FAB
+          style={styles.fab}
+          small
+          icon="plus"
+          onPress={handlePresentUploadModalPress}
         />
-      </View>
-      <View style={styles.content}>
-        <FlashList
-          data={data}
-          renderItem={({item}) => (
-            <CustomListView
-              item={item}
-              onPressMoreFunction={handlePressMoreFunction}
-            />
-          )}
-          keyExtractor={(item: any) => item?.id}
-          onEndReached={loadData}
-          onEndReachedThreshold={0.5}
-          estimatedItemSize={100}
-          ListFooterComponent={renderFooter}
-        />
-      </View>
-      <FAB
-        style={styles.fab}
-        small
-        icon="plus"
-        onPress={handlePresentUploadModalPress}
-      />
-      <BottomSheetModalProvider>
+
         <BottomSheetModal
           ref={uploadModalRef}
           index={0}
@@ -392,8 +393,8 @@ function HomeScreen() {
             );
           }}
         </BottomSheetModal>
-      </BottomSheetModalProvider>
-    </View>
+      </View>
+    </BottomSheetModalProvider>
   );
 }
 

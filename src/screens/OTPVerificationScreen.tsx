@@ -1,15 +1,22 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Button, Text, IconButton} from 'react-native-paper';
-import OTPTextInput from 'react-native-otp-textinput';
-import {useRef} from 'react';
+import OTPTextView from '../components/OTPTextView';
 
-function OTPVerificationScreen({navigation}) {
+function OTPVerificationScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
-  const otp = useRef();
+
+  const [otpInput, setOtpInput] = useState('');
+  const [otpText, setOtpText] = useState(null);
+
+  const handleTextChange = (text: any) => {
+    setOtpText(text);
+  };
+
+  console.log(otpText);
 
   return (
     <KeyboardAvoidingView
@@ -48,7 +55,10 @@ function OTPVerificationScreen({navigation}) {
             }}>
             Chúng tôi đã gửi mã OTP xác nhận qua email của bạn
           </Text>
-          <OTPTextInput
+          <OTPTextView
+            handleTextChange={handleTextChange}
+            inputCount={4}
+            inputCellLength={1}
             textInputStyle={{
               borderColor: 'black',
               borderWidth: 1,
@@ -56,8 +66,8 @@ function OTPVerificationScreen({navigation}) {
               borderBottomWidth: 1,
             }}
             offTintColor={'black'}
-            handleTextChange={e => (otp.current = e)}
           />
+          <Text>{otpInput}</Text>
         </KeyboardAvoidingView>
       </View>
       <View
@@ -74,7 +84,7 @@ function OTPVerificationScreen({navigation}) {
           style={{marginTop: 15}}
           mode="contained"
           onPress={() => {
-            console.log(otp.current);
+            console.log(otpInput);
           }}>
           Xác nhận
         </Button>
