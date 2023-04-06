@@ -6,6 +6,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
+import {SignupWithEmail} from '../auth/SignupWithEmail';
 
 const SignUpSchema = yup.object().shape({
   username: yup.string().required('Username is a required field'),
@@ -38,7 +39,8 @@ function SignUpScreen({navigation}) {
   });
   const onSubmit = (data: any) => {
     console.log(data);
-    navigation.navigate('OTPVerificationScreen');
+    SignupWithEmail(data.email, data.password);
+    navigation.navigate('LoginScreen');
   };
 
   return (

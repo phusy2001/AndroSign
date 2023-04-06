@@ -1,11 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
 import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
+import auth from '@react-native-firebase/auth';
+import {SigninWithEmail} from '../auth/SigninWithEmail';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -28,8 +30,22 @@ function LoginScreen({navigation}) {
     resolver: yupResolver(SignInSchema),
   });
   const onSubmit = async (data: any) => {
+    // const axios = new AxiosClient('http://localhost:7777');
+    // console.log('axios', axios);
+
+    // const data2 = axios.get('');
     console.log(data);
+    SigninWithEmail(data.email, data.password);
   };
+
+  useEffect(() => {
+    auth().onAuthStateChanged(user => {
+      console.log('User', user);
+      if (user) {
+        user.getIdToken().then(token => console.log('token', token));
+      }
+    });
+  }, []);
 
   return (
     <KeyboardAvoidingView
