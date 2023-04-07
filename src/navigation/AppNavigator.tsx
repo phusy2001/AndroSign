@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import messaging from '@react-native-firebase/messaging';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -10,7 +10,8 @@ import CustomDrawer from './CustomDrawer';
 import StarredScreen from '../screens/StarredScreen';
 import TrashScreen from '../screens/TrashScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
-import SignScreen from '../screens/SignScreen';
+import TestScreen from '../screens/TestScreen';
+import {useNavigation} from '@react-navigation/native';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -28,14 +29,48 @@ export const AuthStackScreen = () => (
 const Drawer = createDrawerNavigator();
 
 export function AppNavigator() {
-  const [isSignedIn, setIsSignedIn] = React.useState<boolean>(true);
+  const navigation = useNavigation();
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState('Test');
+
+  useEffect(() => {
+    // Assume a message-notification contains a "type" property in the data payload of the screen to open
+
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+      navigation.navigate('Settings');
+    });
+
+    // Check whether an initial notification is available
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log(
+            'Notification caused app to open from quit state:',
+            remoteMessage.notification,
+          );
+          setInitialRoute('Settings'); // e.g. "Settings"
+        }
+        setLoading(false);
+      });
+  }, [navigation]);
+
+  if (loading) {
+    return null;
+  }
+
   return isSignedIn ? (
     <Drawer.Navigator
-      initialRouteName="OTPVerification"
+      initialRouteName="initialRoute"
       drawerContent={props => <CustomDrawer {...props} />}>
       <Drawer.Screen
-        name="OTPVerification"
-        component={OTPVerificationScreen}
+        name="Test"
+        component={TestScreen}
         options={{headerShown: false}}
       />
       <Drawer.Screen

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "915041302350",
+    "project_id": "androsign-1f8f5",
+    "storage_bucket": "androsign-1f8f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915041302350:android:2ec886e169a85f8b77101f",
+        "android_client_info": {
+          "package_name": "com.androsign"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "915041302350-50c3iapqdembqsh8f84bvo3dcc2n3l37.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.androsign",
+            "certificate_hash": "3c9cda1c97994cdcde3021d0690b380d07eade5c"
+          }
+        },
+        {
+          "client_id": "915041302350-b1hgipb5upnc0i2cvri93or0hubq1m8v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD103jtfABVVa5Zfh41Jw6w2eRK6TzHuGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "915041302350-b1hgipb5upnc0i2cvri93or0hubq1m8v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
