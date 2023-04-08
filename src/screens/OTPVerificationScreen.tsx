@@ -4,19 +4,13 @@ import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Button, Text, IconButton} from 'react-native-paper';
 import OTPTextView from '../components/OTPTextView';
+import {useNavigation} from '@react-navigation/native';
 
-function OTPVerificationScreen({navigation}: any) {
+function OTPVerificationScreen() {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
-
-  const [otpInput, setOtpInput] = useState('');
-  const [otpText, setOtpText] = useState(null);
-
-  const handleTextChange = (text: any) => {
-    setOtpText(text);
-  };
-
-  console.log(otpText);
+  const navigation = useNavigation();
+  const otp = useRef(null);
 
   return (
     <KeyboardAvoidingView
@@ -56,7 +50,7 @@ function OTPVerificationScreen({navigation}: any) {
             Chúng tôi đã gửi mã OTP xác nhận qua email của bạn
           </Text>
           <OTPTextView
-            handleTextChange={handleTextChange}
+            handleTextChange={e => console.log(e)}
             inputCount={4}
             inputCellLength={1}
             textInputStyle={{
@@ -67,7 +61,6 @@ function OTPVerificationScreen({navigation}: any) {
             }}
             offTintColor={'black'}
           />
-          <Text>{otpInput}</Text>
         </KeyboardAvoidingView>
       </View>
       <View
@@ -84,7 +77,9 @@ function OTPVerificationScreen({navigation}: any) {
           style={{marginTop: 15}}
           mode="contained"
           onPress={() => {
-            console.log(otpInput);
+            // console.log(otpInput);
+            // navigation.navigate('LoginScreen');
+            console.log(otp.current);
           }}>
           Xác nhận
         </Button>

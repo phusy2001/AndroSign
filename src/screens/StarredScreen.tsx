@@ -26,6 +26,7 @@ import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import PdfSVG from '../assets/images/pdf.svg';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import UnDraw_WarningSVG from '../assets/images/undraw_Warning_re_eoyh 1.svg';
+import DocumentPicker, {types} from 'react-native-document-picker';
 
 function CustomListView({item, onPressMoreFunction}: any) {
   const _clickMoreFunction = () => {
@@ -194,6 +195,15 @@ function StarredScreen() {
   const [status, setStatus] = React.useState<string>('1');
   const [sorting, setSortting] = React.useState<string>('1');
 
+  //Func
+  const uploadFileFunc = React.useCallback(async () => {
+    const response = await DocumentPicker.pick({
+      presentationStyle: 'fullScreen',
+      type: [types.pdf],
+    });
+    console.log(response);
+  }, []);
+
   return (
     <View style={styles.container}>
       <Appbar.Header style={{justifyContent: 'space-between'}}>
@@ -250,9 +260,7 @@ function StarredScreen() {
                 left={() => <List.Icon icon="folder-plus" />}
               />
               <List.Item
-                onPress={() => {
-                  console.log('file upload');
-                }}
+                onPress={uploadFileFunc}
                 title="Tải lên file"
                 left={() => (
                   <List.Icon color={MD3Colors.tertiary70} icon="file-upload" />

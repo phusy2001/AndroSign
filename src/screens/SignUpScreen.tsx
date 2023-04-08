@@ -7,28 +7,30 @@ import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import {SignupWithEmail} from '../auth/SignupWithEmail';
+import {useNavigation} from '@react-navigation/native';
 
 const SignUpSchema = yup.object().shape({
-  username: yup.string().required('Username is a required field'),
+  username: yup.string().required('Tên người dùng là bắt buộc'),
   email: yup
     .string()
-    .email('Email must be a valid email address')
-    .required('Email is a required field'),
+    .email('Vui lòng nhập Email hợp lệ')
+    .required('Email là bắt buộc'),
   password: yup
     .string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password is a required field'),
+    .min(8, 'Mật khẩu phải có ít nhất 8 kí tự')
+    .required('Mật khẩu là bắt buộc'),
   password2: yup
     .string()
-    .required('Re-enter your password')
-    .oneOf([yup.ref('password'), null], 'Your password does not match'),
+    .required('Vui lòng nhập lại mật khẩu')
+    .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng nhau'),
 });
 
-function SignUpScreen({navigation}) {
+function SignUpScreen() {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
   const [hide2, setHide2] = useState(true);
+  const navigation = useNavigation();
 
   const {
     control,
@@ -38,9 +40,9 @@ function SignUpScreen({navigation}) {
     resolver: yupResolver(SignUpSchema),
   });
   const onSubmit = (data: any) => {
-    console.log(data);
-    SignupWithEmail(data.email, data.password);
-    navigation.navigate('LoginScreen');
+    // console.log(data);
+    // SignupWithEmail(data.email, data.password);
+    navigation.navigate('OTPVerificationScreen');
   };
 
   return (
@@ -81,6 +83,7 @@ function SignUpScreen({navigation}) {
                 onChangeText={onChange}
                 value={value}
                 placeholder="Nhập tên của bạn"
+                inputMode="text"
                 textContentType="name"
               />
             )}

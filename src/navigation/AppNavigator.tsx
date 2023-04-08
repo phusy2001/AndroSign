@@ -12,6 +12,12 @@ import TrashScreen from '../screens/TrashScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import TestScreen from '../screens/TestScreen';
 import {useNavigation} from '@react-navigation/native';
+import SignScreen from '../screens/SignScreen';
+import AccountScreen from '../screens/AccountScreen';
+import InfoChangeScreen from '../screens/InfoChangeScreen';
+import PasswordChangeScreen from '../screens/PasswordChangeScreen';
+import SignatureSettingScreen from '../screens/SignatureSettingScreen';
+import SignatureAddScreen from '../screens/SignatureAddScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -27,6 +33,34 @@ export const AuthStackScreen = () => (
 );
 
 const Drawer = createDrawerNavigator();
+export const DrawerNavigator = () => {
+  return (
+    <Drawer.Navigator
+      initialRouteName="Account"
+      drawerContent={props => <CustomDrawer {...props} />}>
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Starred"
+        component={StarredScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Trash"
+        component={TrashScreen}
+        options={{headerShown: false}}
+      />
+    </Drawer.Navigator>
+  );
+};
 
 export function AppNavigator() {
   const navigation = useNavigation();
@@ -64,32 +98,48 @@ export function AppNavigator() {
     return null;
   }
 
-  return isSignedIn ? (
-    <Drawer.Navigator
-      initialRouteName="initialRoute"
-      drawerContent={props => <CustomDrawer {...props} />}>
-      <Drawer.Screen
-        name="Test"
-        component={TestScreen}
+  return (
+    <AuthStack.Navigator initialRouteName="LoginScreen">
+      <AuthStack.Screen
+        name="SignUpScreen"
+        component={SignUpScreen}
         options={{headerShown: false}}
       />
-      <Drawer.Screen
-        name="Settings"
-        component={SettingsScreen}
+      <AuthStack.Screen
+        name="LoginScreen"
+        component={LoginScreen}
         options={{headerShown: false}}
       />
-      <Drawer.Screen
-        name="Starred"
-        component={StarredScreen}
+      <AuthStack.Screen
+        name="OTPVerificationScreen"
+        component={OTPVerificationScreen}
         options={{headerShown: false}}
       />
-      <Drawer.Screen
-        name="Trash"
-        component={TrashScreen}
+      <AuthStack.Screen
+        name="InfoChange"
+        component={InfoChangeScreen}
         options={{headerShown: false}}
       />
-    </Drawer.Navigator>
-  ) : (
-    <AuthStackScreen />
+      <AuthStack.Screen
+        name="PasswordChange"
+        component={PasswordChangeScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="SignatureSetting"
+        component={SignatureSettingScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="SignatureAdd"
+        component={SignatureAddScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="Drawer"
+        component={DrawerNavigator}
+        options={{headerShown: false}}
+      />
+    </AuthStack.Navigator>
   );
 }

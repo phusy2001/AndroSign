@@ -8,6 +8,7 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import {SigninWithEmail} from '../auth/SigninWithEmail';
+import {useNavigation} from '@react-navigation/native';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -17,10 +18,11 @@ const SignInSchema = yup.object().shape({
   password: yup.string().required('Password is a required field'),
 });
 
-function LoginScreen({navigation}) {
+function LoginScreen() {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
+  const navigation = useNavigation();
 
   const {
     control,
@@ -34,8 +36,9 @@ function LoginScreen({navigation}) {
     // console.log('axios', axios);
 
     // const data2 = axios.get('');
-    console.log(data);
-    SigninWithEmail(data.email, data.password);
+    // console.log(data);
+    // SigninWithEmail(data.email, data.password);
+    navigation.navigate('Drawer');
   };
 
   useEffect(() => {

@@ -30,7 +30,7 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="folder" size={24} color="#000" />}
             label="Thư mục"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Folders')}
           />
           <DrawerItem
             icon={() => <Icon name="star" size={24} color="#000" />}
@@ -46,12 +46,12 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="account" size={24} color="#000" />}
             label="Tài khoản"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Account')}
           />
           <DrawerItem
             icon={() => <Icon name="cog" size={24} color="#000" />}
             label="Cài đặt"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Settings')}
           />
         </View>
         <View style={{paddingHorizontal: 20}}>
