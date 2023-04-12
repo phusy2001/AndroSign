@@ -202,6 +202,10 @@ function StarredScreen() {
       type: [types.pdf],
     });
     console.log(response);
+    navigation.navigate('DocumentSign', {
+      name: response[0].name,
+      path: response[0].uri,
+    });
   }, []);
 
   return (

@@ -12,7 +12,7 @@ import TrashScreen from '../screens/TrashScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import TestScreen from '../screens/TestScreen';
 import {useNavigation} from '@react-navigation/native';
-import SignScreen from '../screens/SignScreen';
+import DocumentSignScreen from '../screens/DocumentSignScreen';
 import AccountScreen from '../screens/AccountScreen';
 import InfoChangeScreen from '../screens/InfoChangeScreen';
 import PasswordChangeScreen from '../screens/PasswordChangeScreen';
@@ -133,6 +133,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="SignatureAdd"
         component={SignatureAddScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="DocumentSign"
+        component={DocumentSignScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
