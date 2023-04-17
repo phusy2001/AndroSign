@@ -1,16 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, ScrollView} from 'react-native';
-import {Appbar, Text, Avatar, IconButton} from 'react-native-paper';
+import {Appbar, Text, Avatar, IconButton, Divider} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-function AccountScreen({navigation}) {
+function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const isDrawerOpen = useDrawerStatus() === 'open';
-  const _handleDrawer = () => {
+  const handleDrawer = () => {
     if (!isDrawerOpen) {
       navigation.dispatch(DrawerActions.openDrawer());
     }
@@ -25,7 +25,7 @@ function AccountScreen({navigation}) {
         backgroundColor: '#fff',
       }}>
       <Appbar.Header style={{justifyContent: 'space-between'}}>
-        <Appbar.Action icon="format-list-bulleted" onPress={_handleDrawer} />
+        <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
         <Text style={{fontSize: 20, fontWeight: '700'}}>Tài khoản</Text>
@@ -107,6 +107,7 @@ function AccountScreen({navigation}) {
             MIỄN PHÍ
           </Text>
         </View>
+        <Divider bold={true}></Divider>
         <View
           style={{
             paddingLeft: 20,
@@ -116,7 +117,6 @@ function AccountScreen({navigation}) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            borderTopWidth: 0.5,
           }}>
           <Text
             style={{
@@ -137,6 +137,7 @@ function AccountScreen({navigation}) {
             </Text>
           </View>
         </View>
+        <Divider bold={true}></Divider>
         <View
           style={{
             paddingLeft: 20,
@@ -146,7 +147,6 @@ function AccountScreen({navigation}) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            borderTopWidth: 0.5,
           }}>
           <Text
             style={{
@@ -167,6 +167,7 @@ function AccountScreen({navigation}) {
             </Text>
           </View>
         </View>
+        <Divider bold={true}></Divider>
         <View
           style={{
             paddingLeft: 20,
@@ -176,7 +177,6 @@ function AccountScreen({navigation}) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            borderTopWidth: 0.5,
           }}>
           <Text
             style={{
@@ -197,6 +197,7 @@ function AccountScreen({navigation}) {
             </Text>
           </View>
         </View>
+        <Divider bold={true}></Divider>
         <View
           style={{
             paddingLeft: 20,
@@ -206,7 +207,6 @@ function AccountScreen({navigation}) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            borderTopWidth: 0.5,
           }}>
           <Text
             style={{
@@ -255,12 +255,12 @@ function AccountScreen({navigation}) {
               justifyContent: 'space-between',
               alignItems: 'center',
               display: 'flex',
-              borderBottomWidth: 0.5,
             }}>
             <Text style={{fontSize: 16}}>Đổi mật khẩu</Text>
             <IconButton icon="arrow-right" size={24} />
           </View>
         </TouchableOpacity>
+        <Divider bold={true}></Divider>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('SignatureSetting');

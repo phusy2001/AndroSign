@@ -19,7 +19,7 @@ const ChangePasswordSchema = yup.object().shape({
     .oneOf([yup.ref('nPassword'), null], 'Mật khẩu không trùng nhau'),
 });
 
-function PasswordChangeScreen({navigation}) {
+function PasswordChangeScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide0, setHide0] = useState(true);

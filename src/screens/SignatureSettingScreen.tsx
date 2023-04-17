@@ -10,7 +10,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {Text, IconButton, Button, Divider} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-function SignatureSettingScreen({navigation}) {
+function SignatureSettingScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const editModalRef = React.useRef<BottomSheetModal>(null);

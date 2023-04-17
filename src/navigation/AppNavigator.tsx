@@ -18,6 +18,7 @@ import InfoChangeScreen from '../screens/InfoChangeScreen';
 import PasswordChangeScreen from '../screens/PasswordChangeScreen';
 import SignatureSettingScreen from '../screens/SignatureSettingScreen';
 import SignatureAddScreen from '../screens/SignatureAddScreen';
+import DocumentShareScreen from '../screens/DocumentShareScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -36,7 +37,7 @@ const Drawer = createDrawerNavigator();
 export const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Account"
+      initialRouteName="Starred"
       drawerContent={props => <CustomDrawer {...props} />}>
       <Drawer.Screen
         name="Settings"
@@ -138,6 +139,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="DocumentSign"
         component={DocumentSignScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="DocumentShare"
+        component={DocumentShareScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

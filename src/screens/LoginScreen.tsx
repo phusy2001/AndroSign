@@ -18,12 +18,10 @@ const SignInSchema = yup.object().shape({
   password: yup.string().required('Password is a required field'),
 });
 
-function LoginScreen() {
+function LoginScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
-  const navigation = useNavigation();
-
   const {
     control,
     handleSubmit,

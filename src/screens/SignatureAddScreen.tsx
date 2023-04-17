@@ -5,7 +5,7 @@ import {IconButton} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import SignatureView, {SignatureViewRef} from 'react-native-signature-canvas';
 
-function SignatureAddScreen({navigation}) {
+function SignatureAddScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const signatureRef = React.useRef<SignatureViewRef>(null);
   const handleConfirm = signature => {};

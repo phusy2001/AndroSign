@@ -18,7 +18,7 @@ const InfoSchema = yup.object().shape({
   address: yup.string(),
 });
 
-function InfoChangeScreen({navigation}) {
+function InfoChangeScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
 

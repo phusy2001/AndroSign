@@ -25,12 +25,11 @@ const SignUpSchema = yup.object().shape({
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng nhau'),
 });
 
-function SignUpScreen() {
+function SignUpScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
   const [hide2, setHide2] = useState(true);
-  const navigation = useNavigation();
 
   const {
     control,

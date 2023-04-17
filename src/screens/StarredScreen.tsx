@@ -11,25 +11,28 @@ import {
   Card,
   Divider,
   FAB,
-  IconButton,
   List,
-  MD3Colors,
   RadioButton,
   Searchbar,
   Text,
+  IconButton,
 } from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
-import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetBackdrop,
+} from '@gorhom/bottom-sheet';
 import PdfSVG from '../assets/images/pdf.svg';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import UnDraw_WarningSVG from '../assets/images/undraw_Warning_re_eoyh 1.svg';
 import DocumentPicker, {types} from 'react-native-document-picker';
 
 function CustomListView({item, onPressMoreFunction}: any) {
-  const _clickMoreFunction = () => {
+  const clickMoreFunction = () => {
     onPressMoreFunction(item);
   };
   return (
@@ -39,38 +42,32 @@ function CustomListView({item, onPressMoreFunction}: any) {
         subtitle="Card Subtitle"
         left={() => <PdfSVG width={43} height={52} />}
       />
-      <Card.Content style={{position: 'absolute', top: 10, right: 0}}>
-        <Icon name="star" size={24} color="#FFD600" />
+      <Card.Content
+        style={{
+          position: 'absolute',
+          top: '20%',
+          right: 0,
+        }}>
+        <IconButton
+          onPress={clickMoreFunction}
+          icon="dots-horizontal"
+          size={24}
+          // color="#FFD600"
+        />
       </Card.Content>
-      {/* <Card.Content style={{position: 'absolute', top: 10, right: 0}}>
-        <View style={{flexDirection: 'column', alignItems: 'center'}}>
-          <IconButton
-            style={{borderWidth: 0}}
-            mode="outlined"
-            icon="history"
-            size={24}
-            onPress={() => console.log('Pressed')}
-          />
-        </View>
-      </Card.Content> */}
     </Card>
   );
 }
 
-function StarredScreen() {
+function StarredScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const onChangeSearch = (query: string) => setSearchQuery(query);
-
-  const navigation = useNavigation();
   const isFocused = useIsFocused();
-
   const isDrawerOpen = useDrawerStatus() === 'open';
-
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
-
-  const _handleDrawer = () => {
+  const handleDrawer = () => {
     if (!isDrawerOpen) {
       navigation.dispatch(DrawerActions.openDrawer());
     }
@@ -81,12 +78,8 @@ function StarredScreen() {
     const response = await fetch(
       'https://64037282302b5d671c4fb4c0.mockapi.io/file',
     );
-    // const response = await fetch(
-    //   `https://example.com/data?page=${pageNumber}&pageSize=${PAGE_SIZE}`,
-    // );
     const newData = await response.json();
     setData([...data, ...newData]);
-    // setData([]);
     setPageNumber(pageNumber + 1);
     setIsLoading(false);
   };
@@ -97,7 +90,6 @@ function StarredScreen() {
 
   React.useEffect(() => {
     const currentRef = uploadModalRef.current;
-
     if (!isFocused) {
       // do something when the screen loses focus
       currentRef?.dismiss();
@@ -119,46 +111,17 @@ function StarredScreen() {
     }
   };
 
-  const renderData = async () => {
-    if (data) {
-      return (
-        <View style={styles.content}>
-          <FlashList
-            data={data}
-            renderItem={({item}) => (
-              <CustomListView
-                item={item}
-                onPressMoreFunction={handlePressMoreFunction}
-              />
-            )}
-            keyExtractor={(item: any) => item?.id}
-            onEndReached={loadData}
-            onEndReachedThreshold={0.5}
-            estimatedItemSize={100}
-            ListFooterComponent={renderFooter}
-          />
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.content}>
-          <PdfSVG width={43} height={52} />
-        </View>
-      );
-    }
-  };
-
-  //modal ref
+  // Modal ref
   const uploadModalRef = React.useRef<BottomSheetModal>(null);
   const filterModalRef = React.useRef<BottomSheetModal>(null);
   const editModalRef = React.useRef<BottomSheetModal>(null);
 
-  // variables
+  // Variables
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
-  const filterSnapPoints = React.useMemo(() => ['50%'], []);
-  const editSnapPoints = React.useMemo(() => ['50%'], []);
+  const filterSnapPoints = React.useMemo(() => ['60%'], []);
+  const editSnapPoints = React.useMemo(() => ['70%'], []);
 
-  // callbacks
+  // Callbacks
   const handlePresentUploadModalPress = React.useCallback(() => {
     if (filterModalRef || editModalRef) {
       filterModalRef.current?.dismiss();
@@ -184,12 +147,11 @@ function StarredScreen() {
   }, []);
 
   const handleSheetChanges = React.useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
+    // console.log('handleSheetChanges', index);
   }, []);
 
   const handleDismiss = () => {
-    //handle dismiss
-    console.log('handle dismiss');
+    // console.log('handle dismiss');
   };
 
   const [status, setStatus] = React.useState<string>('1');
@@ -201,17 +163,29 @@ function StarredScreen() {
       presentationStyle: 'fullScreen',
       type: [types.pdf],
     });
-    console.log(response);
     navigation.navigate('DocumentSign', {
       name: response[0].name,
       path: response[0].uri,
     });
   }, []);
 
+  const renderBackdrop = React.useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={1}
+        animatedIndex={{
+          value: 1,
+        }}
+      />
+    ),
+    [],
+  );
+
   return (
     <View style={styles.container}>
       <Appbar.Header style={{justifyContent: 'space-between'}}>
-        <Appbar.Action icon="format-list-bulleted" onPress={_handleDrawer} />
+        <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
         <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
@@ -250,6 +224,7 @@ function StarredScreen() {
         <BottomSheetModal
           ref={uploadModalRef}
           index={0}
+          backdropComponent={renderBackdrop}
           snapPoints={uploadSnapPoints}
           enablePanDownToClose={true}
           onDismiss={handleDismiss}
@@ -257,18 +232,14 @@ function StarredScreen() {
           <View style={{padding: 20}}>
             <List.Section>
               <List.Item
-                onPress={() => {
-                  console.log('add folder');
-                }}
-                title="Tạo thư mục"
+                onPress={() => {}}
+                title={<Text style={{fontSize: 16}}>Tạo thư mục</Text>}
                 left={() => <List.Icon icon="folder-plus" />}
               />
               <List.Item
                 onPress={uploadFileFunc}
-                title="Tải lên file"
-                left={() => (
-                  <List.Icon color={MD3Colors.tertiary70} icon="file-upload" />
-                )}
+                title={<Text style={{fontSize: 16}}>Tải lên file</Text>}
+                left={() => <List.Icon icon="file-upload" />}
               />
             </List.Section>
           </View>
@@ -276,20 +247,25 @@ function StarredScreen() {
         <BottomSheetModal
           ref={filterModalRef}
           index={0}
+          backdropComponent={renderBackdrop}
           snapPoints={filterSnapPoints}
           enablePanDownToClose={true}
           onDismiss={handleDismiss}
           onChange={handleSheetChanges}>
           <View style={{padding: 20}}>
             <View style={{marginBottom: 10}}>
-              <Text variant="labelLarge">Trạng thái</Text>
+              <Text
+                variant="labelLarge"
+                style={{fontSize: 20, marginBottom: 10}}>
+                Trạng thái
+              </Text>
               <RadioButton.Group
                 onValueChange={newStatus => setStatus(newStatus)}
                 value={status}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <RadioButton value="1" />
                   <View style={{marginLeft: 20}}>
-                    <Text>Tất cả</Text>
+                    <Text style={{fontSize: 16}}>Tất cả</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -304,7 +280,7 @@ function StarredScreen() {
                         marginLeft: 20,
                         marginRight: 8,
                       }}></View>
-                    <Text>Đang xử lý</Text>
+                    <Text style={{fontSize: 16}}>Đang xử lý</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -323,32 +299,36 @@ function StarredScreen() {
                         backgroundColor: '#42FF00',
                         marginRight: 8,
                       }}></View>
-                    <Text>Đã ký</Text>
+                    <Text style={{fontSize: 16}}>Đã ký</Text>
                   </View>
                 </View>
               </RadioButton.Group>
             </View>
             <View style={{marginBottom: 10}}>
-              <Text variant="labelLarge">Sắp xếp</Text>
+              <Text
+                variant="labelLarge"
+                style={{fontSize: 20, marginBottom: 10}}>
+                Sắp xếp
+              </Text>
               <RadioButton.Group
                 onValueChange={sortValue => setSortting(sortValue)}
                 value={sorting}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <RadioButton value="1" />
                   <View style={{marginLeft: 20}}>
-                    <Text>Cập nhật gần đây</Text>
+                    <Text style={{fontSize: 16}}>Cập nhật gần đây</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <RadioButton value="2" />
                   <View style={{marginLeft: 20}}>
-                    <Text>Tên tài liệu</Text>
+                    <Text style={{fontSize: 16}}>Tên tài liệu</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <RadioButton value="3" />
                   <View style={{marginLeft: 20}}>
-                    <Text>Ngày tạo</Text>
+                    <Text style={{fontSize: 16}}>Ngày tạo</Text>
                   </View>
                 </View>
               </RadioButton.Group>
@@ -365,6 +345,7 @@ function StarredScreen() {
         <BottomSheetModal
           ref={editModalRef}
           index={0}
+          backdropComponent={renderBackdrop}
           snapPoints={editSnapPoints}
           enablePanDownToClose={true}
           onDismiss={handleDismiss}
@@ -376,43 +357,63 @@ function StarredScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    paddingLeft: 10,
+                    paddingLeft: 30,
+                    paddingTop: 15,
                   }}>
                   <PdfSVG width={43} height={52} />
                   <View style={{justifyContent: 'center', paddingLeft: 20}}>
-                    <Text variant="titleMedium">file-example.pdf</Text>
+                    <Text
+                      variant="titleMedium"
+                      numberOfLines={1}
+                      style={{fontSize: 20}}>
+                      file-example.pdf
+                    </Text>
                     <Text variant="bodyMedium">03/02/2023 at 5:40</Text>
                   </View>
                 </View>
+                <Divider
+                  bold={true}
+                  style={{
+                    marginTop: 15,
+                  }}></Divider>
                 <List.Section>
                   <List.Item
-                    title="Mở tài liệu"
+                    title={<Text style={{fontSize: 16}}>Mở tài liệu</Text>}
                     left={props => (
                       <List.Icon {...props} icon="file-document" />
                     )}
                   />
                   <List.Item
-                    title="Chia sẻ"
+                    onPress={() => {
+                      navigation.navigate('DocumentShare');
+                    }}
+                    title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
                     left={props => <List.Icon {...props} icon="share" />}
                   />
                   <List.Item
-                    title="In tài liệu"
+                    title={<Text style={{fontSize: 16}}>In tài liệu</Text>}
                     left={props => <List.Icon {...props} icon="printer" />}
                   />
                   <List.Item
-                    title="Thêm vào thử mục"
+                    title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
                     left={props => <List.Icon {...props} icon="folder" />}
                   />
                   <List.Item
-                    title="Đánh dấu sao"
+                    title={<Text style={{fontSize: 16}}>Đánh dấu sao</Text>}
                     left={props => <List.Icon {...props} icon="star" />}
                   />
                 </List.Section>
-                <Divider />
+                <View style={{paddingLeft: 20, paddingRight: 20}}>
+                  <Divider bold={true}></Divider>
+                </View>
                 <List.Section>
                   <List.Item
-                    title="Xoá"
-                    left={props => <List.Icon {...props} icon="trash-can" />}
+                    title={
+                      <Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>
+                    }
+                    left={props => (
+                      <List.Icon {...props} color="red" icon="trash-can" />
+                    )}
                   />
                 </List.Section>
               </View>
