@@ -10,7 +10,6 @@ import CustomDrawer from './CustomDrawer';
 import StarredScreen from '../screens/StarredScreen';
 import TrashScreen from '../screens/TrashScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
-import TestScreen from '../screens/TestScreen';
 import {useNavigation} from '@react-navigation/native';
 import DocumentSignScreen from '../screens/DocumentSignScreen';
 import AccountScreen from '../screens/AccountScreen';
@@ -19,6 +18,8 @@ import PasswordChangeScreen from '../screens/PasswordChangeScreen';
 import SignatureSettingScreen from '../screens/SignatureSettingScreen';
 import SignatureAddScreen from '../screens/SignatureAddScreen';
 import DocumentShareScreen from '../screens/DocumentShareScreen';
+import auth from '@react-native-firebase/auth';
+import OnboardingScreen from '../screens/OnboardingScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -99,8 +100,38 @@ export function AppNavigator() {
     return null;
   }
 
-  return (
-    <AuthStack.Navigator initialRouteName="LoginScreen">
+  return auth().currentUser ? (
+    <Drawer.Navigator
+      initialRouteName="Starred"
+      drawerContent={props => <CustomDrawer {...props} />}>
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Starred"
+        component={StarredScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Trash"
+        component={TrashScreen}
+        options={{headerShown: false}}
+      />
+    </Drawer.Navigator>
+  ) : (
+    <AuthStack.Navigator initialRouteName="Onboarding">
+      <AuthStack.Screen
+        name="Onboarding"
+        component={OnboardingScreen}
+        options={{headerShown: false}}
+      />
       <AuthStack.Screen
         name="SignUpScreen"
         component={SignUpScreen}

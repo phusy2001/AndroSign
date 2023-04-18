@@ -1,4 +1,6 @@
 import {create} from 'zustand';
+import {signinWithEmail, signout} from '../services/auth';
+import auth from '@react-native-firebase/auth';
 
 interface User {
   idToken: string;
@@ -8,7 +10,6 @@ interface User {
   expiresIn: string;
   localId: string;
   registered?: boolean;
-  roles: [];
 }
 
 interface AuthState {
@@ -22,7 +23,7 @@ type State = {
 
 type Actions = {
   signup: (auth: AuthState) => void;
-  login: (auth: AuthState) => void;
+  login: (email: string, password: string) => void;
   logout: () => void;
 };
 
@@ -37,7 +38,6 @@ const authStore = create<State & Actions>(set => ({
       expiresIn: '',
       localId: '',
       registered: false,
-      roles: [],
     },
   },
 
@@ -52,43 +52,49 @@ const authStore = create<State & Actions>(set => ({
           refreshToken: auth.user.refreshToken,
           expiresIn: auth.user.expiresIn,
           localId: '',
-          roles: [],
         },
       },
     })),
 
-  login: (auth: AuthState) =>
-    set(() => ({
-      auth: {
-        isLoggedIn: true,
-        user: {
-          idToken: auth.user.idToken,
-          email: auth.user.email,
-          displayName: auth.user.displayName,
-          refreshToken: auth.user.refreshToken,
-          expiresIn: auth.user.expiresIn,
-          localId: auth.user.localId,
-          registered: auth.user.registered,
-          roles: [...auth.user.roles],
-        },
-      },
-    })),
+  login: async (email: string, password: string) => {
+    console.log('Before Login Current user', auth().currentUser);
+    const response = await signinWithEmail(email, password);
+    console.log('Login data', response.user);
+    console.log('After Login Current user', auth().currentUser);
+    // set(() => ({
+    //   auth: {
+    //     isLoggedIn: true,
+    //     user: {
+    //       idToken: auth.user.idToken,
+    //       email: auth.user.email,
+    //       displayName: auth.user.displayName,
+    //       refreshToken: auth.user.refreshToken,
+    //       expiresIn: auth.user.expiresIn,
+    //       localId: auth.user.localId,
+    //       registered: auth.user.registered,
+    //     },
+    //   },
+    // })),
+  },
 
-  logout: () =>
-    set(() => ({
-      auth: {
-        isLoggedIn: false,
-        user: {
-          idToken: '',
-          email: '',
-          displayName: '',
-          refreshToken: '',
-          expiresIn: '',
-          localId: '',
-          roles: [],
-        },
-      },
-    })),
+  logout: async () => {
+    console.log('Before Signout Current user', auth().currentUser);
+    await signout();
+    console.log('After Signout Current user', auth().currentUser);
+    // set(() => ({
+    //   auth: {
+    //     isLoggedIn: false,
+    //     user: {
+    //       idToken: '',
+    //       email: '',
+    //       displayName: '',
+    //       refreshToken: '',
+    //       expiresIn: '',
+    //       localId: '',
+    //     },
+    //   },
+    // })),
+  },
 }));
 
 export default authStore;

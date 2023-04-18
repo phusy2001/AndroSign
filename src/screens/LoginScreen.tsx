@@ -7,8 +7,7 @@ import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
-import {SigninWithEmail} from '../auth/SigninWithEmail';
-import {useNavigation} from '@react-navigation/native';
+import authStore from '../store/authStore';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -22,6 +21,10 @@ function LoginScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
+
+  const login = authStore(state => state.login);
+  const logout = authStore(state => state.logout);
+
   const {
     control,
     handleSubmit,
@@ -32,10 +35,11 @@ function LoginScreen({navigation, route}: any) {
   const onSubmit = async (data: any) => {
     // const axios = new AxiosClient('http://localhost:7777');
     // console.log('axios', axios);
-
     // const data2 = axios.get('');
-    // console.log(data);
-    // SigninWithEmail(data.email, data.password);
+
+    login(data.email, data.password);
+    //logout();
+    //Check user before navigate to InApp
     navigation.navigate('Drawer');
   };
 
