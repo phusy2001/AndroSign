@@ -5,8 +5,11 @@ import React, {useEffect} from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AppNavigator} from './navigation';
+import SplashScreen from './screens/SplashScreen';
 
 export default function App() {
+  const [loading, setLoading] = React.useState(true);
+
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       notifee.createChannel({
@@ -41,10 +44,16 @@ export default function App() {
     });
   }, []);
 
+  React.useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <AppNavigator />
+        {loading ? <SplashScreen /> : <AppNavigator />}
       </NavigationContainer>
     </SafeAreaProvider>
   );

@@ -7,9 +7,21 @@ import {Button, Divider} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {Dimensions} from 'react-native';
+import {signout} from '../services/auth';
+import {navigate} from './RootNavigation';
 const windowHeight = Dimensions.get('window').height;
 
 function CustomDrawer(props: any) {
+  const logout = async () => {
+    try {
+      await signout();
+      console.log('Logout successfully!');
+      navigate('Login', {});
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <DrawerContentScrollView {...props}>
       <View
@@ -60,7 +72,7 @@ function CustomDrawer(props: any) {
             mode="contained"
             buttonColor="#EBD6D6"
             textColor="#6B2B2B"
-            onPress={() => console.log('Logout')}>
+            onPress={logout}>
             Đăng xuất
           </Button>
         </View>

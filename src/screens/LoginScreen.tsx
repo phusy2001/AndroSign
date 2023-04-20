@@ -1,13 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
-import {Text, Button, TextInput} from 'react-native-paper';
+import {View, KeyboardAvoidingView, Dimensions, StyleSheet} from 'react-native';
+import {Text, Button, TextInput, Snackbar} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
-import authStore from '../store/authStore';
+import {signinWithEmail} from '../services/auth';
+import {navigate} from '../navigation/RootNavigation';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -21,9 +22,15 @@ function LoginScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [snackbarContent, setSnackbarContent] = useState('');
 
-  const login = authStore(state => state.login);
-  const logout = authStore(state => state.logout);
+  const onToggleSnackBar = (mssgError: string) => {
+    setSnackbarContent(mssgError);
+    setVisible(!visible);
+  };
+
+  const onDismissSnackBar = () => setVisible(false);
 
   const {
     control,
@@ -33,14 +40,12 @@ function LoginScreen({navigation, route}: any) {
     resolver: yupResolver(SignInSchema),
   });
   const onSubmit = async (data: any) => {
-    // const axios = new AxiosClient('http://localhost:7777');
-    // console.log('axios', axios);
-    // const data2 = axios.get('');
-
-    login(data.email, data.password);
-    //logout();
-    //Check user before navigate to InApp
-    navigation.navigate('Drawer');
+    try {
+      await signinWithEmail(data.email, data.password);
+      navigation.navigate('Onboarding');
+    } catch (error: any) {
+      onToggleSnackBar(error.code);
+    }
   };
 
   useEffect(() => {
@@ -62,7 +67,7 @@ function LoginScreen({navigation, route}: any) {
         paddingRight: 30,
         flex: 1,
       }}>
-      <View style={{height: screenHeight - 100}}>
+      <View style={(styles.container, {height: screenHeight - 100})}>
         <Text
           style={{
             marginTop: 70,
@@ -173,9 +178,29 @@ function LoginScreen({navigation, route}: any) {
           contentStyle={{flexDirection: 'row-reverse'}}>
           Đăng nhập
         </Button>
+        <Snackbar
+          style={{position: 'absolute', bottom: 0}}
+          visible={visible}
+          onDismiss={onDismissSnackBar}
+          action={{
+            label: '',
+            icon: 'close',
+            onPress: () => {
+              onDismissSnackBar();
+            },
+          }}>
+          {snackbarContent}
+        </Snackbar>
       </View>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+});
 
 export default LoginScreen;

@@ -126,24 +126,24 @@ export function AppNavigator() {
       />
     </Drawer.Navigator>
   ) : (
-    <AuthStack.Navigator initialRouteName="Onboarding">
+    <AuthStack.Navigator initialRouteName="Login">
+      <AuthStack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{headerShown: false}}
+      />
       <AuthStack.Screen
         name="Onboarding"
         component={OnboardingScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
-        name="SignUpScreen"
-        component={SignUpScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
-        name="LoginScreen"
-        component={LoginScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
-        name="OTPVerificationScreen"
+        name="OTPVerification"
         component={OTPVerificationScreen}
         options={{headerShown: false}}
       />

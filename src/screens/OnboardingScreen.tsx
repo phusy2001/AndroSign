@@ -4,6 +4,8 @@ import {Image, StyleSheet, View} from 'react-native';
 import {Button, IconButton, Text} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
+import {getData, storeData} from '../utils/asyncStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const slides = [
   {
@@ -42,10 +44,44 @@ function OnboardingScreen({navigation}) {
     }
   };
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
     // Handle button press on last slide
-    navigation.navigate('LoginScreen');
+    try {
+      await storeData('hasLoggedIn', 'false');
+      navigation.navigate('Account');
+    } catch (error) {
+      // Handle error here
+      console.log(error);
+      return false;
+    }
   };
+
+  const checkFirstLogin = async () => {
+    try {
+      const value = await getData('hasLoggedIn');
+      if (value !== null) {
+        // Value exists, not first login
+        if (value === true) {
+          return true;
+        } else {
+          navigation.navigate('Drawer');
+          return false;
+        }
+      } else {
+        // Value does not exist, first login
+        await storeData('hasLoggedIn', 'true');
+        return true;
+      }
+    } catch (error) {
+      // Handle error here
+      console.log(error);
+      return false;
+    }
+  };
+
+  React.useEffect(() => {
+    checkFirstLogin();
+  }, []);
 
   return (
     <View

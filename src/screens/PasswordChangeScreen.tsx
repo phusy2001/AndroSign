@@ -33,9 +33,7 @@ function PasswordChangeScreen({navigation}: any) {
   } = useForm({
     resolver: yupResolver(ChangePasswordSchema),
   });
-  const onSubmit = (data: any) => {
-    console.log(data);
-  };
+  const onSubmit = (data: any) => {};
 
   return (
     <KeyboardAvoidingView
