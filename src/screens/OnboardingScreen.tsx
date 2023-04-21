@@ -48,7 +48,7 @@ function OnboardingScreen({navigation}) {
     // Handle button press on last slide
     try {
       await storeData('hasLoggedIn', 'false');
-      navigation.navigate('Account');
+      navigation.navigate('Drawer');
     } catch (error) {
       // Handle error here
       console.log(error);

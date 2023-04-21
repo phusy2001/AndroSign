@@ -159,7 +159,7 @@ function LoginScreen({navigation, route}: any) {
               fontSize: 16,
               color: 'blue',
             }}
-            onPress={() => navigation.navigate('SignUpScreen')}>
+            onPress={() => navigation.navigate('SignUp')}>
             Đăng ký ngay
           </Text>
         </View>

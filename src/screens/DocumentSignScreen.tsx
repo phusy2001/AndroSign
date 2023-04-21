@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import {
   PermissionsAndroid,
   Platform,
@@ -16,8 +17,12 @@ import {
 } from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
+const client = axios.create({
+  baseURL: 'http://10.0.2.2:3333/document',
+});
+
 function DocumentSignScreen({route, navigation}: any) {
-  const {name, path} = route.params;
+  const {name, path, file, action, id} = route.params;
   const insets = useSafeAreaInsets();
   const [permissionGranted, setPermissionGranted] = React.useState<boolean>(
     Platform.OS === 'ios' ? true : false,
@@ -60,13 +65,12 @@ function DocumentSignScreen({route, navigation}: any) {
   };
 
   React.useEffect(() => {
-    RNPdftron.initialize('Insert commercial license key here after purchase');
+    RNPdftron.initialize('');
     RNPdftron.enableJavaScript(true);
-
     if (Platform.OS === 'android') {
       requestStoragePermission();
     }
-  });
+  }, []);
 
   if (!permissionGranted) {
     // return (
@@ -76,11 +80,61 @@ function DocumentSignScreen({route, navigation}: any) {
     // );
   }
 
-  const saveDocument = React.useCallback(() => {
-    documentView.current.saveDocument().then(filePath => {
-      console.log('saveDocument:', filePath);
-      navigation.goBack();
-    });
+  const saveDocument = React.useCallback(async () => {
+    const xfdf = await documentView.current.exportAnnotations();
+    const formData = new FormData();
+    formData.append('name', name.replace('.pdf', ''));
+    formData.append('xfdf', xfdf);
+    formData.append('file', file);
+    if (action === 'upload') {
+      const result = await client.post('/upload', formData, {
+        headers: {
+          Accept: 'application/json',
+          'content-type': 'multipart/form-data',
+        },
+      });
+    }
+    navigation.goBack();
+    // axios.post('/upload');
+    // console.log(documentView.current.rotateClockwise());
+    // documentView.current.importAnnotations(xfdf);
+    // documentView.current.saveDocument().then(filePath => {
+    //   console.log('saveDocument:', filePath);
+    //   navigation.goBack();
+    // });
+    // documentView.current.exportAnnotations().then(xfdf => {
+    //   console.log(xfdf);
+    // });
+    // let page = 0;
+    // documentView.current.getPageCount().then(pageCount => {
+    //   console.log('pageCount', pageCount);
+    //   page = pageCount;
+    //   for (let i = 1; i <= page; i++) {
+    //     documentView.current.getAnnotationsOnPage(i).then(annotations => {
+    //       for (const annotation of annotations) {
+    //         //console.log(`Annotation found on page ${i} has id:`, annotation);
+    //         documentView.current
+    //           .getPropertiesForAnnotation(annotation.id, i)
+    //           .then(properties => {
+    //             if (properties) {
+    //               console.log('Properties for annotation: ', properties);
+    //             }
+    //           });
+    //       }
+    //     });
+    //   }
+    // });
+    // documentView.current.getAnnotationsOnPage(1).then(annotations => {
+    //   for (const annotation of annotations) {
+    //     console.log(`Annotation found on page 1 has id:`, annotation);
+    //   }
+    // });
+    // console.log(documentView.current.annotations);
+    // documentView.current
+    //   .exportAsImage(1, 92, Config.ExportFormat.BMP)
+    //   .then(path => {
+    //     console.log('export', path);
+    //   });
   }, []);
 
   const cancelDocument = React.useCallback(() => {
@@ -93,7 +147,7 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
       Config.Tools.annotationCreateFreeText,
-      Config.Tools.annotationCreateSignature,
+      // Config.Tools.annotationCreateSignature,
       Config.Tools.formCreateSignatureField,
       Config.Buttons.undo,
       Config.Buttons.redo,
@@ -147,6 +201,18 @@ function DocumentSignScreen({route, navigation}: any) {
         annotationToolbars={[myToolbar]}
         longPressMenuEnabled={false}
         autoSaveEnabled={false}
+        flattenAnnotations={false}
+        onDocumentLoaded={async () => {
+          if (action === 'edit' && id) {
+            const result = await client.get('/getXfdf', {
+              params: {id},
+            });
+            documentView.current.importAnnotations(
+              String.fromCharCode(...result.data.data.xfdf.data),
+            );
+          }
+        }}
+        rememberLastUsedTool={false}
       />
       <BottomSheetModalProvider>
         <BottomSheetModal
@@ -170,8 +236,9 @@ function DocumentSignScreen({route, navigation}: any) {
                   Chọn hành động
                 </Text>
                 <Divider
+                  bold={true}
                   style={{
-                    marginTop: 10,
+                    marginTop: 15,
                     marginBottom: 10,
                   }}></Divider>
                 <TouchableOpacity

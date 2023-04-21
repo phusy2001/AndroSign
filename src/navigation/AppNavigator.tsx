@@ -20,26 +20,21 @@ import SignatureAddScreen from '../screens/SignatureAddScreen';
 import DocumentShareScreen from '../screens/DocumentShareScreen';
 import auth from '@react-native-firebase/auth';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import MyDocumentScreen from '../screens/MyDocumentScreen';
 
 const AuthStack = createNativeStackNavigator();
-
-export const AuthStackScreen = () => (
-  <AuthStack.Navigator screenOptions={{headerShown: false}}>
-    <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
-    <AuthStack.Screen name="SignUpScreen" component={SignUpScreen} />
-    <AuthStack.Screen
-      name="OTPVerificationScreen"
-      component={OTPVerificationScreen}
-    />
-  </AuthStack.Navigator>
-);
 
 const Drawer = createDrawerNavigator();
 export const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Starred"
+      initialRouteName="Home"
       drawerContent={props => <CustomDrawer {...props} />}>
+      <Drawer.Screen
+        name="Home"
+        component={MyDocumentScreen}
+        options={{headerShown: false}}
+      />
       <Drawer.Screen
         name="Settings"
         component={SettingsScreen}
@@ -66,9 +61,7 @@ export const DrawerNavigator = () => {
 
 export function AppNavigator() {
   const navigation = useNavigation();
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
-  const [initialRoute, setInitialRoute] = useState('Test');
 
   useEffect(() => {
     // Assume a message-notification contains a "type" property in the data payload of the screen to open
@@ -100,33 +93,9 @@ export function AppNavigator() {
     return null;
   }
 
-  return auth().currentUser ? (
-    <Drawer.Navigator
-      initialRouteName="Starred"
-      drawerContent={props => <CustomDrawer {...props} />}>
-      <Drawer.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{headerShown: false}}
-      />
-      <Drawer.Screen
-        name="Starred"
-        component={StarredScreen}
-        options={{headerShown: false}}
-      />
-      <Drawer.Screen
-        name="Account"
-        component={AccountScreen}
-        options={{headerShown: false}}
-      />
-      <Drawer.Screen
-        name="Trash"
-        component={TrashScreen}
-        options={{headerShown: false}}
-      />
-    </Drawer.Navigator>
-  ) : (
-    <AuthStack.Navigator initialRouteName="Login">
+  return (
+    <AuthStack.Navigator
+      initialRouteName={auth().currentUser ? 'Drawer' : 'Login'}>
       <AuthStack.Screen
         name="SignUp"
         component={SignUpScreen}
