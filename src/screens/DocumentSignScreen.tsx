@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import {
   PermissionsAndroid,
   Platform,
@@ -7,7 +6,15 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import {Text, IconButton, Divider, Button} from 'react-native-paper';
+import {
+  Text,
+  IconButton,
+  Divider,
+  Button,
+  Portal,
+  Dialog,
+  TextInput,
+} from 'react-native-paper';
 import {DocumentView, RNPdftron, Config} from '@pdftron/react-native-pdf';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
@@ -16,24 +23,23 @@ import {
   BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-
-const client = axios.create({
-  baseURL: 'http://10.0.2.2:3333/document',
-});
+import DocumentAPI from '../services/document';
+import Toast from 'react-native-toast-message';
 
 function DocumentSignScreen({route, navigation}: any) {
   const {name, path, file, action, id} = route.params;
   const insets = useSafeAreaInsets();
+  const confirmModal = React.useRef<BottomSheetModal>(null);
+  const confirmSnapPoints = React.useMemo(() => ['30%'], []);
+  const documentView = React.useRef(null);
+  const [dlgVisible, setDlgVisible] = React.useState(false);
+  const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
   const [permissionGranted, setPermissionGranted] = React.useState<boolean>(
     Platform.OS === 'ios' ? true : false,
   );
-  const confirmModalRef = React.useRef<BottomSheetModal>(null);
-  const confirmSnapPoints = React.useMemo(() => ['30%'], []);
   const handleConfirm = React.useCallback((data: any) => {
-    confirmModalRef.current?.present(data);
+    confirmModal.current?.present(data);
   }, []);
-  const documentView = React.useRef(null);
-
   const renderBackdrop = React.useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -80,20 +86,19 @@ function DocumentSignScreen({route, navigation}: any) {
     // );
   }
 
-  const saveDocument = React.useCallback(async () => {
-    const xfdf = await documentView.current.exportAnnotations();
-    const formData = new FormData();
-    formData.append('name', name.replace('.pdf', ''));
-    formData.append('xfdf', xfdf);
-    formData.append('file', file);
+  const saveDocument = async () => {
+    const xfdf = await documentView.current!.exportAnnotations();
     if (action === 'upload') {
-      const result = await client.post('/upload', formData, {
-        headers: {
-          Accept: 'application/json',
-          'content-type': 'multipart/form-data',
-        },
-      });
-    }
+      const formData = new FormData();
+      formData.append('name', fileName);
+      formData.append('xfdf', xfdf);
+      formData.append('file', file);
+      await DocumentAPI.uploadDocument(formData);
+    } else if (action === 'edit') await DocumentAPI.editDocument(id, xfdf);
+    Toast.show({
+      text1: 'Saved File Successfully',
+      position: 'bottom',
+    });
     navigation.goBack();
     // axios.post('/upload');
     // console.log(documentView.current.rotateClockwise());
@@ -135,7 +140,7 @@ function DocumentSignScreen({route, navigation}: any) {
     //   .then(path => {
     //     console.log('export', path);
     //   });
-  }, []);
+  };
 
   const cancelDocument = React.useCallback(() => {
     navigation.goBack();
@@ -201,22 +206,22 @@ function DocumentSignScreen({route, navigation}: any) {
         annotationToolbars={[myToolbar]}
         longPressMenuEnabled={false}
         autoSaveEnabled={false}
-        flattenAnnotations={false}
+        flattenAnnotations={true}
         onDocumentLoaded={async () => {
           if (action === 'edit' && id) {
-            const result = await client.get('/getXfdf', {
-              params: {id},
-            });
-            documentView.current.importAnnotations(
-              String.fromCharCode(...result.data.data.xfdf.data),
-            );
+            const result = await DocumentAPI.getAnnotations(id);
+            let base64 = '';
+            for (let i = 0; i < result.data.data.xfdf.data.length; ++i) {
+              base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
+            }
+            documentView.current!.importAnnotations(base64);
           }
         }}
         rememberLastUsedTool={false}
       />
       <BottomSheetModalProvider>
         <BottomSheetModal
-          ref={confirmModalRef}
+          ref={confirmModal}
           index={0}
           snapPoints={confirmSnapPoints}
           backdropComponent={renderBackdrop}
@@ -242,7 +247,10 @@ function DocumentSignScreen({route, navigation}: any) {
                     marginBottom: 10,
                   }}></Divider>
                 <TouchableOpacity
-                  onPress={saveDocument}
+                  onPress={() => {
+                    if (action === 'upload') setDlgVisible(true);
+                    else saveDocument();
+                  }}
                   style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -274,6 +282,46 @@ function DocumentSignScreen({route, navigation}: any) {
           }}
         </BottomSheetModal>
       </BottomSheetModalProvider>
+      <Portal>
+        <Dialog
+          visible={dlgVisible}
+          style={{backgroundColor: '#fff'}}
+          onDismiss={() => setDlgVisible(false)}>
+          <Dialog.Title style={{textAlign: 'center'}}>
+            <Text style={{fontSize: 18}}>Lưu tài liệu thành...</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              theme={{roundness: 10}}
+              mode="outlined"
+              placeholder="Tên tài liệu"
+              onChangeText={text => setFileName(text)}
+              value={fileName}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDlgVisible(false)}>
+              <Text
+                style={{
+                  color: 'red',
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
+                Hủy
+              </Text>
+            </Button>
+            <Button onPress={saveDocument}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: 'blue',
+                }}>
+                Xác nhận
+              </Text>
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </GestureHandlerRootView>
   );
 }

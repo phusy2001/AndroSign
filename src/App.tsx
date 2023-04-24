@@ -3,9 +3,9 @@ import messaging from '@react-native-firebase/messaging';
 import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-
-import {AppNavigator} from './navigation';
+import {AppNavigator} from './navigation/AppNavigator';
 import SplashScreen from './screens/SplashScreen';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
@@ -55,6 +55,7 @@ export default function App() {
       <NavigationContainer>
         {loading ? <SplashScreen /> : <AppNavigator />}
       </NavigationContainer>
+      <Toast></Toast>
     </SafeAreaProvider>
   );
 }

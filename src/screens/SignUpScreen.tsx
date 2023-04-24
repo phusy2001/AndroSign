@@ -65,14 +65,13 @@ function SignUpScreen({navigation, route}: any) {
         paddingBottom: insets.bottom,
         marginLeft: 30,
         marginRight: 30,
-        flex: 1,
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        height: screenHeight,
       }}>
-      <KeyboardAvoidingView
-        behavior="position"
-        style={{height: screenHeight - 150}}>
+      <KeyboardAvoidingView behavior="position">
         <Text
           style={{
-            marginTop: 70,
             fontWeight: 'bold',
             fontSize: 22,
           }}>
@@ -193,12 +192,7 @@ function SignUpScreen({navigation, route}: any) {
           </Text>
         </View>
       </KeyboardAvoidingView>
-      <View
-        style={{
-          alignSelf: 'center',
-          justifyContent: 'flex-end',
-          width: '100%',
-        }}>
+      <View>
         <Button
           mode="contained"
           onPress={handleSubmit(onSubmit)}

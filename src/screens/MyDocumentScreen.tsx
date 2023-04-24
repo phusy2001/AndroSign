@@ -1,22 +1,17 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable react/self-closing-comp */
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
-import axios from 'axios';
 import {StyleSheet, View} from 'react-native';
 import {
   ActivityIndicator,
   Appbar,
   Button,
-  Card,
+  Dialog,
   Divider,
   FAB,
   List,
+  Portal,
   RadioButton,
   Searchbar,
   Text,
-  IconButton,
 } from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
@@ -30,37 +25,9 @@ import {
 import PdfSVG from '../assets/images/pdf.svg';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import moment from 'moment';
-
-function CustomListView({item, onPressMoreFunction}: any) {
-  const clickMoreFunction = () => {
-    onPressMoreFunction(item);
-  };
-  return (
-    <Card style={{marginBottom: 10}} id={item._id}>
-      <Card.Title
-        title={item.name + '.pdf'}
-        subtitle={
-          'Cập nhật lần cuối: ' +
-          moment(item.updated_at).format('DD/MM/YY HH:mm')
-        }
-        left={() => <PdfSVG width={43} height={52} />}
-      />
-      <Card.Content
-        style={{
-          position: 'absolute',
-          top: '20%',
-          right: 0,
-        }}>
-        <IconButton
-          onPress={clickMoreFunction}
-          icon="dots-horizontal"
-          size={24}
-          // color="#FFD600"
-        />
-      </Card.Content>
-    </Card>
-  );
-}
+import OwnFileItem from '../components/OwnFileItem';
+import DocumentAPI from '../services/document';
+import Toast from 'react-native-toast-message';
 
 function MyDocumentScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -71,6 +38,9 @@ function MyDocumentScreen({navigation, route}: any) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
   const [item, setItem] = React.useState<any>();
+  const [end, setEnd] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(0);
+  const [dlgVisible, setDlgVisible] = React.useState(false);
   const handleDrawer = () => {
     if (!isDrawerOpen) {
       navigation.dispatch(DrawerActions.openDrawer());
@@ -78,31 +48,83 @@ function MyDocumentScreen({navigation, route}: any) {
   };
 
   const loadData = async () => {
-    setIsLoading(true);
-    const client = axios.create({
-      baseURL: 'http://10.0.2.2:3333/document',
-    });
-    const result = await client.get('/get');
-    const newData = await result.data.data.data;
-    setData([...data, ...newData]);
-    setPageNumber(pageNumber + 1);
-    setIsLoading(false);
+    if (end === false) {
+      setIsLoading(true);
+      const result = await DocumentAPI.getOwnFile(pageNumber);
+      if (result.data.data.data.length < 10) setEnd(true);
+      const newData = await result.data.data.data;
+      setData(data.concat(newData));
+      setPageNumber(pageNumber + 1);
+      setIsLoading(false);
+    }
   };
 
   React.useEffect(() => {
-    loadData();
-  }, []);
+    if (isFocused) {
+      uploadModal.current?.dismiss();
+      filterModal.current?.dismiss();
+      editModal.current?.dismiss();
+      setData([]);
+      setPageNumber(1);
+      setEnd(false);
+      setRefresh(refresh + 1);
+    }
+  }, [isFocused]);
 
   React.useEffect(() => {
-    const currentRef = uploadModalRef.current;
-    if (!isFocused) {
-      // do something when the screen loses focus
-      currentRef?.dismiss();
+    console.log('Here');
+
+    loadData();
+  }, [refresh]);
+
+  const uploadModal = React.useRef<BottomSheetModal>(null);
+  const filterModal = React.useRef<BottomSheetModal>(null);
+  const editModal = React.useRef<BottomSheetModal>(null);
+
+  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
+  const filterSnapPoints = React.useMemo(() => ['60%'], []);
+  const editSnapPoints = React.useMemo(() => ['70%'], []);
+
+  const handlePresentUploadModalPress = React.useCallback(() => {
+    if (filterModal || editModal) {
+      filterModal.current?.dismiss();
+      editModal.current?.dismiss();
     }
-    return () => {
-      currentRef?.dismiss();
-    };
-  }, [isFocused]);
+    uploadModal.current?.present();
+  }, []);
+
+  const handlePresentFilterModalPress = React.useCallback(() => {
+    if (uploadModal || editModal) {
+      uploadModal.current?.dismiss();
+      editModal.current?.dismiss();
+    }
+    filterModal.current?.present();
+  }, []);
+
+  const handlePressMoreFunction = React.useCallback((data: any) => {
+    if (uploadModal || filterModal) {
+      uploadModal.current?.dismiss();
+      filterModal.current?.dismiss();
+    }
+    editModal.current?.present(data);
+    setItem(data);
+  }, []);
+
+  const [status, setStatus] = React.useState<string>('1');
+  const [sorting, setSortting] = React.useState<string>('1');
+
+  const uploadFileFunc = React.useCallback(async () => {
+    const response = await DocumentPicker.pick({
+      presentationStyle: 'fullScreen',
+      type: [types.pdf],
+    });
+    navigation.navigate('DocumentSign', {
+      name: response[0].name,
+      path: response[0].uri,
+      file: response[0],
+      action: 'upload',
+    });
+  }, []);
 
   const renderFooter = () => {
     if (isLoading) {
@@ -116,62 +138,17 @@ function MyDocumentScreen({navigation, route}: any) {
     }
   };
 
-  // Modal ref
-  const uploadModalRef = React.useRef<BottomSheetModal>(null);
-  const filterModalRef = React.useRef<BottomSheetModal>(null);
-  const editModalRef = React.useRef<BottomSheetModal>(null);
-
-  // Variables
-  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
-  const filterSnapPoints = React.useMemo(() => ['60%'], []);
-  const editSnapPoints = React.useMemo(() => ['70%'], []);
-
-  // Callbacks
-  const handlePresentUploadModalPress = React.useCallback(() => {
-    if (filterModalRef || editModalRef) {
-      filterModalRef.current?.dismiss();
-      editModalRef.current?.dismiss();
-    }
-    uploadModalRef.current?.present();
-  }, []);
-
-  const handlePresentFilterModalPress = React.useCallback(() => {
-    if (uploadModalRef || editModalRef) {
-      uploadModalRef.current?.dismiss();
-      editModalRef.current?.dismiss();
-    }
-    filterModalRef.current?.present();
-  }, []);
-
-  const handlePressMoreFunction = React.useCallback((data: any) => {
-    if (uploadModalRef || filterModalRef) {
-      uploadModalRef.current?.dismiss();
-      filterModalRef.current?.dismiss();
-    }
-    editModalRef.current?.present(data);
-    setItem(data);
-  }, []);
-
-  const handleSheetChanges = React.useCallback((index: number) => {}, []);
-
-  const handleDismiss = () => {};
-
-  const [status, setStatus] = React.useState<string>('1');
-  const [sorting, setSortting] = React.useState<string>('1');
-
-  //Func
-  const uploadFileFunc = React.useCallback(async () => {
-    const response = await DocumentPicker.pick({
-      presentationStyle: 'fullScreen',
-      type: [types.pdf],
+  const deleteDocument = async (id: any) => {
+    const result = await DocumentAPI.deleteDocument(id);
+    const filteredData = data.filter((item: any) => item._id !== id);
+    setData(filteredData);
+    editModal.current?.dismiss();
+    Toast.show({
+      text1: 'Deleted File Successfully',
+      type: 'info',
+      position: 'bottom',
     });
-    navigation.navigate('DocumentSign', {
-      name: response[0].name,
-      path: response[0].uri,
-      file: response[0],
-      action: 'upload',
-    });
-  }, []);
+  };
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -206,7 +183,7 @@ function MyDocumentScreen({navigation, route}: any) {
         <FlashList
           data={data}
           renderItem={({item}) => (
-            <CustomListView
+            <OwnFileItem
               item={item}
               onPressMoreFunction={handlePressMoreFunction}
             />
@@ -226,13 +203,11 @@ function MyDocumentScreen({navigation, route}: any) {
       />
       <BottomSheetModalProvider>
         <BottomSheetModal
-          ref={uploadModalRef}
+          ref={uploadModal}
           index={0}
           backdropComponent={renderBackdrop}
           snapPoints={uploadSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
+          enablePanDownToClose={true}>
           <View style={{padding: 20}}>
             <List.Section>
               <List.Item
@@ -249,13 +224,11 @@ function MyDocumentScreen({navigation, route}: any) {
           </View>
         </BottomSheetModal>
         <BottomSheetModal
-          ref={filterModalRef}
+          ref={filterModal}
           index={0}
           backdropComponent={renderBackdrop}
           snapPoints={filterSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
+          enablePanDownToClose={true}>
           <View style={{padding: 20}}>
             <View style={{marginBottom: 10}}>
               <Text
@@ -340,20 +313,18 @@ function MyDocumentScreen({navigation, route}: any) {
             <Button
               mode="contained"
               onPress={() => {
-                filterModalRef.current?.dismiss();
+                filterModal.current?.dismiss();
               }}>
               Xác nhận{' '}
             </Button>
           </View>
         </BottomSheetModal>
         <BottomSheetModal
-          ref={editModalRef}
+          ref={editModal}
           index={0}
           backdropComponent={renderBackdrop}
           snapPoints={editSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
+          enablePanDownToClose={true}>
           {(props: any) => {
             //const {data} = props;
             return (
@@ -422,6 +393,7 @@ function MyDocumentScreen({navigation, route}: any) {
                 </View>
                 <List.Section>
                   <List.Item
+                    onPress={() => setDlgVisible(true)}
                     title={
                       <Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>
                     }
@@ -435,6 +407,49 @@ function MyDocumentScreen({navigation, route}: any) {
           }}
         </BottomSheetModal>
       </BottomSheetModalProvider>
+      <Portal>
+        <Dialog
+          visible={dlgVisible}
+          style={{backgroundColor: '#fff'}}
+          onDismiss={() => setDlgVisible(false)}>
+          <Dialog.Title style={{textAlign: 'center'}}>
+            <Text style={{fontSize: 20}}>Xóa tài liệu</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={{fontSize: 18, textAlign: 'center'}}>
+              Bạn có chắc chắn xóa tài liệu này?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setDlgVisible(false);
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: 'blue',
+                }}>
+                Hủy
+              </Text>
+            </Button>
+            <Button
+              onPress={() => {
+                deleteDocument(item._id);
+                setDlgVisible(false);
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: 'blue',
+                }}>
+                Xóa
+              </Text>
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }

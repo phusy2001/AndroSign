@@ -65,12 +65,13 @@ function LoginScreen({navigation, route}: any) {
         paddingTop: insets.top,
         paddingLeft: 30,
         paddingRight: 30,
-        flex: 1,
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        height: screenHeight,
       }}>
-      <View style={(styles.container, {height: screenHeight - 100})}>
+      <View>
         <Text
           style={{
-            marginTop: 70,
             fontWeight: 'bold',
             fontSize: 22,
           }}>
@@ -164,13 +165,7 @@ function LoginScreen({navigation, route}: any) {
           </Text>
         </View>
       </View>
-      <View
-        style={{
-          alignSelf: 'center',
-          justifyContent: 'flex-end',
-          marginBottom: 10,
-          width: '100%',
-        }}>
+      <View>
         <Button
           mode="contained"
           onPress={handleSubmit(onSubmit)}

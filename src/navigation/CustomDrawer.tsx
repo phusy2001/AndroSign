@@ -2,16 +2,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import React from 'react';
-import {View} from 'react-native';
+import {Dimensions, View} from 'react-native';
 import {Button, Divider} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
-import {Dimensions} from 'react-native';
 import {signout} from '../services/auth';
 import {navigate} from './RootNavigation';
-const windowHeight = Dimensions.get('window').height;
 
 function CustomDrawer(props: any) {
+  const screenHeight = Dimensions.get('window').height;
   const logout = async () => {
     try {
       await signout();
@@ -26,17 +24,21 @@ function CustomDrawer(props: any) {
     <DrawerContentScrollView {...props}>
       <View
         style={{
-          height: windowHeight - 40,
-          flexDirection: 'column',
-          justifyContent: 'space-between',
+          display: 'flex',
+          justifyContent: 'space-evenly',
+          height: screenHeight,
         }}>
-        <View
-          style={{
-            paddingVertical: 100,
-          }}>
+        <View>
           <DrawerItem
             icon={() => <Icon name="file-document" size={24} color="#000" />}
             label="Tài liệu"
+            onPress={() => props.navigation.navigate('Home')}
+          />
+          <DrawerItem
+            icon={() => (
+              <Icon name="file-document-edit" size={24} color="#000" />
+            )}
+            label="Tài liệu được chia sẻ"
             onPress={() => props.navigation.navigate('Home')}
           />
           <DrawerItem
@@ -54,7 +56,9 @@ function CustomDrawer(props: any) {
             label="Thùng rác"
             onPress={() => props.navigation.navigate('Trash')}
           />
-          <Divider bold={true} style={{marginTop: 62, marginBottom: 44}} />
+          <View style={{paddingHorizontal: 20}}>
+            <Divider bold={false} style={{marginVertical: 40}} />
+          </View>
           <DrawerItem
             icon={() => <Icon name="account" size={24} color="#000" />}
             label="Tài khoản"
