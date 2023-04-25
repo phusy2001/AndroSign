@@ -50,7 +50,7 @@ function SignUpScreen({navigation, route}: any) {
   });
   const onSubmit = async (data: any) => {
     try {
-      await signupWithEmail(data.email, data.password);
+      await signupWithEmail(data.email, data.password, data.username);
       navigation.navigate('Onboarding');
     } catch (error: any) {
       onToggleSnackBar(error.code);
