@@ -3,9 +3,14 @@ import axiosClient from './clients/axios';
 const service = 'document';
 
 const DocumentAPI = {
-  getOwnFile: async (pageNumber: number) => {
+  getOwnFile: async (
+    pageNumber: number,
+    keyword: string,
+    sort: string,
+    order: string,
+  ) => {
     return await axiosClient.get(`/${service}/getMyFiles`, {
-      params: {offset: pageNumber},
+      params: {offset: pageNumber, keyword, sort, order},
     });
   },
 

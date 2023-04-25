@@ -31,7 +31,6 @@ import Toast from 'react-native-toast-message';
 
 function MyDocumentScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const onChangeSearch = (query: string) => setSearchQuery(query);
   const isFocused = useIsFocused();
   const isDrawerOpen = useDrawerStatus() === 'open';
   const [data, setData] = React.useState<any>([]);
@@ -41,16 +40,29 @@ function MyDocumentScreen({navigation, route}: any) {
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
   const [dlgVisible, setDlgVisible] = React.useState(false);
+  const [status, setStatus] = React.useState<string>('1');
+  const [sorting, setSortting] = React.useState<string>('updated');
+  const [order, setOrder] = React.useState<string>('desc');
+  const uploadModal = React.useRef<BottomSheetModal>(null);
+  const filterModal = React.useRef<BottomSheetModal>(null);
+  const editModal = React.useRef<BottomSheetModal>(null);
+  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
+  const filterSnapPoints = React.useMemo(() => ['50%'], []);
+  const editSnapPoints = React.useMemo(() => ['70%'], []);
+
   const handleDrawer = () => {
-    if (!isDrawerOpen) {
-      navigation.dispatch(DrawerActions.openDrawer());
-    }
+    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
   };
 
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getOwnFile(pageNumber);
+      const result = await DocumentAPI.getOwnFile(
+        pageNumber,
+        searchQuery,
+        sorting,
+        order,
+      );
       if (result.data.data.data.length < 10) setEnd(true);
       const newData = await result.data.data.data;
       setData(data.concat(newData));
@@ -72,18 +84,20 @@ function MyDocumentScreen({navigation, route}: any) {
   }, [isFocused]);
 
   React.useEffect(() => {
-    console.log('Here');
-
-    loadData();
+    if (refresh > 0) loadData();
   }, [refresh]);
 
-  const uploadModal = React.useRef<BottomSheetModal>(null);
-  const filterModal = React.useRef<BottomSheetModal>(null);
-  const editModal = React.useRef<BottomSheetModal>(null);
-
-  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
-  const filterSnapPoints = React.useMemo(() => ['60%'], []);
-  const editSnapPoints = React.useMemo(() => ['70%'], []);
+  React.useEffect(() => {
+    if (refresh > 0) {
+      const timeOut = setTimeout(() => {
+        setData([]);
+        setPageNumber(1);
+        setEnd(false);
+        setRefresh(refresh + 1);
+      }, 500);
+      return () => clearTimeout(timeOut);
+    }
+  }, [searchQuery, sorting, order]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
     if (filterModal || editModal) {
@@ -109,9 +123,6 @@ function MyDocumentScreen({navigation, route}: any) {
     editModal.current?.present(data);
     setItem(data);
   }, []);
-
-  const [status, setStatus] = React.useState<string>('1');
-  const [sorting, setSortting] = React.useState<string>('1');
 
   const uploadFileFunc = React.useCallback(async () => {
     const response = await DocumentPicker.pick({
@@ -174,7 +185,7 @@ function MyDocumentScreen({navigation, route}: any) {
         <Searchbar
           style={{marginTop: 20}}
           placeholder="Search"
-          onChangeText={onChangeSearch}
+          onChangeText={(query: string) => setSearchQuery(query)}
           value={searchQuery}
         />
       </View>
@@ -190,7 +201,7 @@ function MyDocumentScreen({navigation, route}: any) {
           )}
           keyExtractor={(item: any) => item?._id}
           onEndReached={loadData}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.001}
           estimatedItemSize={100}
           ListFooterComponent={renderFooter}
         />
@@ -230,8 +241,8 @@ function MyDocumentScreen({navigation, route}: any) {
           snapPoints={filterSnapPoints}
           enablePanDownToClose={true}>
           <View style={{padding: 20}}>
-            <View style={{marginBottom: 10}}>
-              <Text
+            <View style={{marginBottom: 15}}>
+              {/* <Text
                 variant="labelLarge"
                 style={{fontSize: 20, marginBottom: 10}}>
                 Trạng thái
@@ -279,9 +290,30 @@ function MyDocumentScreen({navigation, route}: any) {
                     <Text style={{fontSize: 16}}>Đã ký</Text>
                   </View>
                 </View>
+              </RadioButton.Group> */}
+              <Text
+                variant="labelLarge"
+                style={{fontSize: 20, marginBottom: 10}}>
+                Thứ tự
+              </Text>
+              <RadioButton.Group
+                onValueChange={orderValue => setOrder(orderValue)}
+                value={order}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <RadioButton value="desc" />
+                  <View style={{marginLeft: 20}}>
+                    <Text style={{fontSize: 16}}>Giảm dần</Text>
+                  </View>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <RadioButton value="asc" />
+                  <View style={{marginLeft: 20}}>
+                    <Text style={{fontSize: 16}}>Tăng dần</Text>
+                  </View>
+                </View>
               </RadioButton.Group>
             </View>
-            <View style={{marginBottom: 10}}>
+            <View style={{marginBottom: 15}}>
               <Text
                 variant="labelLarge"
                 style={{fontSize: 20, marginBottom: 10}}>
@@ -291,32 +323,32 @@ function MyDocumentScreen({navigation, route}: any) {
                 onValueChange={sortValue => setSortting(sortValue)}
                 value={sorting}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="1" />
+                  <RadioButton value="updated" />
                   <View style={{marginLeft: 20}}>
                     <Text style={{fontSize: 16}}>Cập nhật gần đây</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="2" />
+                  <RadioButton value="name" />
                   <View style={{marginLeft: 20}}>
                     <Text style={{fontSize: 16}}>Tên tài liệu</Text>
                   </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="3" />
+                  <RadioButton value="created" />
                   <View style={{marginLeft: 20}}>
                     <Text style={{fontSize: 16}}>Ngày tạo</Text>
                   </View>
                 </View>
               </RadioButton.Group>
             </View>
-            <Button
+            {/* <Button
               mode="contained"
               onPress={() => {
                 filterModal.current?.dismiss();
               }}>
               Xác nhận{' '}
-            </Button>
+            </Button> */}
           </View>
         </BottomSheetModal>
         <BottomSheetModal
