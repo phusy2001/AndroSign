@@ -1,11 +1,108 @@
 import React from 'react';
-import {View, ScrollView, Dimensions} from 'react-native';
-import {Text, IconButton, Button, TextInput, Avatar} from 'react-native-paper';
+import {View, Dimensions, Keyboard} from 'react-native';
+import {
+  Text,
+  IconButton,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import UserSharedItem from '../components/UserSharedItem';
+import {FlashList} from '@shopify/flash-list';
+import DocumentAPI from '../services/document';
+import Toast from 'react-native-toast-message';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+import {useForm, Controller} from 'react-hook-form';
+
+const DocShareSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email('Email must be a valid email address')
+    .required('Email is a required field'),
+});
 
 function DocumentShareScreen({navigation, route}: any) {
+  const {id} = route.params;
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [pageNumber, setPageNumber] = React.useState(1);
+  const [end, setEnd] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(0);
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    reset,
+  } = useForm({
+    resolver: yupResolver(DocShareSchema),
+  });
+  const onSubmit = async (data: any) => {
+    handlePressAddFunction(data.email);
+    reset({email: ''});
+  };
+
+  const loadData = async () => {
+    if (end === false) {
+      setIsLoading(true);
+      const result = await DocumentAPI.getUserShared(id, pageNumber);
+      // console.log(result.data.data.sharedTo);
+      if (result.data.data.sharedTo.length < 10) setEnd(true);
+      const newData = await result.data.data.sharedTo;
+      setData(data.concat(newData));
+      setPageNumber(pageNumber + 1);
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    loadData();
+  }, [refresh]);
+
+  const handlePressAddFunction = async (email: string) => {
+    const result = await DocumentAPI.addUserShared(email, id);
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status ? 'success' : 'error',
+      position: 'bottom',
+    });
+    if (result.data.status) {
+      email = '';
+      Keyboard.dismiss();
+      setData([]);
+      setPageNumber(1);
+      setEnd(false);
+      setRefresh(refresh + 1);
+    }
+  };
+
+  const handlePressRemoveFunction = async (userId: string) => {
+    const result = await DocumentAPI.deleteUserShared(id, userId);
+    if (result.data.status) {
+      const filteredData = data.filter((item: any) => item !== userId);
+      setData(filteredData);
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status ? 'success' : 'error',
+      position: 'bottom',
+    });
+  };
+
+  const renderFooter = () => {
+    if (isLoading) {
+      return (
+        <View style={{paddingVertical: 20}}>
+          <ActivityIndicator animating size="large" />
+        </View>
+      );
+    } else {
+      return null;
+    }
+  };
 
   return (
     <View
@@ -45,82 +142,61 @@ function DocumentShareScreen({navigation, route}: any) {
             paddingRight: 20,
             paddingTop: 10,
           }}>
-          <TextInput
-            style={{
-              marginTop: 5,
+          <Controller
+            control={control}
+            rules={{
+              required: true,
             }}
-            mode="outlined"
-            placeholder="Thêm người chia sẻ"
-            right={<TextInput.Icon onPress={() => {}} icon="account-plus" />}
-            // onChangeText={onChange}
-            // value={value}
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={{
+                  marginTop: 5,
+                }}
+                mode="outlined"
+                placeholder="Thêm người chia sẻ"
+                activeOutlineColor={errors.email && 'red'}
+                right={
+                  <TextInput.Icon
+                    onPress={handleSubmit(onSubmit)}
+                    icon="account-plus"
+                  />
+                }
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                inputMode="email"
+                textContentType="emailAddress"
+              />
+            )}
+            name="email"
           />
+          <Text style={{color: 'red'}}>
+            {errors.email && `${errors.email.message}`}
+          </Text>
         </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
+        <View
           style={{
             paddingLeft: 20,
             paddingRight: 20,
-            marginTop: 30,
             marginBottom: 30,
+            flex: 1,
           }}>
-          {/* List chia sẻ */}
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              backgroundColor: '#F8F8F8',
-              paddingLeft: 10,
-              paddingRight: 10,
-              // paddingTop: 3,
-              // paddingBottom: 3,
-              marginBottom: 10,
-              borderRadius: 6,
-            }}>
-            <View
-              style={{
-                width: '20%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              {/* <Avatar.Image size={48} source={''} /> */}
-              <IconButton icon="account-circle" size={48} />
-            </View>
-            <View style={{width: '70%', justifyContent: 'center'}}>
-              <Text style={{fontSize: 18, fontWeight: 'bold'}}>Trong Le</Text>
-              <Text style={{fontSize: 15}}>trongle@gmail.com</Text>
-            </View>
-            <View
-              style={{
-                width: '10%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <IconButton
-                onPress={() => {}}
-                iconColor="red"
-                icon="close-box"
-                size={28}
+          <FlashList
+            data={data}
+            renderItem={({item}) => (
+              <UserSharedItem
+                item={item}
+                onPressRemoveFunction={handlePressRemoveFunction}
               />
-            </View>
-          </View>
-        </ScrollView>
-      </View>
-      <View
-        style={{
-          alignSelf: 'center',
-          justifyContent: 'flex-end',
-          paddingLeft: 20,
-          paddingRight: 20,
-          marginTop: -10,
-          width: '100%',
-        }}>
-        <Button
-          mode="contained"
-          onPress={() => {}}
-          contentStyle={{flexDirection: 'row-reverse'}}>
-          Xác nhận
-        </Button>
+            )}
+            keyExtractor={(item: any) => item}
+            onEndReached={loadData}
+            onEndReachedThreshold={0.001}
+            estimatedItemSize={100}
+            ListFooterComponent={renderFooter}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
       </View>
     </View>
   );

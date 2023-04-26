@@ -3,13 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {
   ActivityIndicator,
   Appbar,
-  Button,
-  Dialog,
-  Divider,
   FAB,
-  List,
-  Portal,
-  RadioButton,
   Searchbar,
   Text,
 } from 'react-native-paper';
@@ -17,17 +11,13 @@ import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetBackdrop,
-} from '@gorhom/bottom-sheet';
-import PdfSVG from '../assets/images/pdf.svg';
-import DocumentPicker, {types} from 'react-native-document-picker';
-import moment from 'moment';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import OwnFileItem from '../components/OwnFileItem';
 import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
+import FileUploadModal from '../components/Modal/FileUploadModal';
+import FilesFilterModal from '../components/Modal/FilesFilterModal';
+import OwnFileEditModal from '../components/Modal/OwnFileEditModal';
 
 function MyDocumentScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -36,28 +26,20 @@ function MyDocumentScreen({navigation, route}: any) {
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
-  const [item, setItem] = React.useState<any>();
+  const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
-  const [dlgVisible, setDlgVisible] = React.useState(false);
-  const [status, setStatus] = React.useState<string>('1');
-  const [sorting, setSortting] = React.useState<string>('updated');
+  // const [status, setStatus] = React.useState<string>('');
+  const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
   const uploadModal = React.useRef<BottomSheetModal>(null);
   const filterModal = React.useRef<BottomSheetModal>(null);
   const editModal = React.useRef<BottomSheetModal>(null);
-  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
-  const filterSnapPoints = React.useMemo(() => ['50%'], []);
-  const editSnapPoints = React.useMemo(() => ['70%'], []);
-
-  const handleDrawer = () => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
-  };
 
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getOwnFile(
+      const result = await DocumentAPI.getOwnFiles(
         pageNumber,
         searchQuery,
         sorting,
@@ -70,6 +52,10 @@ function MyDocumentScreen({navigation, route}: any) {
       setIsLoading(false);
     }
   };
+
+  const handleDrawer = React.useCallback(() => {
+    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+  }, []);
 
   React.useEffect(() => {
     if (isFocused) {
@@ -124,18 +110,19 @@ function MyDocumentScreen({navigation, route}: any) {
     setItem(data);
   }, []);
 
-  const uploadFileFunc = React.useCallback(async () => {
-    const response = await DocumentPicker.pick({
-      presentationStyle: 'fullScreen',
-      type: [types.pdf],
+  const deleteDocument = async (id: any) => {
+    const result = await DocumentAPI.deleteDocument(id);
+    if (result.data.status) {
+      const filteredData = data.filter((item: any) => item._id !== id);
+      setData(filteredData);
+      editModal.current?.dismiss();
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status ? 'success' : 'error',
+      position: 'bottom',
     });
-    navigation.navigate('DocumentSign', {
-      name: response[0].name,
-      path: response[0].uri,
-      file: response[0],
-      action: 'upload',
-    });
-  }, []);
+  };
 
   const renderFooter = () => {
     if (isLoading) {
@@ -148,31 +135,6 @@ function MyDocumentScreen({navigation, route}: any) {
       return null;
     }
   };
-
-  const deleteDocument = async (id: any) => {
-    const result = await DocumentAPI.deleteDocument(id);
-    const filteredData = data.filter((item: any) => item._id !== id);
-    setData(filteredData);
-    editModal.current?.dismiss();
-    Toast.show({
-      text1: 'Deleted File Successfully',
-      type: 'info',
-      position: 'bottom',
-    });
-  };
-
-  const renderBackdrop = React.useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={1}
-        animatedIndex={{
-          value: 1,
-        }}
-      />
-    ),
-    [],
-  );
 
   return (
     <View style={styles.container}>
@@ -204,6 +166,7 @@ function MyDocumentScreen({navigation, route}: any) {
           onEndReachedThreshold={0.001}
           estimatedItemSize={100}
           ListFooterComponent={renderFooter}
+          showsVerticalScrollIndicator={false}
         />
       </View>
       <FAB
@@ -213,275 +176,21 @@ function MyDocumentScreen({navigation, route}: any) {
         onPress={handlePresentUploadModalPress}
       />
       <BottomSheetModalProvider>
-        <BottomSheetModal
-          ref={uploadModal}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={uploadSnapPoints}
-          enablePanDownToClose={true}>
-          <View style={{padding: 20}}>
-            <List.Section>
-              <List.Item
-                onPress={() => {}}
-                title={<Text style={{fontSize: 16}}>Tạo thư mục</Text>}
-                left={() => <List.Icon icon="folder-plus" />}
-              />
-              <List.Item
-                onPress={uploadFileFunc}
-                title={<Text style={{fontSize: 16}}>Tải lên file</Text>}
-                left={() => <List.Icon icon="file-upload" />}
-              />
-            </List.Section>
-          </View>
-        </BottomSheetModal>
-        <BottomSheetModal
-          ref={filterModal}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={filterSnapPoints}
-          enablePanDownToClose={true}>
-          <View style={{padding: 20}}>
-            <View style={{marginBottom: 15}}>
-              {/* <Text
-                variant="labelLarge"
-                style={{fontSize: 20, marginBottom: 10}}>
-                Trạng thái
-              </Text>
-              <RadioButton.Group
-                onValueChange={newStatus => setStatus(newStatus)}
-                value={status}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="1" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Tất cả</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="2" />
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: '#FF7A00',
-                        marginLeft: 20,
-                        marginRight: 8,
-                      }}></View>
-                    <Text style={{fontSize: 16}}>Đang xử lý</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="3" />
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginLeft: 20,
-                    }}>
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: '#42FF00',
-                        marginRight: 8,
-                      }}></View>
-                    <Text style={{fontSize: 16}}>Đã ký</Text>
-                  </View>
-                </View>
-              </RadioButton.Group> */}
-              <Text
-                variant="labelLarge"
-                style={{fontSize: 20, marginBottom: 10}}>
-                Thứ tự
-              </Text>
-              <RadioButton.Group
-                onValueChange={orderValue => setOrder(orderValue)}
-                value={order}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="desc" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Giảm dần</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="asc" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Tăng dần</Text>
-                  </View>
-                </View>
-              </RadioButton.Group>
-            </View>
-            <View style={{marginBottom: 15}}>
-              <Text
-                variant="labelLarge"
-                style={{fontSize: 20, marginBottom: 10}}>
-                Sắp xếp
-              </Text>
-              <RadioButton.Group
-                onValueChange={sortValue => setSortting(sortValue)}
-                value={sorting}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="updated" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Cập nhật gần đây</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="name" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Tên tài liệu</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="created" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Ngày tạo</Text>
-                  </View>
-                </View>
-              </RadioButton.Group>
-            </View>
-            {/* <Button
-              mode="contained"
-              onPress={() => {
-                filterModal.current?.dismiss();
-              }}>
-              Xác nhận{' '}
-            </Button> */}
-          </View>
-        </BottomSheetModal>
-        <BottomSheetModal
-          ref={editModal}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={editSnapPoints}
-          enablePanDownToClose={true}>
-          {(props: any) => {
-            //const {data} = props;
-            return (
-              <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    paddingLeft: 30,
-                    paddingTop: 15,
-                  }}>
-                  <PdfSVG width={43} height={52} />
-                  <View style={{justifyContent: 'center', paddingLeft: 20}}>
-                    <Text
-                      variant="titleMedium"
-                      numberOfLines={1}
-                      style={{fontSize: 18}}>
-                      {item.name + '.pdf'}
-                    </Text>
-                    <Text variant="bodyMedium">
-                      {moment(item.updated_at).format('DD/MM/YYYY HH:mm')}
-                    </Text>
-                  </View>
-                </View>
-                <Divider
-                  bold={true}
-                  style={{
-                    marginTop: 15,
-                  }}></Divider>
-                <List.Section>
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Mở tài liệu</Text>}
-                    left={props => (
-                      <List.Icon {...props} icon="file-document" />
-                    )}
-                    onPress={() => {
-                      navigation.navigate('DocumentSign', {
-                        id: item._id,
-                        name: item.name + '.pdf',
-                        path: item.path,
-                        action: 'edit',
-                      });
-                    }}
-                  />
-                  <List.Item
-                    onPress={() => {
-                      navigation.navigate('DocumentShare');
-                    }}
-                    title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
-                    left={props => <List.Icon {...props} icon="share" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>In tài liệu</Text>}
-                    left={props => <List.Icon {...props} icon="printer" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
-                    left={props => <List.Icon {...props} icon="folder" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Đánh dấu sao</Text>}
-                    left={props => <List.Icon {...props} icon="star" />}
-                  />
-                </List.Section>
-                <View style={{paddingLeft: 20, paddingRight: 20}}>
-                  <Divider bold={true}></Divider>
-                </View>
-                <List.Section>
-                  <List.Item
-                    onPress={() => setDlgVisible(true)}
-                    title={
-                      <Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>
-                    }
-                    left={props => (
-                      <List.Icon {...props} color="red" icon="trash-can" />
-                    )}
-                  />
-                </List.Section>
-              </View>
-            );
-          }}
-        </BottomSheetModal>
+        <FileUploadModal uploadModalRef={uploadModal} navigation={navigation} />
+        <FilesFilterModal
+          filterModalRef={filterModal}
+          order={order}
+          setOrder={setOrder}
+          sorting={sorting}
+          setSorting={setSorting}
+        />
+        <OwnFileEditModal
+          editModalRef={editModal}
+          navigation={navigation}
+          handleDeleteFunction={deleteDocument}
+          item={item}
+        />
       </BottomSheetModalProvider>
-      <Portal>
-        <Dialog
-          visible={dlgVisible}
-          style={{backgroundColor: '#fff'}}
-          onDismiss={() => setDlgVisible(false)}>
-          <Dialog.Title style={{textAlign: 'center'}}>
-            <Text style={{fontSize: 20}}>Xóa tài liệu</Text>
-          </Dialog.Title>
-          <Dialog.Content>
-            <Text style={{fontSize: 18, textAlign: 'center'}}>
-              Bạn có chắc chắn xóa tài liệu này?
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
-              onPress={() => {
-                setDlgVisible(false);
-              }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  color: 'blue',
-                }}>
-                Hủy
-              </Text>
-            </Button>
-            <Button
-              onPress={() => {
-                deleteDocument(item._id);
-                setDlgVisible(false);
-              }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  color: 'blue',
-                }}>
-                Xóa
-              </Text>
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </View>
   );
 }

@@ -3,7 +3,7 @@ import axiosClient from './clients/axios';
 const service = 'document';
 
 const DocumentAPI = {
-  getOwnFile: async (
+  getOwnFiles: async (
     pageNumber: number,
     keyword: string,
     sort: string,
@@ -38,6 +38,26 @@ const DocumentAPI = {
 
   deleteDocument: async (fileId: string) => {
     return await axiosClient.post(`/${service}/deleteFile`, {id: fileId});
+  },
+
+  getUserShared: async (fileId: string, pageNumber: number) => {
+    return await axiosClient.get(`/${service}/getUserShared`, {
+      params: {id: fileId, offset: pageNumber},
+    });
+  },
+
+  deleteUserShared: async (fileId: string, userId: string) => {
+    return await axiosClient.post(`/${service}/deleteShared`, {
+      fileId,
+      userId,
+    });
+  },
+
+  addUserShared: async (email: string, fileId: string) => {
+    return await axiosClient.post(`/${service}/addShared`, {
+      email,
+      id: fileId,
+    });
   },
 };
 

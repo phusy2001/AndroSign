@@ -27,12 +27,12 @@ import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
 
 function DocumentSignScreen({route, navigation}: any) {
-  const {name, path, file, action, id} = route.params;
   const insets = useSafeAreaInsets();
+  const {name, path, file, action, id} = route.params;
   const confirmModal = React.useRef<BottomSheetModal>(null);
   const confirmSnapPoints = React.useMemo(() => ['30%'], []);
   const documentView = React.useRef(null);
-  const [dlgVisible, setDlgVisible] = React.useState(false);
+  const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
   const [permissionGranted, setPermissionGranted] = React.useState<boolean>(
     Platform.OS === 'ios' ? true : false,
@@ -60,10 +60,10 @@ function DocumentSignScreen({route, navigation}: any) {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         setPermissionGranted(true);
-        console.log('Storage permission granted');
+        // console.log('Storage permission granted');
       } else {
         setPermissionGranted(false);
-        console.log('Storage permission denied');
+        // console.log('Storage permission denied');
       }
     } catch (err) {
       console.warn(err);
@@ -88,15 +88,18 @@ function DocumentSignScreen({route, navigation}: any) {
 
   const saveDocument = async () => {
     const xfdf = await documentView.current!.exportAnnotations();
+    let result = null;
     if (action === 'upload') {
       const formData = new FormData();
       formData.append('name', fileName);
       formData.append('xfdf', xfdf);
       formData.append('file', file);
-      await DocumentAPI.uploadDocument(formData);
-    } else if (action === 'edit') await DocumentAPI.editDocument(id, xfdf);
+      result = await DocumentAPI.uploadDocument(formData);
+    } else if (action === 'edit')
+      result = await DocumentAPI.editDocument(id, xfdf);
     Toast.show({
-      text1: 'Saved File Successfully',
+      text1: result!.data.message,
+      type: result!.data.status ? 'success' : 'error',
       position: 'bottom',
     });
     navigation.goBack();
@@ -248,7 +251,7 @@ function DocumentSignScreen({route, navigation}: any) {
                   }}></Divider>
                 <TouchableOpacity
                   onPress={() => {
-                    if (action === 'upload') setDlgVisible(true);
+                    if (action === 'upload') setSaveDlgVisible(true);
                     else saveDocument();
                   }}
                   style={{
@@ -284,9 +287,9 @@ function DocumentSignScreen({route, navigation}: any) {
       </BottomSheetModalProvider>
       <Portal>
         <Dialog
-          visible={dlgVisible}
+          visible={saveDlgVisible}
           style={{backgroundColor: '#fff'}}
-          onDismiss={() => setDlgVisible(false)}>
+          onDismiss={() => setSaveDlgVisible(false)}>
           <Dialog.Title style={{textAlign: 'center'}}>
             <Text style={{fontSize: 18}}>Lưu tài liệu thành...</Text>
           </Dialog.Title>
@@ -300,7 +303,7 @@ function DocumentSignScreen({route, navigation}: any) {
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDlgVisible(false)}>
+            <Button onPress={() => setSaveDlgVisible(false)}>
               <Text
                 style={{
                   color: 'red',
