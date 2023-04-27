@@ -59,6 +59,33 @@ const DocumentAPI = {
       id: fileId,
     });
   },
+
+  createFolder: async (name: string) => {
+    return await axiosClient.post(`/${service}/createFolder`, {name});
+  },
+
+  getFolders: async (
+    pageNumber: number,
+    keyword: string,
+    sort: string,
+    order: string,
+  ) => {
+    return await axiosClient.get(`/${service}/getFolders`, {
+      params: {offset: pageNumber, keyword, sort, order},
+    });
+  },
+
+  deleteFolder: async (folderId: string) => {
+    return await axiosClient.post(`/${service}/deleteFolder`, {
+      id: folderId,
+    });
+  },
+
+  getFilesInFolder: async (folderId: string, pageNumber: number) => {
+    return await axiosClient.get(`/${service}/getFilesInFolder`, {
+      params: {id: folderId, offset: pageNumber},
+    });
+  },
 };
 
 export default DocumentAPI;

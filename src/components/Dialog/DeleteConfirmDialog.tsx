@@ -1,10 +1,11 @@
 import React from 'react';
 import {Button, Dialog, Text} from 'react-native-paper';
 
-function DeleteDocumentDialog({
+function DeleteConfirmDialog({
+  item,
+  type,
   dlgVisible,
   setDlgVisible,
-  item,
   handleDeleteFunction,
 }: any) {
   return (
@@ -13,11 +14,11 @@ function DeleteDocumentDialog({
       style={{backgroundColor: '#fff'}}
       onDismiss={() => setDlgVisible(false)}>
       <Dialog.Title style={{textAlign: 'center'}}>
-        <Text style={{fontSize: 20}}>Xóa tài liệu</Text>
+        <Text style={{fontSize: 20}}>Xóa {type}</Text>
       </Dialog.Title>
       <Dialog.Content>
         <Text style={{fontSize: 18, textAlign: 'center'}}>
-          Bạn có chắc chắn xóa tài liệu này?
+          Bạn có chắc chắn xóa {type} này?
         </Text>
       </Dialog.Content>
       <Dialog.Actions>
@@ -52,4 +53,4 @@ function DeleteDocumentDialog({
   );
 }
 
-export default DeleteDocumentDialog;
+export default DeleteConfirmDialog;

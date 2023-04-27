@@ -8,28 +8,26 @@ import {
   Text,
 } from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
-import {useIsFocused} from '@react-navigation/native';
 import {useDrawerStatus} from '@react-navigation/drawer';
-import {DrawerActions} from '@react-navigation/native';
+import {DrawerActions, useIsFocused} from '@react-navigation/native';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import FileItem from '../components/FileItem';
 import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
 import FileUploadModal from '../components/Modal/FileUploadModal';
-import FilesFilterModal from '../components/Modal/FilesFilterModal';
-import FileEditModal from '../components/Modal/FileEditModal';
+import FolderItem from '../components/FolderItem';
+import FoldersFilterModal from '../components/Modal/FolderFilterModal';
+import FolderEditModal from '../components/Modal/FolderEditModal';
 
-function MyDocumentScreen({navigation, route}: any) {
+function FolderScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const isFocused = useIsFocused();
   const isDrawerOpen = useDrawerStatus() === 'open';
+  const isFocused = useIsFocused();
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
   const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
-  // const [status, setStatus] = React.useState<string>('');
   const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
   const uploadModal = React.useRef<BottomSheetModal>(null);
@@ -39,7 +37,7 @@ function MyDocumentScreen({navigation, route}: any) {
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getOwnFiles(
+      const result = await DocumentAPI.getFolders(
         pageNumber,
         searchQuery,
         sorting,
@@ -110,8 +108,8 @@ function MyDocumentScreen({navigation, route}: any) {
     setItem(data);
   }, []);
 
-  const deleteDocument = async (id: any) => {
-    const result = await DocumentAPI.deleteDocument(id);
+  const deleteFolder = async (id: any) => {
+    const result = await DocumentAPI.deleteFolder(id);
     if (result.data.status) {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
@@ -143,7 +141,7 @@ function MyDocumentScreen({navigation, route}: any) {
         <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
-        <Text style={{fontSize: 20, fontWeight: '700'}}>Tài liệu của tôi</Text>
+        <Text style={{fontSize: 20, fontWeight: '700'}}>Thư mục</Text>
         <Searchbar
           style={{marginTop: 20}}
           placeholder="Search"
@@ -156,7 +154,7 @@ function MyDocumentScreen({navigation, route}: any) {
         <FlashList
           data={data}
           renderItem={({item}) => (
-            <FileItem
+            <FolderItem
               item={item}
               onPressMoreFunction={handlePressMoreFunction}
             />
@@ -177,18 +175,17 @@ function MyDocumentScreen({navigation, route}: any) {
       />
       <BottomSheetModalProvider>
         <FileUploadModal uploadModalRef={uploadModal} navigation={navigation} />
-        <FilesFilterModal
+        <FoldersFilterModal
           filterModalRef={filterModal}
           order={order}
           setOrder={setOrder}
           sorting={sorting}
           setSorting={setSorting}
         />
-        <FileEditModal
+        <FolderEditModal
           editModalRef={editModal}
           navigation={navigation}
-          handleDeleteFunction={deleteDocument}
-          typeEdit={'owned'}
+          handleDeleteFunction={deleteFolder}
           item={item}
         />
       </BottomSheetModalProvider>
@@ -229,4 +226,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyDocumentScreen;
+export default FolderScreen;

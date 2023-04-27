@@ -2,18 +2,18 @@ import React from 'react';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 import {View} from 'react-native';
 import {Divider, List, Text, Portal} from 'react-native-paper';
-import PdfSVG from '../../assets/images/pdf.svg';
+import FolderSVG from '../../assets/images/folder.svg';
 import moment from 'moment';
-import DeleteDocumentDialog from '../Dialog/DeleteDocumentDialog';
+import DeleteConfirmDialog from '../Dialog/DeleteConfirmDialog';
 
-function OwnFileEditModal({
+function FolderEditModal({
   editModalRef,
   navigation,
   handleDeleteFunction,
   item,
 }: any) {
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
-  const editSnapPoints = React.useMemo(() => ['70%'], []);
+  const editSnapPoints = React.useMemo(() => ['35%'], []);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -42,13 +42,13 @@ function OwnFileEditModal({
             paddingLeft: 30,
             paddingTop: 15,
           }}>
-          <PdfSVG width={43} height={52} />
+          <FolderSVG width={43} height={52} />
           <View style={{justifyContent: 'center', paddingLeft: 20}}>
             <Text
               variant="titleMedium"
               numberOfLines={1}
               style={{fontSize: 18}}>
-              {item.name + '.pdf'}
+              {item.name}
             </Text>
             <Text variant="bodyMedium">
               {moment(item.updated_at).format('DD/MM/YYYY HH:mm')}
@@ -63,38 +63,24 @@ function OwnFileEditModal({
         />
         <List.Section>
           <List.Item
-            title={<Text style={{fontSize: 16}}>Mở tài liệu</Text>}
-            left={props => <List.Icon {...props} icon="file-document" />}
+            title={<Text style={{fontSize: 16}}>Mở thư mục</Text>}
+            left={props => <List.Icon {...props} icon="folder-open" />}
             onPress={() => {
-              navigation.navigate('DocumentSign', {
+              navigation.navigate('FolderDetail', {
                 id: item._id,
-                name: item.name + '.pdf',
-                path: item.path,
-                action: 'edit',
+                name: item.name,
               });
             }}
           />
           <List.Item
-            onPress={() => {
-              navigation.navigate('DocumentShare', {id: item._id});
-            }}
-            title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
-            left={props => <List.Icon {...props} icon="share" />}
-          />
-          <List.Item
-            title={<Text style={{fontSize: 16}}>In tài liệu</Text>}
-            left={props => <List.Icon {...props} icon="printer" />}
-          />
-          <List.Item
-            title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
-            left={props => <List.Icon {...props} icon="folder" />}
-          />
-          <List.Item
-            title={<Text style={{fontSize: 16}}>Đánh dấu sao</Text>}
-            left={props => <List.Icon {...props} icon="star" />}
+            onPress={() => setDelDlgVisible(true)}
+            title={<Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>}
+            left={props => (
+              <List.Icon {...props} color="red" icon="trash-can" />
+            )}
           />
         </List.Section>
-        <View style={{paddingLeft: 20, paddingRight: 20}}>
+        {/* <View style={{paddingLeft: 20, paddingRight: 20}}>
           <Divider bold={true} />
         </View>
         <List.Section>
@@ -105,13 +91,14 @@ function OwnFileEditModal({
               <List.Icon {...props} color="red" icon="trash-can" />
             )}
           />
-        </List.Section>
+        </List.Section> */}
       </View>
       <Portal>
-        <DeleteDocumentDialog
+        <DeleteConfirmDialog
           dlgVisible={delDlgVisible}
           setDlgVisible={setDelDlgVisible}
           handleDeleteFunction={handleDeleteFunction}
+          type={'thư mục'}
           item={item}
         />
       </Portal>
@@ -119,4 +106,4 @@ function OwnFileEditModal({
   );
 }
 
-export default OwnFileEditModal;
+export default FolderEditModal;

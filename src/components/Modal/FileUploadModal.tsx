@@ -1,11 +1,36 @@
 import React from 'react';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 import {View} from 'react-native';
-import {List, Text} from 'react-native-paper';
+import {
+  Dialog,
+  List,
+  Portal,
+  Text,
+  Button,
+  TextInput,
+} from 'react-native-paper';
 import DocumentPicker, {types} from 'react-native-document-picker';
+import DocumentAPI from '../../services/document';
+import Toast from 'react-native-toast-message';
 
 function FileUploadModal({uploadModalRef, navigation}: any) {
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
+  const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
+  const [folderName, setFolderName] = React.useState('');
+
+  const createFolder = async () => {
+    const result = await DocumentAPI.createFolder(folderName);
+    Toast.show({
+      text1: result!.data.message,
+      type: result!.data.status ? 'success' : 'error',
+      position: 'bottom',
+    });
+    if (result.data.status) {
+      setFolderName('');
+      setSaveDlgVisible(false);
+      uploadModalRef.current?.dismiss();
+    }
+  };
 
   const uploadFileFunc = React.useCallback(async () => {
     const response = await DocumentPicker.pick({
@@ -43,7 +68,9 @@ function FileUploadModal({uploadModalRef, navigation}: any) {
       <View style={{padding: 20}}>
         <List.Section>
           <List.Item
-            onPress={() => {}}
+            onPress={() => {
+              setSaveDlgVisible(true);
+            }}
             title={<Text style={{fontSize: 16}}>Tạo thư mục</Text>}
             left={() => <List.Icon icon="folder-plus" />}
           />
@@ -54,6 +81,52 @@ function FileUploadModal({uploadModalRef, navigation}: any) {
           />
         </List.Section>
       </View>
+      <Portal>
+        <Dialog
+          visible={saveDlgVisible}
+          style={{backgroundColor: '#fff'}}
+          onDismiss={() => setSaveDlgVisible(false)}>
+          <Dialog.Title style={{textAlign: 'center'}}>
+            <Text style={{fontSize: 18}}>Tạo mới thư mục</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              theme={{roundness: 10}}
+              mode="outlined"
+              placeholder="Tên thư mục"
+              onChangeText={text => setFolderName(text)}
+              value={folderName}
+              right={
+                <TextInput.Icon
+                  onPress={() => setFolderName('')}
+                  icon="close"
+                />
+              }
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setSaveDlgVisible(false)}>
+              <Text
+                style={{
+                  color: 'red',
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
+                Hủy
+              </Text>
+            </Button>
+            <Button onPress={createFolder}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: 'blue',
+                }}>
+                Xác nhận
+              </Text>
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </BottomSheetModal>
   );
 }

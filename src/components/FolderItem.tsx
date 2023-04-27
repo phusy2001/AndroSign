@@ -1,21 +1,22 @@
-import moment from 'moment';
 import React from 'react';
+import moment from 'moment';
 import {Card, IconButton} from 'react-native-paper';
-import PdfSVG from '../assets/images/pdf.svg';
+import FolderSVG from '../assets/images/folder.svg';
 
-function OwnFileItem({item, onPressMoreFunction}: any) {
+function FolderItem({item, onPressMoreFunction}: any) {
   const clickMoreFunction = () => {
     onPressMoreFunction(item);
   };
+
   return (
     <Card style={{marginBottom: 10}} id={item._id}>
       <Card.Title
-        title={item.name + '.pdf'}
+        title={item.name}
         subtitle={
           'Cập nhật lần cuối: ' +
           moment(item.updated_at).format('DD/MM/YY HH:mm')
         }
-        left={() => <PdfSVG width={43} height={52} />}
+        left={() => <FolderSVG width={43} height={52} />}
       />
       <Card.Content
         style={{
@@ -33,4 +34,4 @@ function OwnFileItem({item, onPressMoreFunction}: any) {
   );
 }
 
-export default OwnFileItem;
+export default FolderItem;

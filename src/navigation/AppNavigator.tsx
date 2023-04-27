@@ -21,6 +21,8 @@ import DocumentShareScreen from '../screens/DocumentShareScreen';
 import auth from '@react-native-firebase/auth';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import MyDocumentScreen from '../screens/MyDocumentScreen';
+import FolderScreen from '../screens/FolderScreen';
+import FolderDetailScreen from '../screens/FolderDetailScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -33,6 +35,11 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Home"
         component={MyDocumentScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Folders"
+        component={FolderScreen}
         options={{headerShown: false}}
       />
       <Drawer.Screen
@@ -144,6 +151,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="DocumentShare"
         component={DocumentShareScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="FolderDetail"
+        component={FolderDetailScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

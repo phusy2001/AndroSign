@@ -300,6 +300,9 @@ function DocumentSignScreen({route, navigation}: any) {
               placeholder="Tên tài liệu"
               onChangeText={text => setFileName(text)}
               value={fileName}
+              right={
+                <TextInput.Icon onPress={() => setFileName('')} icon="close" />
+              }
             />
           </Dialog.Content>
           <Dialog.Actions>
