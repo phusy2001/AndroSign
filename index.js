@@ -6,6 +6,7 @@ import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
 import {name as appName} from './app.json';
 import App from './src/App';
 import AxiosClient from './src/services/clients/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const theme = {
   dark: true,
@@ -58,6 +59,12 @@ export default function Main() {
     // Get the token
     const token = await messaging().getToken();
     console.log('FCMToken', token);
+
+    try {
+      await AsyncStorage.setItem('fcmToken', token);
+    } catch (e) {
+      console.log('Async Storage Error', e);
+    }
 
     // Save the token
     //await postToApi('/users/1234/tokens', {token});

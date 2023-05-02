@@ -6,7 +6,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
-import {SignupWithEmail} from '../auth/SignupWithEmail';
 import {useNavigation} from '@react-navigation/native';
 import {signupWithEmail} from '../services/auth';
 

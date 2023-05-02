@@ -1,5 +1,6 @@
 import auth from '@react-native-firebase/auth';
 import axiosClient from './clients/axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const service = 'users';
 
@@ -21,10 +22,15 @@ export async function signupWithEmail(
     .then(async () => {
       console.log('User account created');
 
-      await axiosClient.post(`/${service}`, {
-        displayName,
-        email,
-      });
+      const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+      if (fcmToken) {
+        await axiosClient.post(`/${service}`, {
+          displayName,
+          email,
+          fcmTokens: [fcmToken],
+        });
+      }
     })
     .catch(error => {
       if (error.code === 'auth/email-already-in-use') {
