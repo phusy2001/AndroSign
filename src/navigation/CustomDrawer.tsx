@@ -7,6 +7,7 @@ import {Button, Divider} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {signout} from '../services/auth';
 import {navigate} from './RootNavigation';
+import axiosClient from '../services/clients/axios';
 
 function CustomDrawer(props: any) {
   const screenHeight = Dimensions.get('window').height;
@@ -67,7 +68,10 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="cog" size={24} color="#000" />}
             label="Cài đặt"
-            onPress={() => props.navigation.navigate('Settings')}
+            onPress={() => {
+              axiosClient.get('/users');
+              // props.navigation.navigate('Settings');
+            }}
           />
         </View>
         <View style={{paddingHorizontal: 20}}>

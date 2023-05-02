@@ -23,6 +23,7 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import MyDocumentScreen from '../screens/MyDocumentScreen';
 import FolderScreen from '../screens/FolderScreen';
 import FolderDetailScreen from '../screens/FolderDetailScreen';
+import axiosClient from '../services/clients/axios';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -95,6 +96,19 @@ export function AppNavigator() {
         setLoading(false);
       });
   }, [navigation]);
+
+  useEffect(() => {
+    if (auth().currentUser) {
+      const user = auth().currentUser;
+      user?.getIdToken().then(async token => {
+        console.log('token', token);
+        axiosClient.interceptors.request.use(config => {
+          config.headers.Authorization = `Bearer ${token}`;
+          return config;
+        });
+      });
+    }
+  }, []);
 
   if (loading) {
     return null;

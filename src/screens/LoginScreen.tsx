@@ -9,6 +9,7 @@ import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import {signinWithEmail} from '../services/auth';
 import {navigate} from '../navigation/RootNavigation';
+import axiosClient from '../services/clients/axios';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -52,7 +53,13 @@ function LoginScreen({navigation, route}: any) {
     auth().onAuthStateChanged(user => {
       console.log('User', user);
       if (user) {
-        user.getIdToken().then(token => console.log('token', token));
+        user.getIdToken().then(async token => {
+          console.log('token', token);
+          axiosClient.interceptors.request.use(config => {
+            config.headers.Authorization = `Bearer ${token}`;
+            return config;
+          });
+        });
       }
     });
   }, []);
