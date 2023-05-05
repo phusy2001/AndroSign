@@ -1,11 +1,6 @@
 import React from 'react';
 import {View, Dimensions, Keyboard} from 'react-native';
-import {
-  Text,
-  IconButton,
-  TextInput,
-  ActivityIndicator,
-} from 'react-native-paper';
+import {Text, IconButton, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import UserSharedItem from '../components/UserSharedItem';
 import {FlashList} from '@shopify/flash-list';
@@ -14,6 +9,7 @@ import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
+import ListFooter from '../components/ListFooter';
 
 const DocShareSchema = yup.object().shape({
   email: yup
@@ -66,10 +62,10 @@ function DocumentShareScreen({navigation, route}: any) {
     const result = await DocumentAPI.addUserShared(email, id);
     Toast.show({
       text1: result.data.message,
-      type: result.data.status ? 'success' : 'error',
+      type: result.data.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.data.status) {
+    if (result.data.status === 'true') {
       email = '';
       Keyboard.dismiss();
       setData([]);
@@ -81,27 +77,15 @@ function DocumentShareScreen({navigation, route}: any) {
 
   const handlePressRemoveFunction = async (userId: string) => {
     const result = await DocumentAPI.deleteUserShared(id, userId);
-    if (result.data.status) {
+    if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item !== userId);
       setData(filteredData);
     }
     Toast.show({
       text1: result.data.message,
-      type: result.data.status ? 'success' : 'error',
+      type: result.data.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-  };
-
-  const renderFooter = () => {
-    if (isLoading) {
-      return (
-        <View style={{paddingVertical: 20}}>
-          <ActivityIndicator animating size="large" />
-        </View>
-      );
-    } else {
-      return null;
-    }
   };
 
   return (
@@ -193,7 +177,7 @@ function DocumentShareScreen({navigation, route}: any) {
             onEndReached={loadData}
             onEndReachedThreshold={0.001}
             estimatedItemSize={100}
-            ListFooterComponent={renderFooter}
+            ListFooterComponent={<ListFooter isLoading={isLoading} />}
             showsVerticalScrollIndicator={false}
           />
         </View>

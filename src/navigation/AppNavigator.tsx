@@ -24,6 +24,7 @@ import MyDocumentScreen from '../screens/MyDocumentScreen';
 import FolderScreen from '../screens/FolderScreen';
 import FolderDetailScreen from '../screens/FolderDetailScreen';
 import axiosClient from '../services/clients/axios';
+import FolderChooseScreen from '../screens/FolderChooseScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -170,6 +171,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="FolderDetail"
         component={FolderDetailScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="FolderChoose"
+        component={FolderChooseScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

@@ -1,12 +1,6 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {
-  ActivityIndicator,
-  Appbar,
-  FAB,
-  Searchbar,
-  Text,
-} from 'react-native-paper';
+import {Appbar, FAB, Searchbar, Text} from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
 import {useDrawerStatus} from '@react-navigation/drawer';
@@ -18,6 +12,7 @@ import Toast from 'react-native-toast-message';
 import FileUploadModal from '../components/Modal/FileUploadModal';
 import FilesFilterModal from '../components/Modal/FilesFilterModal';
 import FileEditModal from '../components/Modal/FileEditModal';
+import ListFooter from '../components/ListFooter';
 
 function MyDocumentScreen({navigation, route}: any) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -112,28 +107,16 @@ function MyDocumentScreen({navigation, route}: any) {
 
   const deleteDocument = async (id: any) => {
     const result = await DocumentAPI.deleteDocument(id);
-    if (result.data.status) {
+    if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
       text1: result.data.message,
-      type: result.data.status ? 'success' : 'error',
+      type: result.data.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-  };
-
-  const renderFooter = () => {
-    if (isLoading) {
-      return (
-        <View style={{paddingVertical: 20}}>
-          <ActivityIndicator animating size="large" />
-        </View>
-      );
-    } else {
-      return null;
-    }
   };
 
   return (
@@ -165,7 +148,7 @@ function MyDocumentScreen({navigation, route}: any) {
           onEndReached={loadData}
           onEndReachedThreshold={0.001}
           estimatedItemSize={100}
-          ListFooterComponent={renderFooter}
+          ListFooterComponent={<ListFooter isLoading={isLoading} />}
           showsVerticalScrollIndicator={false}
         />
       </View>

@@ -86,6 +86,22 @@ const DocumentAPI = {
       params: {id: folderId, offset: pageNumber},
     });
   },
+
+  updateFileInFolder: async (fileId: string, folderId: string) => {
+    return await axiosClient.post(`/${service}/updateFileInFolder`, {
+      fileId,
+      folderId,
+    });
+  },
+
+  getFolderListOfFile: async (fileId: string, pageNumber: number) => {
+    return await axiosClient.get(`/${service}/getFolderListOfFile`, {
+      params: {
+        id: fileId,
+        offset: pageNumber,
+      },
+    });
+  },
 };
 
 export default DocumentAPI;

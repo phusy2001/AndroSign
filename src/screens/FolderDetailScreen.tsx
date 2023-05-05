@@ -55,16 +55,30 @@ function FolderDetailScreen({navigation, route}: any) {
     setItem(data);
   }, []);
 
-  const deleteDocument = async (id: any) => {
+  const deleteDocument = async (id: string) => {
     const result = await DocumentAPI.deleteDocument(id);
-    if (result.data.status) {
+    if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
       text1: result.data.message,
-      type: result.data.status ? 'success' : 'error',
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+  };
+
+  const removeFromFolder = async (fileId: string) => {
+    const result = await DocumentAPI.updateFileInFolder(fileId, id);
+    if (result.data.status === 'true') {
+      const filteredData = data.filter((item: any) => item._id !== fileId);
+      setData(filteredData);
+      editModal.current?.dismiss();
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };
@@ -127,9 +141,9 @@ function FolderDetailScreen({navigation, route}: any) {
         </View>
         <View
           style={{
+            paddingTop: 10,
             paddingLeft: 20,
             paddingRight: 20,
-            marginBottom: 30,
             flex: 1,
           }}>
           <FlashList
@@ -154,6 +168,7 @@ function FolderDetailScreen({navigation, route}: any) {
           editModalRef={editModal}
           navigation={navigation}
           handleDeleteFunction={deleteDocument}
+          handleDelFolderFunction={removeFromFolder}
           typeEdit={'mixed'}
           item={item}
         />

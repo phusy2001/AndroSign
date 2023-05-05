@@ -10,6 +10,7 @@ function FileEditModal({
   editModalRef,
   navigation,
   handleDeleteFunction,
+  handleDelFolderFunction,
   typeEdit,
   item,
 }: any) {
@@ -86,10 +87,15 @@ function FileEditModal({
             title={<Text style={{fontSize: 16}}>In tài liệu</Text>}
             left={props => <List.Icon {...props} icon="printer" />}
           />
-          <List.Item
-            title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
-            left={props => <List.Icon {...props} icon="folder" />}
-          />
+          {typeEdit !== 'mixed' && (
+            <List.Item
+              onPress={() => {
+                navigation.navigate('FolderChoose', {id: item._id});
+              }}
+              title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
+              left={props => <List.Icon {...props} icon="folder" />}
+            />
+          )}
           <List.Item
             title={<Text style={{fontSize: 16}}>Đánh dấu sao</Text>}
             left={props => <List.Icon {...props} icon="star" />}
@@ -101,6 +107,19 @@ function FileEditModal({
               <Divider bold={true} />
             </View>
             <List.Section>
+              {typeEdit === 'mixed' && (
+                <List.Item
+                  onPress={() => handleDelFolderFunction(item._id)}
+                  title={
+                    <Text style={{fontSize: 16, color: 'red'}}>
+                      Xóa khỏi thư mục
+                    </Text>
+                  }
+                  left={props => (
+                    <List.Icon {...props} color="red" icon="file-document" />
+                  )}
+                />
+              )}
               <List.Item
                 onPress={() => setDelDlgVisible(true)}
                 title={<Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>}

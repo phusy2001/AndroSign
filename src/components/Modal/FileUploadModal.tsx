@@ -21,11 +21,11 @@ function FileUploadModal({uploadModalRef, navigation}: any) {
   const createFolder = async () => {
     const result = await DocumentAPI.createFolder(folderName);
     Toast.show({
-      text1: result!.data.message,
-      type: result!.data.status ? 'success' : 'error',
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.data.status) {
+    if (result.data.status === 'true') {
       setFolderName('');
       setSaveDlgVisible(false);
       uploadModalRef.current?.dismiss();
