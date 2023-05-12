@@ -14,9 +14,10 @@ import FolderEditModal from '../components/Modal/FolderEditModal';
 import ListFooter from '../components/ListFooter';
 
 function FolderScreen({navigation, route}: any) {
+  const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const isDrawerOpen = useDrawerStatus() === 'open';
   const isFocused = useIsFocused();
+  const isDrawerOpen = useDrawerStatus() === 'open';
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
@@ -29,6 +30,10 @@ function FolderScreen({navigation, route}: any) {
   const filterModal = React.useRef<BottomSheetModal>(null);
   const editModal = React.useRef<BottomSheetModal>(null);
 
+  React.useEffect(() => {
+    if (isFocused) uploadModal.current?.dismiss();
+  }, [isFocused]);
+
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
@@ -39,11 +44,18 @@ function FolderScreen({navigation, route}: any) {
         order,
       );
       if (result.data.data.data.length < 10) setEnd(true);
-      const newData = await result.data.data.data;
+      const newData = result.data.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
     }
+  };
+
+  const refreshData = () => {
+    setData([]);
+    setPageNumber(1);
+    setEnd(false);
+    setRefresh(refresh + 1);
   };
 
   const handleDrawer = React.useCallback(() => {
@@ -51,31 +63,14 @@ function FolderScreen({navigation, route}: any) {
   }, []);
 
   React.useEffect(() => {
-    if (isFocused) {
-      uploadModal.current?.dismiss();
-      filterModal.current?.dismiss();
-      editModal.current?.dismiss();
-      setData([]);
-      setPageNumber(1);
-      setEnd(false);
-      setRefresh(refresh + 1);
-    }
-  }, [isFocused]);
-
-  React.useEffect(() => {
     if (refresh > 0) loadData();
   }, [refresh]);
 
   React.useEffect(() => {
-    if (refresh > 0) {
-      const timeOut = setTimeout(() => {
-        setData([]);
-        setPageNumber(1);
-        setEnd(false);
-        setRefresh(refresh + 1);
-      }, 500);
+    if (!initial.current) {
+      const timeOut = setTimeout(() => refreshData(), 500);
       return () => clearTimeout(timeOut);
-    }
+    } else initial.current = false;
   }, [searchQuery, sorting, order]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
@@ -117,6 +112,8 @@ function FolderScreen({navigation, route}: any) {
     });
   };
 
+  const createFolder = () => refreshData();
+
   return (
     <View style={styles.container}>
       <Appbar.Header style={{justifyContent: 'space-between'}}>
@@ -139,10 +136,11 @@ function FolderScreen({navigation, route}: any) {
           renderItem={({item}) => (
             <FolderItem
               item={item}
+              navigation={navigation}
               onPressMoreFunction={handlePressMoreFunction}
             />
           )}
-          keyExtractor={(item: any) => item?._id}
+          keyExtractor={(item, index): any => index}
           onEndReached={loadData}
           onEndReachedThreshold={0.001}
           estimatedItemSize={100}
@@ -157,7 +155,11 @@ function FolderScreen({navigation, route}: any) {
         onPress={handlePresentUploadModalPress}
       />
       <BottomSheetModalProvider>
-        <FileUploadModal uploadModalRef={uploadModal} navigation={navigation} />
+        <FileUploadModal
+          uploadModalRef={uploadModal}
+          navigation={navigation}
+          handleCreateFolder={createFolder}
+        />
         <FoldersFilterModal
           filterModalRef={filterModal}
           order={order}

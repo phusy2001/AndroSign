@@ -102,6 +102,34 @@ const DocumentAPI = {
       },
     });
   },
+
+  markFile: async (fileId: string) => {
+    return await axiosClient.post(`/${service}/markFile`, {
+      id: fileId,
+    });
+  },
+
+  unmarkFile: async (fileId: string) => {
+    return await axiosClient.post(`/${service}/unmarkFile`, {
+      id: fileId,
+    });
+  },
+
+  getStarredFiles: async (
+    pageNumber: number,
+    keyword: string,
+    sort: string,
+    order: string,
+  ) => {
+    return await axiosClient.get(`/${service}/getStarredFiles`, {
+      params: {
+        offset: pageNumber,
+        keyword,
+        sort,
+        order,
+      },
+    });
+  },
 };
 
 export default DocumentAPI;

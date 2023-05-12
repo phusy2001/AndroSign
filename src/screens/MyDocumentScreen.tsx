@@ -15,6 +15,7 @@ import FileEditModal from '../components/Modal/FileEditModal';
 import ListFooter from '../components/ListFooter';
 
 function MyDocumentScreen({navigation, route}: any) {
+  const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
   const isDrawerOpen = useDrawerStatus() === 'open';
@@ -31,6 +32,10 @@ function MyDocumentScreen({navigation, route}: any) {
   const filterModal = React.useRef<BottomSheetModal>(null);
   const editModal = React.useRef<BottomSheetModal>(null);
 
+  const handleDrawer = React.useCallback(() => {
+    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+  }, []);
+
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
@@ -41,27 +46,22 @@ function MyDocumentScreen({navigation, route}: any) {
         order,
       );
       if (result.data.data.data.length < 10) setEnd(true);
-      const newData = await result.data.data.data;
+      const newData = result.data.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
     }
   };
 
-  const handleDrawer = React.useCallback(() => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
-  }, []);
+  const refreshData = () => {
+    setPageNumber(1);
+    setEnd(false);
+    setData([]);
+    setRefresh(refresh + 1);
+  };
 
   React.useEffect(() => {
-    if (isFocused) {
-      uploadModal.current?.dismiss();
-      filterModal.current?.dismiss();
-      editModal.current?.dismiss();
-      setData([]);
-      setPageNumber(1);
-      setEnd(false);
-      setRefresh(refresh + 1);
-    }
+    if (isFocused) uploadModal.current?.dismiss();
   }, [isFocused]);
 
   React.useEffect(() => {
@@ -69,15 +69,10 @@ function MyDocumentScreen({navigation, route}: any) {
   }, [refresh]);
 
   React.useEffect(() => {
-    if (refresh > 0) {
-      const timeOut = setTimeout(() => {
-        setData([]);
-        setPageNumber(1);
-        setEnd(false);
-        setRefresh(refresh + 1);
-      }, 500);
+    if (!initial.current) {
+      const timeOut = setTimeout(() => refreshData(), 500);
       return () => clearTimeout(timeOut);
-    }
+    } else initial.current = false;
   }, [searchQuery, sorting, order]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
@@ -105,13 +100,22 @@ function MyDocumentScreen({navigation, route}: any) {
     setItem(data);
   }, []);
 
-  const deleteDocument = async (id: any) => {
+  const deleteDocument = async (id: string) => {
     const result = await DocumentAPI.deleteDocument(id);
     if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+  };
+
+  const unmarkDocument = async (id: string) => {
+    const result = await DocumentAPI.unmarkFile(id);
     Toast.show({
       text1: result.data.message,
       type: result.data.status === 'true' ? 'success' : 'error',
@@ -141,12 +145,13 @@ function MyDocumentScreen({navigation, route}: any) {
           renderItem={({item}) => (
             <FileItem
               item={item}
+              navigation={navigation}
               onPressMoreFunction={handlePressMoreFunction}
             />
           )}
-          keyExtractor={(item: any) => item?._id}
+          keyExtractor={(item, index): any => index}
           onEndReached={loadData}
-          onEndReachedThreshold={0.001}
+          onEndReachedThreshold={0.00000001}
           estimatedItemSize={100}
           ListFooterComponent={<ListFooter isLoading={isLoading} />}
           showsVerticalScrollIndicator={false}
@@ -159,7 +164,13 @@ function MyDocumentScreen({navigation, route}: any) {
         onPress={handlePresentUploadModalPress}
       />
       <BottomSheetModalProvider>
-        <FileUploadModal uploadModalRef={uploadModal} navigation={navigation} />
+        <FileUploadModal
+          uploadModalRef={uploadModal}
+          navigation={navigation}
+          handleCreateFile={() => {
+            refreshData();
+          }}
+        />
         <FilesFilterModal
           filterModalRef={filterModal}
           order={order}
@@ -171,6 +182,7 @@ function MyDocumentScreen({navigation, route}: any) {
           editModalRef={editModal}
           navigation={navigation}
           handleDeleteFunction={deleteDocument}
+          handleUnmarkFunction={unmarkDocument}
           typeEdit={'owned'}
           item={item}
         />

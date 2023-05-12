@@ -1,186 +1,132 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable react/self-closing-comp */
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {
-  ActivityIndicator,
-  Appbar,
-  Button,
-  Card,
-  Divider,
-  FAB,
-  List,
-  RadioButton,
-  Searchbar,
-  Text,
-  IconButton,
-} from 'react-native-paper';
+import {Appbar, FAB, Searchbar, Text} from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetBackdrop,
-} from '@gorhom/bottom-sheet';
-import PdfSVG from '../assets/images/pdf.svg';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import UnDraw_WarningSVG from '../assets/images/undraw_Warning_re_eoyh 1.svg';
-import DocumentPicker, {types} from 'react-native-document-picker';
-
-function CustomListView({item, onPressMoreFunction}: any) {
-  const clickMoreFunction = () => {
-    onPressMoreFunction(item);
-  };
-  return (
-    <Card style={{marginBottom: 10}}>
-      <Card.Title
-        title="Card Title"
-        subtitle="Card Subtitle"
-        left={() => <PdfSVG width={43} height={52} />}
-      />
-      <Card.Content
-        style={{
-          position: 'absolute',
-          top: '20%',
-          right: 0,
-        }}>
-        <IconButton
-          onPress={clickMoreFunction}
-          icon="dots-horizontal"
-          size={24}
-          // color="#FFD600"
-        />
-      </Card.Content>
-    </Card>
-  );
-}
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import FileItem from '../components/FileItem';
+import DocumentAPI from '../services/document';
+import Toast from 'react-native-toast-message';
+import FileUploadModal from '../components/Modal/FileUploadModal';
+import FilesFilterModal from '../components/Modal/FilesFilterModal';
+import FileEditModal from '../components/Modal/FileEditModal';
+import ListFooter from '../components/ListFooter';
 
 function StarredScreen({navigation, route}: any) {
+  const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const onChangeSearch = (query: string) => setSearchQuery(query);
   const isFocused = useIsFocused();
   const isDrawerOpen = useDrawerStatus() === 'open';
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
-  const handleDrawer = () => {
-    if (!isDrawerOpen) {
-      navigation.dispatch(DrawerActions.openDrawer());
-    }
-  };
+  const [item, setItem] = React.useState({});
+  const [end, setEnd] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(0);
+  // const [status, setStatus] = React.useState<string>('');
+  const [sorting, setSorting] = React.useState<string>('updated');
+  const [order, setOrder] = React.useState<string>('desc');
+  const uploadModal = React.useRef<BottomSheetModal>(null);
+  const filterModal = React.useRef<BottomSheetModal>(null);
+  const editModal = React.useRef<BottomSheetModal>(null);
 
   const loadData = async () => {
-    setIsLoading(true);
-    const response = await fetch(
-      'https://64037282302b5d671c4fb4c0.mockapi.io/file',
-    );
-    const newData = await response.json();
-    setData([...data, ...newData]);
-    setPageNumber(pageNumber + 1);
-    setIsLoading(false);
+    if (end === false) {
+      setIsLoading(true);
+      const result = await DocumentAPI.getStarredFiles(
+        pageNumber,
+        searchQuery,
+        sorting,
+        order,
+      );
+      if (result.data.data.data.length < 10) setEnd(true);
+      const newData = result.data.data.data;
+      setData(data.concat(newData));
+      setPageNumber(pageNumber + 1);
+      setIsLoading(false);
+    }
   };
 
-  React.useEffect(() => {
-    loadData();
+  const handleDrawer = React.useCallback(() => {
+    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
   }, []);
 
-  React.useEffect(() => {
-    const currentRef = uploadModalRef.current;
-    if (!isFocused) {
-      // do something when the screen loses focus
-      currentRef?.dismiss();
-    }
-    return () => {
-      currentRef?.dismiss();
-    };
-  }, [isFocused]);
-
-  const renderFooter = () => {
-    if (isLoading) {
-      return (
-        <View style={{paddingVertical: 20}}>
-          <ActivityIndicator animating size="large" />
-        </View>
-      );
-    } else {
-      return null;
-    }
+  const refreshData = () => {
+    setData([]);
+    setPageNumber(1);
+    setEnd(false);
+    setRefresh(refresh + 1);
   };
 
-  // Modal ref
-  const uploadModalRef = React.useRef<BottomSheetModal>(null);
-  const filterModalRef = React.useRef<BottomSheetModal>(null);
-  const editModalRef = React.useRef<BottomSheetModal>(null);
+  React.useEffect(() => {
+    if (isFocused) uploadModal.current?.dismiss();
+  }, [isFocused]);
 
-  // Variables
-  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
-  const filterSnapPoints = React.useMemo(() => ['60%'], []);
-  const editSnapPoints = React.useMemo(() => ['70%'], []);
+  React.useEffect(() => {
+    if (refresh > 0) loadData();
+  }, [refresh]);
 
-  // Callbacks
+  React.useEffect(() => {
+    if (!initial.current) {
+      const timeOut = setTimeout(() => refreshData(), 500);
+      return () => clearTimeout(timeOut);
+    } else initial.current = false;
+  }, [searchQuery, sorting, order]);
+
   const handlePresentUploadModalPress = React.useCallback(() => {
-    if (filterModalRef || editModalRef) {
-      filterModalRef.current?.dismiss();
-      editModalRef.current?.dismiss();
+    if (filterModal || editModal) {
+      filterModal.current?.dismiss();
+      editModal.current?.dismiss();
     }
-    uploadModalRef.current?.present();
+    uploadModal.current?.present();
   }, []);
 
   const handlePresentFilterModalPress = React.useCallback(() => {
-    if (uploadModalRef || editModalRef) {
-      uploadModalRef.current?.dismiss();
-      editModalRef.current?.dismiss();
+    if (uploadModal || editModal) {
+      uploadModal.current?.dismiss();
+      editModal.current?.dismiss();
     }
-    filterModalRef.current?.present();
+    filterModal.current?.present();
   }, []);
 
   const handlePressMoreFunction = React.useCallback((data: any) => {
-    if (uploadModalRef || filterModalRef) {
-      uploadModalRef.current?.dismiss();
-      filterModalRef.current?.dismiss();
+    if (uploadModal || filterModal) {
+      uploadModal.current?.dismiss();
+      filterModal.current?.dismiss();
     }
-    editModalRef.current?.present(data);
+    editModal.current?.present(data);
+    setItem(data);
   }, []);
 
-  const handleSheetChanges = React.useCallback((index: number) => {
-    // console.log('handleSheetChanges', index);
-  }, []);
-
-  const handleDismiss = () => {
-    // console.log('handle dismiss');
+  const deleteDocument = async (id: string) => {
+    const result = await DocumentAPI.deleteDocument(id);
+    if (result.data.status === 'true') {
+      const filteredData = data.filter((item: any) => item._id !== id);
+      setData(filteredData);
+      editModal.current?.dismiss();
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
   };
 
-  const [status, setStatus] = React.useState<string>('1');
-  const [sorting, setSortting] = React.useState<string>('1');
-
-  //Func
-  const uploadFileFunc = React.useCallback(async () => {
-    const response = await DocumentPicker.pick({
-      presentationStyle: 'fullScreen',
-      type: [types.pdf],
+  const unmarkDocument = async (id: string) => {
+    const result = await DocumentAPI.unmarkFile(id);
+    if (result.data.status === 'true') {
+      const filteredData = data.filter((item: any) => item._id !== id);
+      setData(filteredData);
+      editModal.current?.dismiss();
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
     });
-    navigation.navigate('DocumentSign', {
-      name: response[0].name,
-      path: response[0].uri,
-    });
-  }, []);
-
-  const renderBackdrop = React.useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={1}
-        animatedIndex={{
-          value: 1,
-        }}
-      />
-    ),
-    [],
-  );
+  };
 
   return (
     <View style={styles.container}>
@@ -189,11 +135,11 @@ function StarredScreen({navigation, route}: any) {
         <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
-        <Text style={{fontSize: 20, fontWeight: '700'}}>Được gắn sao</Text>
+        <Text style={{fontSize: 20, fontWeight: '700'}}>Tài liệu gắn sao</Text>
         <Searchbar
           style={{marginTop: 20}}
           placeholder="Search"
-          onChangeText={onChangeSearch}
+          onChangeText={(query: string) => setSearchQuery(query)}
           value={searchQuery}
         />
       </View>
@@ -202,16 +148,18 @@ function StarredScreen({navigation, route}: any) {
         <FlashList
           data={data}
           renderItem={({item}) => (
-            <CustomListView
+            <FileItem
               item={item}
+              navigation={navigation}
               onPressMoreFunction={handlePressMoreFunction}
             />
           )}
-          keyExtractor={(item: any) => item?.id}
+          keyExtractor={(item, index): any => index}
           onEndReached={loadData}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.001}
           estimatedItemSize={100}
-          ListFooterComponent={renderFooter}
+          ListFooterComponent={<ListFooter isLoading={isLoading} />}
+          showsVerticalScrollIndicator={false}
         />
       </View>
       <FAB
@@ -221,205 +169,22 @@ function StarredScreen({navigation, route}: any) {
         onPress={handlePresentUploadModalPress}
       />
       <BottomSheetModalProvider>
-        <BottomSheetModal
-          ref={uploadModalRef}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={uploadSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
-          <View style={{padding: 20}}>
-            <List.Section>
-              <List.Item
-                onPress={() => {}}
-                title={<Text style={{fontSize: 16}}>Tạo thư mục</Text>}
-                left={() => <List.Icon icon="folder-plus" />}
-              />
-              <List.Item
-                onPress={uploadFileFunc}
-                title={<Text style={{fontSize: 16}}>Tải lên file</Text>}
-                left={() => <List.Icon icon="file-upload" />}
-              />
-            </List.Section>
-          </View>
-        </BottomSheetModal>
-        <BottomSheetModal
-          ref={filterModalRef}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={filterSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
-          <View style={{padding: 20}}>
-            <View style={{marginBottom: 10}}>
-              <Text
-                variant="labelLarge"
-                style={{fontSize: 20, marginBottom: 10}}>
-                Trạng thái
-              </Text>
-              <RadioButton.Group
-                onValueChange={newStatus => setStatus(newStatus)}
-                value={status}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="1" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Tất cả</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="2" />
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: '#FF7A00',
-                        marginLeft: 20,
-                        marginRight: 8,
-                      }}></View>
-                    <Text style={{fontSize: 16}}>Đang xử lý</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="3" />
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginLeft: 20,
-                    }}>
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: '#42FF00',
-                        marginRight: 8,
-                      }}></View>
-                    <Text style={{fontSize: 16}}>Đã ký</Text>
-                  </View>
-                </View>
-              </RadioButton.Group>
-            </View>
-            <View style={{marginBottom: 10}}>
-              <Text
-                variant="labelLarge"
-                style={{fontSize: 20, marginBottom: 10}}>
-                Sắp xếp
-              </Text>
-              <RadioButton.Group
-                onValueChange={sortValue => setSortting(sortValue)}
-                value={sorting}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="1" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Cập nhật gần đây</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="2" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Tên tài liệu</Text>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <RadioButton value="3" />
-                  <View style={{marginLeft: 20}}>
-                    <Text style={{fontSize: 16}}>Ngày tạo</Text>
-                  </View>
-                </View>
-              </RadioButton.Group>
-            </View>
-            <Button
-              mode="contained"
-              onPress={() => {
-                filterModalRef.current?.dismiss();
-              }}>
-              Xác nhận{' '}
-            </Button>
-          </View>
-        </BottomSheetModal>
-        <BottomSheetModal
-          ref={editModalRef}
-          index={0}
-          backdropComponent={renderBackdrop}
-          snapPoints={editSnapPoints}
-          enablePanDownToClose={true}
-          onDismiss={handleDismiss}
-          onChange={handleSheetChanges}>
-          {(props: any) => {
-            //const {data} = props;
-            return (
-              <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    paddingLeft: 30,
-                    paddingTop: 15,
-                  }}>
-                  <PdfSVG width={43} height={52} />
-                  <View style={{justifyContent: 'center', paddingLeft: 20}}>
-                    <Text
-                      variant="titleMedium"
-                      numberOfLines={1}
-                      style={{fontSize: 20}}>
-                      file-example.pdf
-                    </Text>
-                    <Text variant="bodyMedium">03/02/2023 at 5:40</Text>
-                  </View>
-                </View>
-                <Divider
-                  bold={true}
-                  style={{
-                    marginTop: 15,
-                  }}></Divider>
-                <List.Section>
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Mở tài liệu</Text>}
-                    left={props => (
-                      <List.Icon {...props} icon="file-document" />
-                    )}
-                  />
-                  <List.Item
-                    onPress={() => {
-                      navigation.navigate('DocumentShare');
-                    }}
-                    title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
-                    left={props => <List.Icon {...props} icon="share" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>In tài liệu</Text>}
-                    left={props => <List.Icon {...props} icon="printer" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Thêm vào thư mục</Text>}
-                    left={props => <List.Icon {...props} icon="folder" />}
-                  />
-                  <List.Item
-                    title={<Text style={{fontSize: 16}}>Đánh dấu sao</Text>}
-                    left={props => <List.Icon {...props} icon="star" />}
-                  />
-                </List.Section>
-                <View style={{paddingLeft: 20, paddingRight: 20}}>
-                  <Divider bold={true}></Divider>
-                </View>
-                <List.Section>
-                  <List.Item
-                    title={
-                      <Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>
-                    }
-                    left={props => (
-                      <List.Icon {...props} color="red" icon="trash-can" />
-                    )}
-                  />
-                </List.Section>
-              </View>
-            );
-          }}
-        </BottomSheetModal>
+        <FileUploadModal uploadModalRef={uploadModal} navigation={navigation} />
+        <FilesFilterModal
+          filterModalRef={filterModal}
+          order={order}
+          setOrder={setOrder}
+          sorting={sorting}
+          setSorting={setSorting}
+        />
+        <FileEditModal
+          editModalRef={editModal}
+          navigation={navigation}
+          handleUnmarkFunction={unmarkDocument}
+          handleDeleteFunction={deleteDocument}
+          typeEdit={'starred'}
+          item={item}
+        />
       </BottomSheetModalProvider>
     </View>
   );

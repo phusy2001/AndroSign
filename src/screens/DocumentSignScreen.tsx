@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {
   Text,
   IconButton,
@@ -28,18 +22,17 @@ import Toast from 'react-native-toast-message';
 
 function DocumentSignScreen({route, navigation}: any) {
   const insets = useSafeAreaInsets();
-  const {name, path, file, action, id} = route.params;
+  const {id, name, path, file, action, createFileFunction} = route.params;
   const confirmModal = React.useRef<BottomSheetModal>(null);
   const confirmSnapPoints = React.useMemo(() => ['30%'], []);
   const documentView = React.useRef(null);
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
-  const [permissionGranted, setPermissionGranted] = React.useState<boolean>(
-    Platform.OS === 'ios' ? true : false,
-  );
+
   const handleConfirm = React.useCallback((data: any) => {
     confirmModal.current?.present(data);
   }, []);
+
   const renderBackdrop = React.useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -53,38 +46,10 @@ function DocumentSignScreen({route, navigation}: any) {
     [],
   );
 
-  const requestStoragePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        setPermissionGranted(true);
-        // console.log('Storage permission granted');
-      } else {
-        setPermissionGranted(false);
-        // console.log('Storage permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
   React.useEffect(() => {
     RNPdftron.initialize('');
     RNPdftron.enableJavaScript(true);
-    if (Platform.OS === 'android') {
-      requestStoragePermission();
-    }
   }, []);
-
-  if (!permissionGranted) {
-    // return (
-    //   <View style={styles.container}>
-    //     <Text>Storage permission required.</Text>
-    //   </View>
-    // );
-  }
 
   const saveDocument = async () => {
     const xfdf = await documentView.current!.exportAnnotations();
@@ -103,6 +68,7 @@ function DocumentSignScreen({route, navigation}: any) {
       position: 'bottom',
     });
     navigation.goBack();
+    createFileFunction();
     // axios.post('/upload');
     // console.log(documentView.current.rotateClockwise());
     // documentView.current.importAnnotations(xfdf);
@@ -229,60 +195,55 @@ function DocumentSignScreen({route, navigation}: any) {
           snapPoints={confirmSnapPoints}
           backdropComponent={renderBackdrop}
           enablePanDownToClose={true}>
-          {(props: any) => {
-            //const {data} = props;
-            return (
-              <View>
-                <Text
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: 18,
-                    paddingTop: 15,
-                    paddingLeft: 30,
-                    paddingRight: 30,
-                  }}>
-                  Chọn hành động
-                </Text>
-                <Divider
-                  bold={true}
-                  style={{
-                    marginTop: 15,
-                    marginBottom: 10,
-                  }}></Divider>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (action === 'upload') setSaveDlgVisible(true);
-                    else saveDocument();
-                  }}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    paddingLeft: 15,
-                    paddingRight: 15,
-                    alignItems: 'center',
-                  }}>
-                  <IconButton
-                    icon="content-save-outline"
-                    size={22}
-                    iconColor="blue"
-                  />
-                  <Text style={{fontSize: 16}}>Lưu tài liệu</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={cancelDocument}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    paddingLeft: 15,
-                    paddingRight: 15,
-                    alignItems: 'center',
-                  }}>
-                  <IconButton icon="close" size={22} iconColor="red" />
-                  <Text style={{fontSize: 16, color: 'red'}}>Đóng và Hủy</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          }}
+          <View>
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 18,
+                paddingTop: 15,
+                paddingLeft: 30,
+                paddingRight: 30,
+              }}>
+              Chọn hành động
+            </Text>
+            <Divider
+              bold={true}
+              style={{
+                marginTop: 15,
+                marginBottom: 10,
+              }}></Divider>
+            <TouchableOpacity
+              onPress={() => {
+                if (action === 'upload') setSaveDlgVisible(true);
+                else saveDocument();
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                paddingLeft: 15,
+                paddingRight: 15,
+                alignItems: 'center',
+              }}>
+              <IconButton
+                icon="content-save-outline"
+                size={22}
+                iconColor="blue"
+              />
+              <Text style={{fontSize: 16}}>Lưu tài liệu</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={cancelDocument}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                paddingLeft: 15,
+                paddingRight: 15,
+                alignItems: 'center',
+              }}>
+              <IconButton icon="close" size={22} iconColor="red" />
+              <Text style={{fontSize: 16, color: 'red'}}>Đóng và Hủy</Text>
+            </TouchableOpacity>
+          </View>
         </BottomSheetModal>
       </BottomSheetModalProvider>
       <Portal>

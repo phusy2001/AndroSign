@@ -3,13 +3,21 @@ import moment from 'moment';
 import {Card, IconButton} from 'react-native-paper';
 import FolderSVG from '../assets/images/folder.svg';
 
-function FolderItem({item, onPressMoreFunction}: any) {
+function FolderItem({item, navigation, onPressMoreFunction}: any) {
   const clickMoreFunction = () => {
     onPressMoreFunction(item);
   };
 
   return (
-    <Card style={{marginBottom: 10}} id={item._id}>
+    <Card
+      style={{marginBottom: 10}}
+      id={item._id}
+      onPress={() => {
+        navigation.navigate('FolderDetail', {
+          id: item._id,
+          name: item.name,
+        });
+      }}>
       <Card.Title
         title={item.name}
         subtitle={

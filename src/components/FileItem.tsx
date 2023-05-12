@@ -3,13 +3,23 @@ import React from 'react';
 import {Card, IconButton} from 'react-native-paper';
 import PdfSVG from '../assets/images/pdf.svg';
 
-function FileItem({item, onPressMoreFunction}: any) {
+function FileItem({item, navigation, onPressMoreFunction}: any) {
   const clickMoreFunction = () => {
     onPressMoreFunction(item);
   };
 
   return (
-    <Card style={{marginBottom: 10}} id={item._id}>
+    <Card
+      style={{marginBottom: 10}}
+      id={item._id}
+      onPress={() => {
+        navigation.navigate('DocumentSign', {
+          id: item._id,
+          name: item.name + '.pdf',
+          path: item.path,
+          action: 'edit',
+        });
+      }}>
       <Card.Title
         title={item.name + '.pdf'}
         subtitle={

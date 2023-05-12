@@ -13,7 +13,12 @@ import DocumentPicker, {types} from 'react-native-document-picker';
 import DocumentAPI from '../../services/document';
 import Toast from 'react-native-toast-message';
 
-function FileUploadModal({uploadModalRef, navigation}: any) {
+function FileUploadModal({
+  uploadModalRef,
+  navigation,
+  handleCreateFolder,
+  handleCreateFile,
+}: any) {
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [folderName, setFolderName] = React.useState('');
@@ -29,6 +34,7 @@ function FileUploadModal({uploadModalRef, navigation}: any) {
       setFolderName('');
       setSaveDlgVisible(false);
       uploadModalRef.current?.dismiss();
+      if (handleCreateFolder) handleCreateFolder();
     }
   };
 
@@ -42,6 +48,9 @@ function FileUploadModal({uploadModalRef, navigation}: any) {
       path: response[0].uri,
       file: response[0],
       action: 'upload',
+      createFileFunction: () => {
+        handleCreateFile();
+      },
     });
   }, []);
 

@@ -37,12 +37,12 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Home"
         component={MyDocumentScreen}
-        options={{headerShown: false}}
+        options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen
         name="Folders"
         component={FolderScreen}
-        options={{headerShown: false}}
+        options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen
         name="Settings"
@@ -52,7 +52,7 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Starred"
         component={StarredScreen}
-        options={{headerShown: false}}
+        options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen
         name="Account"
@@ -62,7 +62,7 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Trash"
         component={TrashScreen}
-        options={{headerShown: false}}
+        options={{headerShown: false, unmountOnBlur: true}}
       />
     </Drawer.Navigator>
   );

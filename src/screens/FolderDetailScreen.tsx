@@ -151,6 +151,7 @@ function FolderDetailScreen({navigation, route}: any) {
             renderItem={({item}) => (
               <FileItem
                 item={item}
+                navigation={navigation}
                 onPressMoreFunction={handlePressMoreFunction}
               />
             )}
