@@ -130,6 +130,44 @@ const DocumentAPI = {
       },
     });
   },
+
+  getFilesShared: async (
+    pageNumber: number,
+    keyword: string,
+    sort: string,
+    order: string,
+  ) => {
+    return await axiosClient.get(`/${service}/getFilesShared`, {
+      params: {
+        offset: pageNumber,
+        keyword,
+        sort,
+        order,
+      },
+    });
+  },
+
+  getDeletedFiles: async (
+    pageNumber: number,
+    keyword: string,
+    sort: string,
+    order: string,
+  ) => {
+    return await axiosClient.get(`/${service}/getDeletedFiles`, {
+      params: {
+        offset: pageNumber,
+        keyword,
+        sort,
+        order,
+      },
+    });
+  },
+
+  restoreFile: async (id: string) => {
+    return await axiosClient.post(`/${service}/restoreFile`, {
+      id,
+    });
+  },
 };
 
 export default DocumentAPI;

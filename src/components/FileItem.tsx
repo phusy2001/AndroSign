@@ -3,11 +3,12 @@ import React from 'react';
 import {Card, IconButton} from 'react-native-paper';
 import PdfSVG from '../assets/images/pdf.svg';
 
-function FileItem({item, navigation, onPressMoreFunction}: any) {
-  const clickMoreFunction = () => {
-    onPressMoreFunction(item);
-  };
-
+function FileItem({
+  item,
+  navigation,
+  onPressMoreFunction,
+  onPressRestoreFunction,
+}: any) {
   return (
     <Card
       style={{marginBottom: 10}}
@@ -34,11 +35,19 @@ function FileItem({item, navigation, onPressMoreFunction}: any) {
           top: '20%',
           right: 0,
         }}>
-        <IconButton
-          onPress={clickMoreFunction}
-          icon="dots-horizontal"
-          size={24}
-        />
+        {onPressMoreFunction ? (
+          <IconButton
+            onPress={() => onPressMoreFunction(item)}
+            icon="dots-horizontal"
+            size={24}
+          />
+        ) : (
+          <IconButton
+            onPress={() => onPressRestoreFunction(item._id)}
+            icon="restore"
+            size={24}
+          />
+        )}
       </Card.Content>
     </Card>
   );

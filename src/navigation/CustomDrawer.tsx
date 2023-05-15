@@ -27,7 +27,7 @@ function CustomDrawer(props: any) {
         style={{
           display: 'flex',
           justifyContent: 'space-evenly',
-          height: screenHeight,
+          height: screenHeight - 30,
         }}>
         <View>
           <DrawerItem
@@ -40,7 +40,7 @@ function CustomDrawer(props: any) {
               <Icon name="file-document-edit" size={24} color="#000" />
             )}
             label="Tài liệu được chia sẻ"
-            onPress={() => props.navigation.navigate('Home')}
+            onPress={() => props.navigation.navigate('Shared')}
           />
           <DrawerItem
             icon={() => <Icon name="folder" size={24} color="#000" />}

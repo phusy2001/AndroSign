@@ -25,6 +25,7 @@ import FolderScreen from '../screens/FolderScreen';
 import FolderDetailScreen from '../screens/FolderDetailScreen';
 import axiosClient from '../services/clients/axios';
 import FolderChooseScreen from '../screens/FolderChooseScreen';
+import DocumentSharedScreen from '../screens/DocumentSharedScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -37,6 +38,11 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Home"
         component={MyDocumentScreen}
+        options={{headerShown: false, unmountOnBlur: true}}
+      />
+      <Drawer.Screen
+        name="Shared"
+        component={DocumentSharedScreen}
         options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen

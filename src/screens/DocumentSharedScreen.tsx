@@ -11,9 +11,10 @@ import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
 import FileUploadModal from '../components/Modal/FileUploadModal';
 import FilesFilterModal from '../components/Modal/FilesFilterModal';
+import FileEditModal from '../components/Modal/FileEditModal';
 import ListFooter from '../components/ListFooter';
 
-function TrashScreen({navigation, route}: any) {
+function DocumentSharedScreen({navigation, route}: any) {
   const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
@@ -21,6 +22,7 @@ function TrashScreen({navigation, route}: any) {
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
+  const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
   // const [status, setStatus] = React.useState<string>('');
@@ -33,7 +35,7 @@ function TrashScreen({navigation, route}: any) {
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getDeletedFiles(
+      const result = await DocumentAPI.getFilesShared(
         pageNumber,
         searchQuery,
         sorting,
@@ -89,12 +91,31 @@ function TrashScreen({navigation, route}: any) {
     filterModal.current?.present();
   }, []);
 
-  const handlePressRestoreFunction = async (id: string) => {
-    const result = await DocumentAPI.restoreFile(id);
+  const handlePressMoreFunction = React.useCallback((data: any) => {
+    if (uploadModal || filterModal) {
+      uploadModal.current?.dismiss();
+      filterModal.current?.dismiss();
+    }
+    editModal.current?.present(data);
+    setItem(data);
+  }, []);
+
+  const deleteDocument = async (id: string) => {
+    const result = await DocumentAPI.deleteDocument(id);
     if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
+      editModal.current?.dismiss();
     }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+  };
+
+  const unmarkDocument = async (id: string) => {
+    const result = await DocumentAPI.unmarkFile(id);
     Toast.show({
       text1: result.data.message,
       type: result.data.status === 'true' ? 'success' : 'error',
@@ -109,7 +130,9 @@ function TrashScreen({navigation, route}: any) {
         <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
-        <Text style={{fontSize: 20, fontWeight: '700'}}>Thùng rác</Text>
+        <Text style={{fontSize: 20, fontWeight: '700'}}>
+          Tài liệu được chia sẻ
+        </Text>
         <Searchbar
           style={{marginTop: 20}}
           placeholder="Search"
@@ -125,7 +148,7 @@ function TrashScreen({navigation, route}: any) {
             <FileItem
               item={item}
               navigation={navigation}
-              onPressRestoreFunction={handlePressRestoreFunction}
+              onPressMoreFunction={handlePressMoreFunction}
             />
           )}
           keyExtractor={(item, index): any => index}
@@ -150,6 +173,14 @@ function TrashScreen({navigation, route}: any) {
           setOrder={setOrder}
           sorting={sorting}
           setSorting={setSorting}
+        />
+        <FileEditModal
+          editModalRef={editModal}
+          navigation={navigation}
+          handleUnmarkFunction={unmarkDocument}
+          handleDeleteFunction={deleteDocument}
+          typeEdit={'shared'}
+          item={item}
         />
       </BottomSheetModalProvider>
     </View>
@@ -189,4 +220,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TrashScreen;
+export default DocumentSharedScreen;
