@@ -19,7 +19,7 @@ export async function signupWithEmail(
 ) {
   return auth()
     .createUserWithEmailAndPassword(email, password)
-    .then(async () => {
+    .then(async ({user}) => {
       console.log('User account created');
 
       const fcmToken = await AsyncStorage.getItem('fcmToken');
@@ -27,6 +27,7 @@ export async function signupWithEmail(
       if (fcmToken) {
         await axiosClient.post(`/${service}`, {
           displayName,
+          uid: user.uid,
           email,
           fcmTokens: [fcmToken],
         });
