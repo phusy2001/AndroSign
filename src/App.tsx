@@ -6,6 +6,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AppNavigator} from './navigation/AppNavigator';
 import SplashScreen from './screens/SplashScreen';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import auth from '@react-native-firebase/auth';
+import axiosClient from './services/clients/axios';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
@@ -48,6 +50,21 @@ export default function App() {
     setTimeout(() => {
       setLoading(false);
     }, 1000);
+  }, []);
+
+  useEffect(() => {
+    auth().onIdTokenChanged(user => {
+      console.log('Token refresh');
+      if (user) {
+        user.getIdToken().then(async token => {
+          console.log('token', token);
+          axiosClient.interceptors.request.use(config => {
+            config.headers.Authorization = `Bearer ${token}`;
+            return config;
+          });
+        });
+      }
+    });
   }, []);
 
   return (
