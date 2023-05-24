@@ -29,10 +29,19 @@ const DocumentAPI = {
     });
   },
 
-  editDocument: async (fileId: string, xfdf: string) => {
+  editDocument: async (
+    fileId: string,
+    xfdf: string,
+    signed: number,
+    total: number,
+    completed: Boolean,
+  ) => {
     return await axiosClient.post(`/${service}/editFile`, {
       id: fileId,
       xfdf: xfdf,
+      signed,
+      total,
+      completed,
     });
   },
 
@@ -60,8 +69,11 @@ const DocumentAPI = {
     });
   },
 
-  createFolder: async (name: string) => {
-    return await axiosClient.post(`/${service}/createFolder`, {name});
+  createFolder: async (name: string, userId: string) => {
+    return await axiosClient.post(`/${service}/createFolder`, {
+      name,
+      user: userId,
+    });
   },
 
   getFolders: async (

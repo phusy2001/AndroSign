@@ -63,7 +63,7 @@ function FileEditModal({
             paddingLeft: 30,
             paddingTop: 15,
           }}>
-          <PdfSVG width={43} height={52} />
+          <PdfSVG width={40} height={50} />
           <View style={{justifyContent: 'center', paddingLeft: 20}}>
             <Text
               variant="titleMedium"

@@ -12,6 +12,7 @@ import {
 import DocumentPicker, {types} from 'react-native-document-picker';
 import DocumentAPI from '../../services/document';
 import Toast from 'react-native-toast-message';
+import auth from '@react-native-firebase/auth';
 
 function FileUploadModal({
   uploadModalRef,
@@ -24,7 +25,10 @@ function FileUploadModal({
   const [folderName, setFolderName] = React.useState('');
 
   const createFolder = async () => {
-    const result = await DocumentAPI.createFolder(folderName);
+    const result = await DocumentAPI.createFolder(
+      folderName,
+      auth().currentUser?.uid,
+    );
     Toast.show({
       text1: result.data.message,
       type: result.data.status === 'true' ? 'success' : 'error',

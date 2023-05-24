@@ -1,5 +1,11 @@
 import React from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import {
   Text,
   IconButton,
@@ -19,15 +25,29 @@ import {
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
+import DocumentUserItem from '../components/DocumentUserItem';
+import SelectDropdown from 'react-native-select-dropdown';
+import auth from '@react-native-firebase/auth';
 
 function DocumentSignScreen({route, navigation}: any) {
   const insets = useSafeAreaInsets();
-  const {id, name, path, file, action, createFileFunction} = route.params;
-  const confirmModal = React.useRef<BottomSheetModal>(null);
+  const screenHeight = Dimensions.get('window').height;
   const confirmSnapPoints = React.useMemo(() => ['30%'], []);
+  const confirmModal = React.useRef<BottomSheetModal>(null);
   const documentView = React.useRef(null);
+  const currentUser = React.useRef(auth().currentUser?.uid);
+  const currentAnnotation = React.useRef({id: '', pageNumber: 0});
+  const [initial, setInitial] = React.useState(true);
+  const {id, name, path, file, action, createFileFunction} = route.params;
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
+  const [userItem, setUserItem] = React.useState<object[]>([]);
+
+  React.useEffect(() => {
+    RNPdftron.initialize('');
+    RNPdftron.enableJavaScript(true);
+    RNPdftron.clearSavedViewerState();
+  }, []);
 
   const handleConfirm = React.useCallback((data: any) => {
     confirmModal.current?.present(data);
@@ -46,87 +66,197 @@ function DocumentSignScreen({route, navigation}: any) {
     [],
   );
 
-  React.useEffect(() => {
-    RNPdftron.initialize('');
-    RNPdftron.enableJavaScript(true);
-  }, []);
-
-  const saveDocument = async () => {
-    const xfdf = await documentView.current!.exportAnnotations();
-    let result = null;
-    if (action === 'upload') {
-      const formData = new FormData();
-      formData.append('name', fileName);
-      formData.append('xfdf', xfdf);
-      formData.append('file', file);
-      result = await DocumentAPI.uploadDocument(formData);
-    } else if (action === 'edit')
-      result = await DocumentAPI.editDocument(id, xfdf);
-    Toast.show({
-      text1: result!.data.message,
-      type: result!.data.status ? 'success' : 'error',
-      position: 'bottom',
-    });
-    navigation.goBack();
-    createFileFunction();
-    // axios.post('/upload');
-    // console.log(documentView.current.rotateClockwise());
-    // documentView.current.importAnnotations(xfdf);
-    // documentView.current.saveDocument().then(filePath => {
-    //   console.log('saveDocument:', filePath);
-    //   navigation.goBack();
-    // });
-    // documentView.current.exportAnnotations().then(xfdf => {
-    //   console.log(xfdf);
-    // });
-    // let page = 0;
-    // documentView.current.getPageCount().then(pageCount => {
-    //   console.log('pageCount', pageCount);
-    //   page = pageCount;
-    //   for (let i = 1; i <= page; i++) {
-    //     documentView.current.getAnnotationsOnPage(i).then(annotations => {
-    //       for (const annotation of annotations) {
-    //         //console.log(`Annotation found on page ${i} has id:`, annotation);
-    //         documentView.current
-    //           .getPropertiesForAnnotation(annotation.id, i)
-    //           .then(properties => {
-    //             if (properties) {
-    //               console.log('Properties for annotation: ', properties);
-    //             }
-    //           });
-    //       }
-    //     });
-    //   }
-    // });
-    // documentView.current.getAnnotationsOnPage(1).then(annotations => {
-    //   for (const annotation of annotations) {
-    //     console.log(`Annotation found on page 1 has id:`, annotation);
-    //   }
-    // });
-    // console.log(documentView.current.annotations);
-    // documentView.current
-    //   .exportAsImage(1, 92, Config.ExportFormat.BMP)
-    //   .then(path => {
-    //     console.log('export', path);
-    //   });
-  };
-
   const cancelDocument = React.useCallback(() => {
     navigation.goBack();
   }, []);
 
-  const myToolbar = {
+  const toolbarUpload = {
     [Config.CustomToolbarKey.Id]: 'AndroSign',
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
       Config.Tools.annotationCreateFreeText,
-      // Config.Tools.annotationCreateSignature,
       Config.Tools.formCreateSignatureField,
-      Config.Buttons.undo,
-      Config.Buttons.redo,
+      // Config.Buttons.undo,
+      // Config.Buttons.redo,
     ],
   };
+
+  const toolbarEdit = {
+    [Config.CustomToolbarKey.Id]: 'AndroSign',
+    [Config.CustomToolbarKey.Name]: 'AndroSign',
+    [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
+    [Config.CustomToolbarKey.Items]: [
+      Config.Tools.pan,
+      // Config.Buttons.undo,
+      // Config.Buttons.redo,
+    ],
+  };
+
+  const saveDocument = async () => {
+    let signed = 0;
+    let total = 0;
+    const pageCount = await documentView.current!.getPageCount();
+    for (let i = 1; i <= pageCount; i++) {
+      const annotations = await documentView.current!.getAnnotationsOnPage(i);
+      for (const annotation of annotations) {
+        total += 1;
+        const value = await documentView.current!.getCustomDataForAnnotation(
+          annotation.id,
+          annotation.pageNumber,
+          'progress',
+        );
+        if (value === 'done') {
+          signed += 1;
+          await documentView.current!.setFlagsForAnnotations([
+            {
+              id: annotation.id,
+              pageNumber: annotation.pageNumber,
+              flag: Config.AnnotationFlags.locked,
+              flagValue: true,
+            },
+          ]);
+        }
+      }
+    }
+    const xfdf = await documentView.current!.exportAnnotations();
+    const completed = signed === total;
+    const userIdArr = userItem
+      .filter((item: any) => item._id !== auth().currentUser?.uid)
+      .map((item: any) => item._id);
+    let result = null;
+    if (action === 'upload') {
+      const formData = new FormData();
+      formData.append('user', auth().currentUser?.uid);
+      formData.append('name', fileName);
+      formData.append('signed', signed);
+      formData.append('total', total);
+      formData.append('completed', completed);
+      if (userIdArr.length > 0) formData.append('sharedTo', userIdArr);
+      formData.append('xfdf', xfdf);
+      formData.append('file', file);
+      result = await DocumentAPI.uploadDocument(formData);
+    } else if (action === 'edit')
+      result = await DocumentAPI.editDocument(
+        id,
+        xfdf,
+        signed,
+        total,
+        completed,
+      );
+    Toast.show({
+      text1: result!.data.message,
+      type: result!.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+    navigation.goBack();
+    if (createFileFunction) createFileFunction();
+  };
+
+  if (initial && action === 'upload') {
+    return (
+      <View
+        style={{
+          flex: 1,
+          paddingBottom: insets.bottom,
+          paddingTop: insets.top,
+          backgroundColor: '#fff',
+        }}>
+        <View
+          style={{
+            marginTop: 30,
+            height: screenHeight - 100,
+          }}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <IconButton
+              icon="arrow-left"
+              size={26}
+              onPress={() => navigation.goBack()}
+            />
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+              Thiết lập người nhận
+            </Text>
+          </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              paddingLeft: 20,
+              paddingRight: 20,
+              marginTop: 15,
+              marginBottom: 25,
+            }}>
+            {userItem.map((value: any) => {
+              return (
+                <DocumentUserItem
+                  key={value.temp}
+                  item={value}
+                  setData={setUserItem}
+                  data={userItem}
+                />
+              );
+            })}
+            <TouchableOpacity
+              onPress={() =>
+                setUserItem(
+                  userItem.concat({
+                    temp: Math.random().toString(36).slice(2, 7),
+                  }),
+                )
+              }
+              style={{
+                borderWidth: 1,
+                borderRadius: 6,
+                borderStyle: 'dashed',
+                paddingTop: 10,
+                paddingBottom: 10,
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
+                Thêm người ký
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+        <View
+          style={{
+            alignSelf: 'center',
+            justifyContent: 'flex-end',
+            paddingLeft: 20,
+            paddingRight: 20,
+            marginTop: -10,
+            width: '100%',
+          }}>
+          <Button
+            style={{backgroundColor: '#005b96'}}
+            mode="contained"
+            onPress={() => {
+              const filteredData = userItem.filter(
+                (item: any) => '_id' in item,
+              );
+              filteredData.unshift({_id: auth().currentUser?.uid, name: 'Tôi'});
+              setUserItem(filteredData);
+              setInitial(false);
+            }}
+            contentStyle={{flexDirection: 'row-reverse'}}>
+            Xác nhận
+          </Button>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView
@@ -165,6 +295,44 @@ function DocumentSignScreen({route, navigation}: any) {
           </Button>
         </View>
       </View>
+      {action === 'upload' && (
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingLeft: 20,
+            alignItems: 'center',
+            marginTop: 6,
+            marginBottom: 10,
+          }}>
+          <Text style={{fontSize: 16}}>Người ký: </Text>
+          <SelectDropdown
+            data={userItem}
+            defaultValueByIndex={0}
+            onSelect={selectedItem => (currentUser.current = selectedItem._id)}
+            buttonTextAfterSelection={selectedItem => selectedItem.name}
+            rowTextForSelection={item => item.name}
+            buttonStyle={{
+              height: 35,
+              backgroundColor: '#FFF',
+              borderWidth: 0.3,
+            }}
+            dropdownIconPosition={'right'}
+            buttonTextStyle={{
+              textAlign: 'left',
+            }}
+            renderDropdownIcon={() => {
+              return (
+                <IconButton
+                  style={{marginRight: -10}}
+                  icon="chevron-down"
+                  size={30}
+                />
+              );
+            }}
+          />
+        </View>
+      )}
       <DocumentView
         ref={documentView}
         document={path}
@@ -172,21 +340,118 @@ function DocumentSignScreen({route, navigation}: any) {
         bottomToolbarEnabled={false}
         hideTopAppNavBar={true}
         hideToolbarsOnTap={false}
-        annotationToolbars={[myToolbar]}
+        annotationToolbars={
+          action === 'upload' ? [toolbarUpload] : [toolbarEdit]
+        }
         longPressMenuEnabled={false}
         autoSaveEnabled={false}
         flattenAnnotations={true}
+        rememberLastUsedTool={false}
+        showSavedSignatures={false}
+        saveStateEnabled={false}
+        annotationPermissionCheckEnabled={true}
         onDocumentLoaded={async () => {
-          if (action === 'edit' && id) {
+          if (action === 'edit') {
             const result = await DocumentAPI.getAnnotations(id);
             let base64 = '';
-            for (let i = 0; i < result.data.data.xfdf.data.length; ++i) {
+            for (let i = 0; i < result.data.data.xfdf.data.length; ++i)
               base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
-            }
-            documentView.current!.importAnnotations(base64);
+            documentView
+              .current!.importAnnotations(base64)
+              .then((importedAnnotations: any) => {
+                importedAnnotations.forEach(async (annotation: any) => {
+                  const value =
+                    await documentView.current!.getCustomDataForAnnotation(
+                      annotation.id,
+                      annotation.pageNumber,
+                      'user',
+                    );
+                  const progress =
+                    await documentView.current!.getCustomDataForAnnotation(
+                      annotation.id,
+                      annotation.pageNumber,
+                      'progress',
+                    );
+                  if (progress === 'done') {
+                    documentView.current!.setFlagsForAnnotations([
+                      {
+                        id: annotation.id,
+                        pageNumber: annotation.pageNumber,
+                        flag: Config.AnnotationFlags.hidden,
+                        flagValue: false,
+                      },
+                    ]);
+                  } else {
+                    if (value !== auth().currentUser?.uid)
+                      documentView.current!.setFlagsForAnnotations([
+                        {
+                          id: annotation.id,
+                          pageNumber: annotation.pageNumber,
+                          flag: Config.AnnotationFlags.hidden,
+                          flagValue: true,
+                        },
+                      ]);
+                    else
+                      documentView.current!.setFlagsForAnnotations([
+                        {
+                          id: annotation.id,
+                          pageNumber: annotation.pageNumber,
+                          flag: Config.AnnotationFlags.hidden,
+                          flagValue: false,
+                        },
+                      ]);
+                  }
+                });
+              });
           }
         }}
-        rememberLastUsedTool={false}
+        onAnnotationChanged={({action, annotations}: any) => {
+          if (action === 'add')
+            annotations.forEach((annotation: any) => {
+              documentView.current!.setPropertiesForAnnotation(
+                annotation.id,
+                annotation.pageNumber,
+                {customData: {user: currentUser.current}},
+              );
+              documentView.current!.setFlagsForAnnotations([
+                {
+                  id: annotation.id,
+                  pageNumber: annotation.pageNumber,
+                  flag: Config.AnnotationFlags.locked,
+                  flagValue: false,
+                },
+              ]);
+            });
+        }}
+        onFormFieldValueChanged={({fields}: any) => {
+          fields.forEach((field: any) => {
+            if (action === 'edit' && currentAnnotation.current.id) {
+              if (field.fieldHasAppearance) {
+                documentView.current!.setPropertiesForAnnotation(
+                  currentAnnotation.current.id,
+                  currentAnnotation.current.pageNumber,
+                  {customData: {progress: 'done'}},
+                );
+              } else {
+                documentView.current!.setPropertiesForAnnotation(
+                  currentAnnotation.current.id,
+                  currentAnnotation.current.pageNumber,
+                  {customData: {progress: 'none'}},
+                );
+              }
+              currentAnnotation.current.id = '';
+            }
+          });
+        }}
+        onAnnotationsSelected={({annotations}: any) => {
+          annotations.forEach((annotation: any) => {
+            if (action === 'edit')
+              currentAnnotation.current = {
+                id: annotation.id,
+                pageNumber: annotation.pageNumber,
+              };
+          });
+        }}
       />
       <BottomSheetModalProvider>
         <BottomSheetModal

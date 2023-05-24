@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ImageBackground, StyleSheet, View} from 'react-native';
 import {Appbar, FAB, Searchbar, Text} from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
@@ -13,6 +13,8 @@ import FileUploadModal from '../components/Modal/FileUploadModal';
 import FilesFilterModal from '../components/Modal/FilesFilterModal';
 import FileEditModal from '../components/Modal/FileEditModal';
 import ListFooter from '../components/ListFooter';
+import StarredSVG from '../assets/images/starred_empty.svg';
+import RsEmptySVG from '../assets/images/result_empty.svg';
 
 function StarredScreen({navigation, route}: any) {
   const initial = React.useRef(true);
@@ -129,38 +131,93 @@ function StarredScreen({navigation, route}: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={{justifyContent: 'space-between'}}>
+    <ImageBackground
+      style={styles.container}
+      resizeMode="cover"
+      source={require('../assets/images/app.png')}>
+      <Appbar.Header
+        style={{
+          justifyContent: 'space-between',
+          backgroundColor: 'transparent',
+        }}>
         <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
         <Appbar.Action icon="tune" onPress={handlePresentFilterModalPress} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
         <Text style={{fontSize: 20, fontWeight: '700'}}>Tài liệu gắn sao</Text>
         <Searchbar
-          style={{marginTop: 20}}
-          placeholder="Search"
+          style={{marginTop: 20, opacity: 0.8, borderRadius: 8}}
+          placeholder="Tìm kiếm..."
           onChangeText={(query: string) => setSearchQuery(query)}
           value={searchQuery}
         />
       </View>
-
       <View style={styles.content}>
-        <FlashList
-          data={data}
-          renderItem={({item}) => (
-            <FileItem
-              item={item}
-              navigation={navigation}
-              onPressMoreFunction={handlePressMoreFunction}
-            />
-          )}
-          keyExtractor={(item, index): any => index}
-          onEndReached={loadData}
-          onEndReachedThreshold={0.001}
-          estimatedItemSize={100}
-          ListFooterComponent={<ListFooter isLoading={isLoading} />}
-          showsVerticalScrollIndicator={false}
-        />
+        {data.length !== 0 || initial.current === true ? (
+          <FlashList
+            data={data}
+            renderItem={({item}) => (
+              <FileItem
+                item={item}
+                navigation={navigation}
+                onPressMoreFunction={handlePressMoreFunction}
+              />
+            )}
+            keyExtractor={(item, index): any => index}
+            onEndReached={loadData}
+            onEndReachedThreshold={0.001}
+            estimatedItemSize={100}
+            ListFooterComponent={<ListFooter isLoading={isLoading} />}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : searchQuery !== '' ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: -100,
+            }}>
+            <RsEmptySVG width={170} height={180} />
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                paddingHorizontal: 60,
+                textAlign: 'center',
+              }}>
+              Không tìm thấy kết quả
+            </Text>
+          </View>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: -100,
+            }}>
+            <StarredSVG width={170} height={180} />
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                paddingHorizontal: 60,
+                textAlign: 'center',
+              }}>
+              Tài liệu được gắn sao trống
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                paddingHorizontal: 60,
+                textAlign: 'center',
+              }}>
+              Bạn chưa gắn sao bất kì tại liệu nào! Hãy gắn sao những tài liệu
+              quan trọng với bạn
+            </Text>
+          </View>
+        )}
       </View>
       <FAB
         style={styles.fab}
@@ -186,7 +243,7 @@ function StarredScreen({navigation, route}: any) {
           item={item}
         />
       </BottomSheetModalProvider>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -195,24 +252,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    borderRadius: 20,
-    flex: 1,
-  },
   content: {
-    flex: 1,
+    flex: 0.95,
     padding: 20,
   },
   fab: {
@@ -220,6 +261,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    borderRadius: 30,
   },
 });
 

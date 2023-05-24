@@ -27,7 +27,7 @@ function FileItem({
           'Cập nhật lần cuối: ' +
           moment(item.updated_at).format('DD/MM/YY HH:mm')
         }
-        left={() => <PdfSVG width={43} height={52} />}
+        left={() => <PdfSVG width={40} height={50} />}
       />
       <Card.Content
         style={{
