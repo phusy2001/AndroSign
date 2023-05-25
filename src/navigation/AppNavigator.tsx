@@ -26,6 +26,8 @@ import FolderDetailScreen from '../screens/FolderDetailScreen';
 import axiosClient from '../services/clients/axios';
 import FolderChooseScreen from '../screens/FolderChooseScreen';
 import DocumentSharedScreen from '../screens/DocumentSharedScreen';
+import CheckoutScreen from '../screens/CheckoutScreen';
+import PaymentScreen from '../screens/PaymentScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -65,6 +67,17 @@ export const DrawerNavigator = () => {
         component={AccountScreen}
         options={{headerShown: false}}
       />
+      <Drawer.Screen
+        name="Checkout"
+        component={CheckoutScreen}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Payment"
+        component={PaymentScreen}
+        options={{headerShown: false}}
+      />
+
       <Drawer.Screen
         name="Trash"
         component={TrashScreen}

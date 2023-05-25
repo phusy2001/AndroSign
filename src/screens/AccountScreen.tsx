@@ -6,6 +6,14 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {FlashList} from '@shopify/flash-list';
+
+const plans = [
+  {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: '1 tháng', price: '35000'},
+  {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: '3 tháng', price: '33500'},
+  {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: '6 tháng', price: '32000'},
+  {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: '1 năm', price: '30000'},
+];
 
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
@@ -15,6 +23,44 @@ function AccountScreen({navigation}: any) {
       navigation.dispatch(DrawerActions.openDrawer());
     }
   };
+
+  const renderGroupHeader = ({item}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Checkout', {plan_id: item.id})}>
+        <View
+          style={{
+            paddingLeft: 20,
+            paddingTop: 20,
+            paddingRight: 20,
+            paddingBottom: 20,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: 'bold',
+            }}>
+            {item.name} <Text>{item.plan_type}:</Text>
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#6497b1',
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 5,
+            }}>
+            <Text style={{fontWeight: 'bold', color: 'white'}}>
+              {item.price}đ/1 tháng
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -107,126 +153,13 @@ function AccountScreen({navigation}: any) {
             MIỄN PHÍ
           </Text>
         </View>
-        <Divider bold={true}></Divider>
-        <View
-          style={{
-            paddingLeft: 20,
-            paddingTop: 20,
-            paddingRight: 20,
-            paddingBottom: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            GÓI TRẢ PHÍ <Text>1 tháng:</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#6497b1',
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 5,
-            }}>
-            <Text style={{fontWeight: 'bold', color: 'white'}}>
-              35,000đ/1 tháng
-            </Text>
-          </View>
-        </View>
-        <Divider bold={true}></Divider>
-        <View
-          style={{
-            paddingLeft: 20,
-            paddingTop: 20,
-            paddingRight: 20,
-            paddingBottom: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            GÓI TRẢ PHÍ <Text>3 tháng:</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#6497b1',
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 5,
-            }}>
-            <Text style={{fontWeight: 'bold', color: 'white'}}>
-              33,500đ/1 tháng
-            </Text>
-          </View>
-        </View>
-        <Divider bold={true}></Divider>
-        <View
-          style={{
-            paddingLeft: 20,
-            paddingTop: 20,
-            paddingRight: 20,
-            paddingBottom: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            GÓI TRẢ PHÍ <Text>6 tháng:</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#6497b1',
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 5,
-            }}>
-            <Text style={{fontWeight: 'bold', color: 'white'}}>
-              32,000đ/1 tháng
-            </Text>
-          </View>
-        </View>
-        <Divider bold={true}></Divider>
-        <View
-          style={{
-            paddingLeft: 20,
-            paddingTop: 20,
-            paddingRight: 20,
-            paddingBottom: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            GÓI TRẢ PHÍ <Text>1 năm:</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#6497b1',
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 5,
-            }}>
-            <Text style={{fontWeight: 'bold', color: 'white'}}>
-              30,000đ/1 tháng
-            </Text>
-          </View>
-        </View>
+      </View>
+      <View>
+        <FlashList
+          renderItem={renderGroupHeader}
+          estimatedItemSize={200}
+          data={plans}
+        />
       </View>
       <Text
         style={{
