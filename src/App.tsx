@@ -8,6 +8,7 @@ import SplashScreen from './screens/SplashScreen';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import auth from '@react-native-firebase/auth';
 import axiosClient from './services/clients/axios';
+import {navigationRef} from './navigation/RootNavigation';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
@@ -69,7 +70,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         {loading ? <SplashScreen /> : <AppNavigator />}
       </NavigationContainer>
       <Toast></Toast>
