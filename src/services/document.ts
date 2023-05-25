@@ -35,6 +35,8 @@ const DocumentAPI = {
     signed: number,
     total: number,
     completed: Boolean,
+    step: number,
+    user: string,
   ) => {
     return await axiosClient.post(`/${service}/editFile`, {
       id: fileId,
@@ -42,6 +44,8 @@ const DocumentAPI = {
       signed,
       total,
       completed,
+      step,
+      user,
     });
   },
 

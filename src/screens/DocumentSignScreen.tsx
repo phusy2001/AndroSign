@@ -36,6 +36,10 @@ function DocumentSignScreen({route, navigation}: any) {
   const confirmModal = React.useRef<BottomSheetModal>(null);
   const documentView = React.useRef(null);
   const currentUser = React.useRef(auth().currentUser?.uid);
+  const annotNum = React.useRef(0);
+  const stepNow = React.useRef(1);
+  const prevUser = React.useRef('');
+  const prevStep = React.useRef(0);
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
   const [initial, setInitial] = React.useState(true);
   const {id, name, path, file, action, createFileFunction} = route.params;
@@ -96,6 +100,9 @@ function DocumentSignScreen({route, navigation}: any) {
   const saveDocument = async () => {
     let signed = 0;
     let total = 0;
+    let count = 0;
+    let step = 0;
+    let user = 'null';
     const pageCount = await documentView.current!.getPageCount();
     for (let i = 1; i <= pageCount; i++) {
       const annotations = await documentView.current!.getAnnotationsOnPage(i);
@@ -117,6 +124,43 @@ function DocumentSignScreen({route, navigation}: any) {
             },
           ]);
         }
+        if (action === 'upload' && value !== 'done' && count === 0) {
+          step = await documentView.current!.getCustomDataForAnnotation(
+            annotation.id,
+            annotation.pageNumber,
+            'step',
+          );
+          user = await documentView.current!.getCustomDataForAnnotation(
+            annotation.id,
+            annotation.pageNumber,
+            'user',
+          );
+          count = 1;
+        } else if (action === 'edit') {
+          const annotStep =
+            await documentView.current!.getCustomDataForAnnotation(
+              annotation.id,
+              annotation.pageNumber,
+              'step',
+            );
+          if (annotStep == prevStep.current && value !== 'done') count = 1;
+          if (count === 1 && step === undefined) {
+            step = annotStep;
+            user = await documentView.current!.getCustomDataForAnnotation(
+              annotation.id,
+              annotation.pageNumber,
+              'user',
+            );
+          } else if (count === 0 && annotStep > prevStep.current) {
+            step = annotStep;
+            user = await documentView.current!.getCustomDataForAnnotation(
+              annotation.id,
+              annotation.pageNumber,
+              'user',
+            );
+            count = -1;
+          }
+        }
       }
     }
     const xfdf = await documentView.current!.exportAnnotations();
@@ -133,6 +177,8 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('total', total);
       formData.append('completed', completed);
       if (userIdArr.length > 0) formData.append('sharedTo', userIdArr);
+      formData.append('stepNow', step);
+      formData.append('stepUser', user);
       formData.append('xfdf', xfdf);
       formData.append('file', file);
       result = await DocumentAPI.uploadDocument(formData);
@@ -143,6 +189,8 @@ function DocumentSignScreen({route, navigation}: any) {
         signed,
         total,
         completed,
+        step,
+        user,
       );
     Toast.show({
       text1: result!.data.message,
@@ -309,7 +357,15 @@ function DocumentSignScreen({route, navigation}: any) {
           <SelectDropdown
             data={userItem}
             defaultValueByIndex={0}
-            onSelect={selectedItem => (currentUser.current = selectedItem._id)}
+            onSelect={selectedItem => {
+              if (annotNum.current > 0) {
+                stepNow.current += 1;
+                prevUser.current = currentUser.current;
+              }
+              if (prevUser.current === selectedItem._id) stepNow.current -= 1;
+              currentUser.current = selectedItem._id;
+              annotNum.current = 0;
+            }}
             buttonTextAfterSelection={selectedItem => selectedItem.name}
             rowTextForSelection={item => item.name}
             buttonStyle={{
@@ -352,10 +408,11 @@ function DocumentSignScreen({route, navigation}: any) {
         annotationPermissionCheckEnabled={true}
         onDocumentLoaded={async () => {
           if (action === 'edit') {
-            const result = await DocumentAPI.getAnnotations(id);
             let base64 = '';
-            for (let i = 0; i < result.data.data.xfdf.data.length; ++i)
-              base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
+            const result = await DocumentAPI.getAnnotations(id);
+            prevStep.current = result.data.data.data.stepNow;
+            for (let i = 0; i < result.data.data.data.xfdf.data.length; ++i)
+              base64 += String.fromCharCode(result.data.data.data.xfdf.data[i]);
             documentView
               .current!.importAnnotations(base64)
               .then((importedAnnotations: any) => {
@@ -391,27 +448,51 @@ function DocumentSignScreen({route, navigation}: any) {
                           flagValue: true,
                         },
                       ]);
-                    else
-                      documentView.current!.setFlagsForAnnotations([
-                        {
-                          id: annotation.id,
-                          pageNumber: annotation.pageNumber,
-                          flag: Config.AnnotationFlags.hidden,
-                          flagValue: false,
-                        },
-                      ]);
+                    else {
+                      const step =
+                        await documentView.current!.getCustomDataForAnnotation(
+                          annotation.id,
+                          annotation.pageNumber,
+                          'step',
+                        );
+                      if (step == prevStep.current) {
+                        documentView.current!.setFlagsForAnnotations([
+                          {
+                            id: annotation.id,
+                            pageNumber: annotation.pageNumber,
+                            flag: Config.AnnotationFlags.hidden,
+                            flagValue: false,
+                          },
+                        ]);
+                      } else {
+                        documentView.current!.setFlagsForAnnotations([
+                          {
+                            id: annotation.id,
+                            pageNumber: annotation.pageNumber,
+                            flag: Config.AnnotationFlags.hidden,
+                            flagValue: true,
+                          },
+                        ]);
+                      }
+                    }
                   }
                 });
               });
           }
         }}
         onAnnotationChanged={({action, annotations}: any) => {
-          if (action === 'add')
+          if (action === 'add') {
+            annotNum.current += 1;
             annotations.forEach((annotation: any) => {
               documentView.current!.setPropertiesForAnnotation(
                 annotation.id,
                 annotation.pageNumber,
-                {customData: {user: currentUser.current}},
+                {
+                  customData: {
+                    user: currentUser.current,
+                    step: `${stepNow.current}`,
+                  },
+                },
               );
               documentView.current!.setFlagsForAnnotations([
                 {
@@ -422,16 +503,37 @@ function DocumentSignScreen({route, navigation}: any) {
                 },
               ]);
             });
+          } else if (action === 'delete') {
+            annotNum.current -= 1;
+          }
         }}
         onFormFieldValueChanged={({fields}: any) => {
-          fields.forEach((field: any) => {
-            if (action === 'edit' && currentAnnotation.current.id) {
+          fields.forEach(async (field: any) => {
+            if (currentAnnotation.current.id) {
               if (field.fieldHasAppearance) {
-                documentView.current!.setPropertiesForAnnotation(
-                  currentAnnotation.current.id,
-                  currentAnnotation.current.pageNumber,
-                  {customData: {progress: 'done'}},
-                );
+                const user =
+                  await documentView.current!.getCustomDataForAnnotation(
+                    currentAnnotation.current.id,
+                    currentAnnotation.current.pageNumber,
+                    'user',
+                  );
+                if (
+                  action === 'edit' ||
+                  (action === 'upload' && user === auth().currentUser?.uid)
+                ) {
+                  documentView.current!.setPropertiesForAnnotation(
+                    currentAnnotation.current.id,
+                    currentAnnotation.current.pageNumber,
+                    {customData: {progress: 'done'}},
+                  );
+                } else {
+                  documentView.current!.deleteAnnotations([
+                    {
+                      id: currentAnnotation.current.id,
+                      pageNumber: currentAnnotation.current.pageNumber,
+                    },
+                  ]);
+                }
               } else {
                 documentView.current!.setPropertiesForAnnotation(
                   currentAnnotation.current.id,
@@ -445,11 +547,10 @@ function DocumentSignScreen({route, navigation}: any) {
         }}
         onAnnotationsSelected={({annotations}: any) => {
           annotations.forEach((annotation: any) => {
-            if (action === 'edit')
-              currentAnnotation.current = {
-                id: annotation.id,
-                pageNumber: annotation.pageNumber,
-              };
+            currentAnnotation.current = {
+              id: annotation.id,
+              pageNumber: annotation.pageNumber,
+            };
           });
         }}
       />
