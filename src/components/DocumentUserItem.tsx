@@ -29,7 +29,7 @@ function DocumentUserItem({item, data, setData}: any) {
     const result = await UserAPI.findUserByEmail(data.email);
     if (result.data.status === 'true') {
       item._id = result.data.data.uid;
-      item.name = result.data.data.displayName;
+      item.name = result.data.data.display_name;
     }
     Toast.show({
       text1: result!.data.message,

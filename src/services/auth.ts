@@ -15,7 +15,7 @@ export function signinWithEmail(email: string, password: string) {
 export async function signupWithEmail(
   email: string,
   password: string,
-  displayName: string,
+  display_name: string,
 ) {
   return auth()
     .createUserWithEmailAndPassword(email, password)
@@ -26,10 +26,10 @@ export async function signupWithEmail(
 
       if (fcmToken) {
         await axiosClient.post(`/${service}`, {
-          displayName,
+          display_name,
           uid: user.uid,
           email,
-          fcmTokens: [fcmToken],
+          fcm_tokens: [fcmToken],
         });
       }
     })
