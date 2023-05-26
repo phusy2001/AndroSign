@@ -43,7 +43,10 @@ function LoginScreen({navigation, route}: any) {
   const onSubmit = async (data: any) => {
     try {
       await signinWithEmail(data.email, data.password);
-      navigation.navigate('Onboarding');
+
+      if (auth().currentUser) {
+        navigation.navigate('Onboarding');
+      }
     } catch (error: any) {
       onToggleSnackBar(error.code);
     }

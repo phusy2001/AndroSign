@@ -7,8 +7,24 @@ const service = 'users';
 //expired_time = 20*60
 
 //Sign in
-export function signinWithEmail(email: string, password: string) {
-  return auth().signInWithEmailAndPassword(email, password);
+export async function signinWithEmail(email: string, password: string) {
+  return auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(() => {
+      console.log('Logged in');
+    })
+    .catch(error => {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          console.error('User not available');
+          break;
+        case 'auth/wrong-password':
+          console.error('Wrong password');
+          break;
+        default:
+          console.error(error);
+      }
+    });
 }
 
 //Sign up
@@ -34,11 +50,13 @@ export async function signupWithEmail(
       }
     })
     .catch(error => {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log('That email address is already in use!');
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          console.error('That email address is already in use!');
+          break;
+        default:
+          console.error(error);
       }
-
-      console.error(error);
     });
 }
 

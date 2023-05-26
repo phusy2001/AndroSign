@@ -6,7 +6,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
-import {useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 import {signupWithEmail} from '../services/auth';
 
 const SignUpSchema = yup.object().shape({
@@ -50,7 +50,10 @@ function SignUpScreen({navigation, route}: any) {
   const onSubmit = async (data: any) => {
     try {
       await signupWithEmail(data.email, data.password, data.username);
-      navigation.navigate('Onboarding');
+
+      if (auth().currentUser) {
+        navigation.navigate('Onboarding');
+      }
     } catch (error: any) {
       onToggleSnackBar(error.code);
     }
