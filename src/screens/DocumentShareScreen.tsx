@@ -45,9 +45,8 @@ function DocumentShareScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getUserShared(id, pageNumber);
-      // console.log(result.data.data.sharedTo);
-      if (result.data.data.sharedTo.length < 10) setEnd(true);
-      const newData = await result.data.data.sharedTo;
+      if (result.data.data.length < 10) setEnd(true);
+      const newData = await result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
@@ -78,7 +77,7 @@ function DocumentShareScreen({navigation, route}: any) {
   const handlePressRemoveFunction = async (userId: string) => {
     const result = await DocumentAPI.deleteUserShared(id, userId);
     if (result.data.status === 'true') {
-      const filteredData = data.filter((item: any) => item !== userId);
+      const filteredData = data.filter((item: any) => item.uid !== userId);
       setData(filteredData);
     }
     Toast.show({
@@ -173,7 +172,7 @@ function DocumentShareScreen({navigation, route}: any) {
                 onPressRemoveFunction={handlePressRemoveFunction}
               />
             )}
-            keyExtractor={(item: any) => item}
+            keyExtractor={(item, index): any => index}
             onEndReached={loadData}
             onEndReachedThreshold={0.001}
             estimatedItemSize={100}

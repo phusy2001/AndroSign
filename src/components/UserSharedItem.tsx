@@ -26,8 +26,10 @@ function UserSharedItem({item, onPressRemoveFunction}: any) {
         <IconButton icon="account-circle" size={48} />
       </View>
       <View style={{width: '70%', justifyContent: 'center'}}>
-        <Text style={{fontSize: 18, fontWeight: 'bold'}}>{item}</Text>
-        <Text style={{fontSize: 15}}>trongle@gmail.com</Text>
+        <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+          {item.display_name}
+        </Text>
+        <Text style={{fontSize: 15}}>{item.email}</Text>
       </View>
       <View
         style={{
@@ -36,8 +38,8 @@ function UserSharedItem({item, onPressRemoveFunction}: any) {
           alignItems: 'center',
         }}>
         <IconButton
-          onPress={() => onPressRemoveFunction(item)}
-          iconColor="red"
+          onPress={() => onPressRemoveFunction(item.uid)}
+          iconColor="#ED2B2A"
           icon="close-box"
           size={28}
         />

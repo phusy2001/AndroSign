@@ -187,7 +187,6 @@ function DocumentSignScreen({route, navigation}: any) {
         id,
         xfdf,
         signed,
-        total,
         completed,
         step,
         user,
@@ -409,6 +408,7 @@ function DocumentSignScreen({route, navigation}: any) {
         onDocumentLoaded={async () => {
           if (action === 'edit') {
             let base64 = '';
+            let isContinous = true;
             const result = await DocumentAPI.getAnnotations(id);
             prevStep.current = result.data.data.data.stepNow;
             for (let i = 0; i < result.data.data.data.xfdf.data.length; ++i)
@@ -455,6 +455,20 @@ function DocumentSignScreen({route, navigation}: any) {
                           annotation.pageNumber,
                           'step',
                         );
+                      if (isContinous) {
+                        const user =
+                          await documentView.current!.getCustomDataForAnnotation(
+                            annotation.id,
+                            annotation.pageNumber,
+                            'user',
+                          );
+                        if (
+                          step > prevStep.current &&
+                          user === auth().currentUser?.uid
+                        )
+                          prevStep.current = step;
+                        else isContinous = false;
+                      }
                       if (step == prevStep.current) {
                         documentView.current!.setFlagsForAnnotations([
                           {
