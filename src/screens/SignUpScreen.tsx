@@ -60,8 +60,7 @@ function SignUpScreen({navigation, route}: any) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior="height"
+    <View
       style={{
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
@@ -91,7 +90,7 @@ function SignUpScreen({navigation, route}: any) {
             render={({field: {onChange, onBlur, value}}) => (
               <TextInput
                 mode="outlined"
-                label="Username"
+                label="Tên người dùng"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -216,7 +215,7 @@ function SignUpScreen({navigation, route}: any) {
           {snackbarContent}
         </Snackbar>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

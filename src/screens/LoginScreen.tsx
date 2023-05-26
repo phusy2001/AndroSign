@@ -68,8 +68,7 @@ function LoginScreen({navigation, route}: any) {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      behavior="height"
+    <View
       style={{
         paddingBottom: insets.bottom,
         paddingTop: insets.top,
@@ -197,7 +196,7 @@ function LoginScreen({navigation, route}: any) {
           {snackbarContent}
         </Snackbar>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

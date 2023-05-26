@@ -1,6 +1,10 @@
 import auth from '@react-native-firebase/auth';
-import axiosClient from './clients/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+const axiosClient = axios.create({
+  baseURL: 'http://10.0.2.2:3005',
+});
 
 const service = 'users';
 

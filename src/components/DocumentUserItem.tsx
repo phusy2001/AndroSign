@@ -30,6 +30,9 @@ function DocumentUserItem({item, data, setData}: any) {
     if (result.data.status === 'true') {
       item._id = result.data.data.uid;
       item.name = result.data.data.display_name;
+    } else {
+      const filteredData = data.filter((i: any) => i.temp !== item.temp);
+      setData(filteredData);
     }
     Toast.show({
       text1: result!.data.message,
