@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, ScrollView} from 'react-native';
+import {View, ScrollView, StyleSheet} from 'react-native';
 import {Appbar, Text, Avatar, IconButton, Divider} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
@@ -9,10 +9,10 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {FlashList} from '@shopify/flash-list';
 
 const plans = [
-  {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: '1 tháng', price: '35000'},
-  {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: '3 tháng', price: '33500'},
-  {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: '6 tháng', price: '32000'},
-  {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: '1 năm', price: '30000'},
+  {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
+  {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '33500'},
+  {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '32000'},
+  {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: 'Annually', price: '30000'},
 ];
 
 function AccountScreen({navigation}: any) {
@@ -26,8 +26,14 @@ function AccountScreen({navigation}: any) {
 
   const renderGroupHeader = ({item}) => {
     return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Checkout', {plan_id: item.id})}>
+      <View
+        style={{
+          display: 'flex',
+          marginLeft: 20,
+          marginRight: 20,
+          backgroundColor: '#f7f3f9',
+          borderRadius: 5,
+        }}>
         <View
           style={{
             paddingLeft: 20,
@@ -43,21 +49,21 @@ function AccountScreen({navigation}: any) {
               fontSize: 16,
               fontWeight: 'bold',
             }}>
-            {item.name} <Text>{item.plan_type}:</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#6497b1',
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 5,
-            }}>
-            <Text style={{fontWeight: 'bold', color: 'white'}}>
-              {item.price}đ/1 tháng
+            {item.name}{' '}
+            <Text style={{fontSize: 14, color: '#808080'}}>
+              {item.plan_type}:
             </Text>
-          </View>
+          </Text>
+          <TouchableOpacity
+            disabled
+            onPress={() => navigation.navigate('Checkout', {plan_id: item.id})}
+            style={{}}>
+            <View style={styles.button}>
+              <Text style={styles.text}>{item.price}đ / tháng</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -95,7 +101,7 @@ function AccountScreen({navigation}: any) {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Avatar.Image size={48} source={''} />
+            <Avatar.Text size={48} label="TL" />
           </View>
           <View style={{width: '70%', justifyContent: 'center'}}>
             <Text style={{fontSize: 18, fontWeight: 'bold'}}>Trong Le</Text>
@@ -153,11 +159,36 @@ function AccountScreen({navigation}: any) {
             MIỄN PHÍ
           </Text>
         </View>
+        <View
+          style={{
+            paddingLeft: 20,
+            paddingTop: 20,
+            paddingRight: 20,
+            paddingBottom: 20,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: '#808080',
+            }}>
+            Tình trạng:
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+            }}>
+            Đang kích hoạt
+          </Text>
+        </View>
       </View>
-      <View>
+      <View style={{minHeight: 2}}>
         <FlashList
           renderItem={renderGroupHeader}
-          estimatedItemSize={200}
+          estimatedItemSize={90}
           data={plans}
         />
       </View>
@@ -210,8 +241,39 @@ function AccountScreen({navigation}: any) {
           </View>
         </TouchableOpacity>
       </View>
+      <View style={{paddingVertical: 20, paddingHorizontal: 40}}>
+        <Text
+          style={{textDecorationLine: 'underline', color: 'red', fontSize: 16}}>
+          Xoá tài khoản
+        </Text>
+      </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#6497b1',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  disabledButton: {
+    backgroundColor: '#6497b1',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    opacity: 0.7,
+  },
+  text: {
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  disabledText: {
+    color: 'lightgray',
+    textAlign: 'center',
+  },
+});
 
 export default AccountScreen;
