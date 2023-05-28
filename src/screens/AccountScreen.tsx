@@ -7,6 +7,7 @@ import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {FlashList} from '@shopify/flash-list';
+import TransText from '../components/TransText';
 
 const plans = [
   {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
@@ -80,7 +81,10 @@ function AccountScreen({navigation}: any) {
         <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
       </Appbar.Header>
       <View style={{marginLeft: 20, marginRight: 20}}>
-        <Text style={{fontSize: 20, fontWeight: '700'}}>Tài khoản</Text>
+        <TransText
+          i18nKey="account"
+          style={{fontSize: 20, fontWeight: '700'}}
+        />
       </View>
       <TouchableOpacity
         onPress={() => {

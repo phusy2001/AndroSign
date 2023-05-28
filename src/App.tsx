@@ -9,6 +9,7 @@ import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import auth from '@react-native-firebase/auth';
 import axiosClient from './services/clients/axios';
 import {navigationRef} from './navigation/RootNavigation';
+import './i18n/i18n';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
