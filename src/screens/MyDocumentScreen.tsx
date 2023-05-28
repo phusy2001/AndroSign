@@ -41,17 +41,21 @@ function MyDocumentScreen({navigation, route}: any) {
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getOwnFiles(
-        pageNumber,
-        searchQuery,
-        sorting,
-        order,
-      );
-      if (result.data.data.data.length < 10) setEnd(true);
-      const newData = result.data.data.data;
-      setData(data.concat(newData));
-      setPageNumber(pageNumber + 1);
-      setIsLoading(false);
+      try {
+        const result = await DocumentAPI.getOwnFiles(
+          pageNumber,
+          searchQuery,
+          sorting,
+          order,
+        );
+        if (result.data.data.data.length < 10) setEnd(true);
+        const newData = result.data.data.data;
+        setData(data.concat(newData));
+        setPageNumber(pageNumber + 1);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -103,26 +107,35 @@ function MyDocumentScreen({navigation, route}: any) {
   }, []);
 
   const deleteDocument = async (id: string) => {
-    const result = await DocumentAPI.deleteDocument(id);
-    if (result.data.status === 'true') {
-      const filteredData = data.filter((item: any) => item._id !== id);
-      setData(filteredData);
-      editModal.current?.dismiss();
+    try {
+      const result = await DocumentAPI.deleteDocument(id);
+
+      if (result.data.status === 'true') {
+        const filteredData = data.filter((item: any) => item._id !== id);
+        setData(filteredData);
+        editModal.current?.dismiss();
+      }
+      Toast.show({
+        text1: result.data.message,
+        type: result.data.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    } catch (error) {
+      console.log(error);
     }
-    Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
-      position: 'bottom',
-    });
   };
 
   const unmarkDocument = async (id: string) => {
-    const result = await DocumentAPI.unmarkFile(id);
-    Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
-      position: 'bottom',
-    });
+    try {
+      const result = await DocumentAPI.unmarkFile(id);
+      Toast.show({
+        text1: result.data.message,
+        type: result.data.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
