@@ -14,6 +14,7 @@ function CustomDrawer(props: any) {
   const logout = async () => {
     try {
       await signout();
+      props.navigation.closeDrawer();
       navigate('Login', {});
     } catch (err) {
       console.log(err);
