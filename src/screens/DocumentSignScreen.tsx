@@ -42,6 +42,7 @@ function DocumentSignScreen({route, navigation}: any) {
   const currentStep = React.useRef<any>({});
   const stepNow = React.useRef(0);
   const stepUser = React.useRef('null');
+  const savedXfdf = React.useRef('');
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
   const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
@@ -454,7 +455,13 @@ function DocumentSignScreen({route, navigation}: any) {
           <IconButton
             icon="arrow-left"
             size={26}
-            onPress={() => setProgress('step')}
+            onPress={async () => {
+              if (action === 'upload') {
+                setProgress('step');
+                savedXfdf.current =
+                  await documentView.current!.exportAnnotations();
+              } else navigation.goBack();
+            }}
           />
           <Text
             numberOfLines={1}
@@ -532,7 +539,11 @@ function DocumentSignScreen({route, navigation}: any) {
         showSavedSignatures={false}
         saveStateEnabled={false}
         annotationPermissionCheckEnabled={true}
-        annotationToolbars={action === 'edit' ? [toolbarEdit] : [toolbarUpload]}
+        annotationToolbars={
+          action === 'edit' || totalStep.current === 0
+            ? [toolbarEdit]
+            : [toolbarUpload]
+        }
         onDocumentLoaded={async () => {
           if (action === 'edit') {
             const result = await DocumentAPI.getAnnotations(id);
@@ -579,6 +590,27 @@ function DocumentSignScreen({route, navigation}: any) {
                       },
                     ]);
                   }
+                });
+              });
+          } else if (action === 'upload' && savedXfdf.current) {
+            documentView
+              .current!.importAnnotations(savedXfdf.current)
+              .then((importedAnnotations: any) => {
+                importedAnnotations.forEach(async (annotation: any) => {
+                  const step =
+                    await documentView.current!.getCustomDataForAnnotation(
+                      annotation.id,
+                      annotation.pageNumber,
+                      'step',
+                    );
+                  const isExist = stepItem.some(item => item.step == step);
+                  if (!isExist)
+                    documentView.current!.deleteAnnotations([
+                      {
+                        id: annotation.id,
+                        pageNumber: annotation.pageNumber,
+                      },
+                    ]);
                 });
               });
           }
