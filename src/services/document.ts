@@ -31,15 +31,13 @@ const DocumentAPI = {
     fileId: string,
     xfdf: string,
     signed: number,
-    completed: Boolean,
     step: number,
     user: string,
   ) => {
     return await axiosClient.post(`/editFile`, {
       id: fileId,
-      xfdf: xfdf,
+      xfdf,
       signed,
-      completed,
       step,
       user,
     });

@@ -28,24 +28,33 @@ import Toast from 'react-native-toast-message';
 import DocumentUserItem from '../components/DocumentUserItem';
 import SelectDropdown from 'react-native-select-dropdown';
 import auth from '@react-native-firebase/auth';
+import DocumentStepItem from '../components/DocumentStepItem';
 
 function DocumentSignScreen({route, navigation}: any) {
-  const insets = useSafeAreaInsets();
+  const {id, name, path, file, action, handleFileCreated} = route.params;
   const screenHeight = Dimensions.get('window').height;
+  const insets = useSafeAreaInsets();
   const confirmSnapPoints = React.useMemo(() => ['30%'], []);
   const confirmModal = React.useRef<BottomSheetModal>(null);
   const documentView = React.useRef(null);
-  const currentUser = React.useRef(auth().currentUser?.uid);
-  const annotNum = React.useRef(0);
-  const stepNow = React.useRef(1);
-  const prevUser = React.useRef('');
-  const prevStep = React.useRef(0);
+  const stepCount = React.useRef(1);
+  const totalStep = React.useRef(0);
+  const currentStep = React.useRef<any>({});
+  const stepNow = React.useRef(0);
+  const stepUser = React.useRef('null');
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
-  const [initial, setInitial] = React.useState(true);
-  const {id, name, path, file, action, createFileFunction} = route.params;
+  const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
-  const [userItem, setUserItem] = React.useState<object[]>([]);
+  const [stepItem, setStepItem] = React.useState<any[]>([]);
+  const [userItem, setUserItem] = React.useState<any[]>([
+    {
+      _id: auth().currentUser?.uid,
+      name: 'Tôi',
+      email: '',
+      index: '',
+    },
+  ]);
 
   React.useEffect(() => {
     RNPdftron.initialize('');
@@ -98,109 +107,119 @@ function DocumentSignScreen({route, navigation}: any) {
   };
 
   const saveDocument = async () => {
-    let signed = 0;
-    let total = 0;
-    let count = 0;
-    let step = 0;
-    let user = 'null';
+    const params = {
+      signed: 0,
+      total: 0,
+      count: 0,
+      step: 0,
+      user: 'null',
+      changed: false,
+    };
     const pageCount = await documentView.current!.getPageCount();
     for (let i = 1; i <= pageCount; i++) {
       const annotations = await documentView.current!.getAnnotationsOnPage(i);
       for (const annotation of annotations) {
-        total += 1;
+        params.total += 1;
         const value = await documentView.current!.getCustomDataForAnnotation(
           annotation.id,
           annotation.pageNumber,
           'progress',
         );
-        if (value === 'done') {
-          signed += 1;
-          await documentView.current!.setFlagsForAnnotations([
-            {
-              id: annotation.id,
-              pageNumber: annotation.pageNumber,
-              flag: Config.AnnotationFlags.locked,
-              flagValue: true,
-            },
-          ]);
-        }
-        if (action === 'upload' && value !== 'done' && count === 0) {
-          step = await documentView.current!.getCustomDataForAnnotation(
-            annotation.id,
-            annotation.pageNumber,
-            'step',
-          );
-          user = await documentView.current!.getCustomDataForAnnotation(
-            annotation.id,
-            annotation.pageNumber,
-            'user',
-          );
-          count = 1;
-        } else if (action === 'edit') {
+        if (value === 'done') params.signed += 1;
+        if (action === 'upload') {
           const annotStep =
             await documentView.current!.getCustomDataForAnnotation(
               annotation.id,
               annotation.pageNumber,
               'step',
             );
-          if (annotStep == prevStep.current && value !== 'done') count = 1;
-          if (count === 1 && step === undefined) {
-            step = annotStep;
-            user = await documentView.current!.getCustomDataForAnnotation(
-              annotation.id,
-              annotation.pageNumber,
-              'user',
-            );
-          } else if (count === 0 && annotStep > prevStep.current) {
-            step = annotStep;
-            user = await documentView.current!.getCustomDataForAnnotation(
-              annotation.id,
-              annotation.pageNumber,
-              'user',
-            );
-            count = -1;
+          if (annotStep < params.step || params.count === 0) {
+            params.step = annotStep;
+            params.user =
+              await documentView.current!.getCustomDataForAnnotation(
+                annotation.id,
+                annotation.pageNumber,
+                'user',
+              );
+            params.count = 1;
           }
+        } else if (
+          action === 'edit' &&
+          stepUser.current === auth().currentUser?.uid
+        ) {
+          const annotStep =
+            await documentView.current!.getCustomDataForAnnotation(
+              annotation.id,
+              annotation.pageNumber,
+              'step',
+            );
+          if (annotStep > stepNow.current) {
+            const diff = annotStep - stepNow.current;
+            if (params.count > diff || params.count === 0) {
+              params.count = diff;
+              params.step = annotStep;
+              params.user =
+                await documentView.current!.getCustomDataForAnnotation(
+                  annotation.id,
+                  annotation.pageNumber,
+                  'user',
+                );
+            }
+          } else if (annotStep == stepNow.current)
+            documentView.current!.setFlagsForAnnotations([
+              {
+                id: annotation.id,
+                pageNumber: annotation.pageNumber,
+                flag: Config.AnnotationFlags.locked,
+                flagValue: true,
+              },
+            ]);
+          params.changed = true;
         }
       }
     }
     const xfdf = await documentView.current!.exportAnnotations();
-    const completed = signed === total;
     const userIdArr = userItem
       .filter((item: any) => item._id !== auth().currentUser?.uid)
       .map((item: any) => item._id);
-    let result = null;
     if (action === 'upload') {
       const formData = new FormData();
       formData.append('user', auth().currentUser?.uid);
       formData.append('name', fileName);
-      formData.append('signed', signed);
-      formData.append('total', total);
-      formData.append('completed', completed);
+      formData.append('signed', params.signed);
+      formData.append('total', params.total);
+      formData.append('stepIndex', 0);
+      formData.append('stepTotal', totalStep.current);
       if (userIdArr.length > 0) formData.append('sharedTo', userIdArr);
-      formData.append('stepNow', step);
-      formData.append('stepUser', user);
+      formData.append('stepNow', params.step);
+      formData.append('stepUser', params.user);
       formData.append('xfdf', xfdf);
       formData.append('file', file);
-      result = await DocumentAPI.uploadDocument(formData);
-    } else if (action === 'edit')
-      result = await DocumentAPI.editDocument(
+      const result = await DocumentAPI.uploadDocument(formData);
+      Toast.show({
+        text1: result.data.message,
+        type: result.data.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    } else if (action === 'edit' && params.changed) {
+      const result = await DocumentAPI.editDocument(
         id,
         xfdf,
-        signed,
-        completed,
-        step,
-        user,
+        params.signed,
+        params.step,
+        params.user,
       );
-    Toast.show({
-      text1: result!.data.message,
-      type: result!.data.status === 'true' ? 'success' : 'error',
-      position: 'bottom',
-    });
+      Toast.show({
+        text1: result.data.message,
+        type: result.data.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    }
     navigation.goBack();
-    if (createFileFunction) createFileFunction();
+    if (handleFileCreated) handleFileCreated();
   };
 
-  if (initial && action === 'upload') {
+  if (progress === 'user' && action === 'upload')
     return (
       <View
         style={{
@@ -221,7 +240,7 @@ function DocumentSignScreen({route, navigation}: any) {
               alignItems: 'center',
             }}>
             <IconButton
-              icon="arrow-left"
+              icon="close"
               size={26}
               onPress={() => navigation.goBack()}
             />
@@ -241,21 +260,22 @@ function DocumentSignScreen({route, navigation}: any) {
               marginTop: 15,
               marginBottom: 25,
             }}>
-            {userItem.map((value: any) => {
-              return (
-                <DocumentUserItem
-                  key={value.temp}
-                  item={value}
-                  setData={setUserItem}
-                  data={userItem}
-                />
-              );
+            {userItem.map((value: any, index: number) => {
+              if (index > 0)
+                return (
+                  <DocumentUserItem
+                    key={value.index}
+                    item={value}
+                    setData={setUserItem}
+                    data={userItem}
+                  />
+                );
             })}
             <TouchableOpacity
               onPress={() =>
                 setUserItem(
                   userItem.concat({
-                    temp: Math.random().toString(36).slice(2, 7),
+                    index: Math.random().toString(36).slice(2, 7),
                   }),
                 )
               }
@@ -293,9 +313,116 @@ function DocumentSignScreen({route, navigation}: any) {
               const filteredData = userItem.filter(
                 (item: any) => '_id' in item,
               );
-              filteredData.unshift({_id: auth().currentUser?.uid, name: 'Tôi'});
               setUserItem(filteredData);
-              setInitial(false);
+              setProgress('step');
+            }}
+            contentStyle={{flexDirection: 'row-reverse'}}>
+            Tiếp tục
+          </Button>
+        </View>
+      </View>
+    );
+
+  if (progress === 'step' && action === 'upload')
+    return (
+      <View
+        style={{
+          flex: 1,
+          paddingBottom: insets.bottom,
+          paddingTop: insets.top,
+          backgroundColor: '#fff',
+        }}>
+        <View
+          style={{
+            marginTop: 30,
+            height: screenHeight - 100,
+          }}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <IconButton
+              icon="arrow-left"
+              size={26}
+              onPress={() => setProgress('user')}
+            />
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+              Thiết lập quy trình
+            </Text>
+          </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              paddingLeft: 20,
+              paddingRight: 20,
+              marginTop: 15,
+              marginBottom: 25,
+            }}>
+            {stepItem.map((value: any) => {
+              return (
+                <DocumentStepItem
+                  key={value.step}
+                  item={value}
+                  setData={setStepItem}
+                  data={stepItem}
+                  userData={userItem}
+                />
+              );
+            })}
+            <TouchableOpacity
+              onPress={() => {
+                setStepItem(
+                  stepItem.concat({
+                    step: stepCount.current,
+                  }),
+                );
+                stepCount.current += 1;
+              }}
+              style={{
+                borderWidth: 1,
+                borderRadius: 6,
+                borderStyle: 'dashed',
+                paddingTop: 10,
+                paddingBottom: 10,
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
+                Thêm quy trình
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+        <View
+          style={{
+            alignSelf: 'center',
+            justifyContent: 'flex-end',
+            paddingLeft: 20,
+            paddingRight: 20,
+            marginTop: -10,
+            width: '100%',
+          }}>
+          <Button
+            style={{backgroundColor: '#005b96'}}
+            mode="contained"
+            onPress={() => {
+              const filteredData = stepItem.filter((item: any) =>
+                userItem.some((item2: any) => item2._id === item._id),
+              );
+              totalStep.current = filteredData.length;
+              if (filteredData.length > 0)
+                currentStep.current = filteredData[0];
+              setStepItem(filteredData);
+              setProgress('document');
             }}
             contentStyle={{flexDirection: 'row-reverse'}}>
             Xác nhận
@@ -303,7 +430,6 @@ function DocumentSignScreen({route, navigation}: any) {
         </View>
       </View>
     );
-  }
 
   return (
     <GestureHandlerRootView
@@ -315,23 +441,32 @@ function DocumentSignScreen({route, navigation}: any) {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          paddingRight: 12,
-          paddingLeft: 20,
           justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
-        <View style={{display: 'flex', flexDirection: 'row', width: '65%'}}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: '65%',
+            alignItems: 'center',
+          }}>
+          <IconButton
+            icon="arrow-left"
+            size={26}
+            onPress={() => setProgress('step')}
+          />
           <Text
             numberOfLines={1}
             style={{
               fontWeight: 'bold',
               fontSize: 18,
-              paddingTop: 13,
             }}>
             {name}
           </Text>
         </View>
         <View>
-          <Button style={{paddingTop: 7}} onPress={handleConfirm}>
+          <Button style={{paddingTop: 2}} onPress={handleConfirm}>
             <Text
               style={{
                 fontSize: 16,
@@ -342,7 +477,7 @@ function DocumentSignScreen({route, navigation}: any) {
           </Button>
         </View>
       </View>
-      {action === 'upload' && (
+      {action === 'upload' && totalStep.current > 0 && (
         <View
           style={{
             display: 'flex',
@@ -352,30 +487,25 @@ function DocumentSignScreen({route, navigation}: any) {
             marginTop: 6,
             marginBottom: 10,
           }}>
-          <Text style={{fontSize: 16}}>Người ký: </Text>
+          <Text style={{fontSize: 16}}>Quy trình: </Text>
           <SelectDropdown
-            data={userItem}
+            data={stepItem}
             defaultValueByIndex={0}
-            onSelect={selectedItem => {
-              if (annotNum.current > 0) {
-                stepNow.current += 1;
-                prevUser.current = currentUser.current;
-              }
-              if (prevUser.current === selectedItem._id) stepNow.current -= 1;
-              currentUser.current = selectedItem._id;
-              annotNum.current = 0;
+            onSelect={(selectedItem: any) => {
+              currentStep.current = selectedItem;
             }}
-            buttonTextAfterSelection={selectedItem => selectedItem.name}
-            rowTextForSelection={item => item.name}
+            buttonTextAfterSelection={(selectedItem: any, index: number) =>
+              `${index + 1}. ${selectedItem.name}`
+            }
+            rowTextForSelection={(item: any, index: number) =>
+              `${index + 1}. ${item.name}`
+            }
             buttonStyle={{
               height: 35,
               backgroundColor: '#FFF',
-              borderWidth: 0.3,
+              borderWidth: 1,
             }}
             dropdownIconPosition={'right'}
-            buttonTextStyle={{
-              textAlign: 'left',
-            }}
             renderDropdownIcon={() => {
               return (
                 <IconButton
@@ -395,9 +525,6 @@ function DocumentSignScreen({route, navigation}: any) {
         bottomToolbarEnabled={false}
         hideTopAppNavBar={true}
         hideToolbarsOnTap={false}
-        annotationToolbars={
-          action === 'upload' ? [toolbarUpload] : [toolbarEdit]
-        }
         longPressMenuEnabled={false}
         autoSaveEnabled={false}
         flattenAnnotations={true}
@@ -405,31 +532,35 @@ function DocumentSignScreen({route, navigation}: any) {
         showSavedSignatures={false}
         saveStateEnabled={false}
         annotationPermissionCheckEnabled={true}
+        annotationToolbars={action === 'edit' ? [toolbarEdit] : [toolbarUpload]}
         onDocumentLoaded={async () => {
           if (action === 'edit') {
-            let base64 = '';
-            let isContinous = true;
             const result = await DocumentAPI.getAnnotations(id);
-            prevStep.current = result.data.data.data.stepNow;
+            stepNow.current = result.data.data.data.stepNow;
+            stepUser.current = result.data.data.data.stepUser;
+            let base64 = '';
             for (let i = 0; i < result.data.data.data.xfdf.data.length; ++i)
               base64 += String.fromCharCode(result.data.data.data.xfdf.data[i]);
             documentView
               .current!.importAnnotations(base64)
               .then((importedAnnotations: any) => {
                 importedAnnotations.forEach(async (annotation: any) => {
-                  const value =
+                  const step =
+                    await documentView.current!.getCustomDataForAnnotation(
+                      annotation.id,
+                      annotation.pageNumber,
+                      'step',
+                    );
+                  const user =
                     await documentView.current!.getCustomDataForAnnotation(
                       annotation.id,
                       annotation.pageNumber,
                       'user',
                     );
-                  const progress =
-                    await documentView.current!.getCustomDataForAnnotation(
-                      annotation.id,
-                      annotation.pageNumber,
-                      'progress',
-                    );
-                  if (progress === 'done') {
+                  if (
+                    user === auth().currentUser?.uid &&
+                    step == stepNow.current
+                  ) {
                     documentView.current!.setFlagsForAnnotations([
                       {
                         id: annotation.id,
@@ -438,73 +569,30 @@ function DocumentSignScreen({route, navigation}: any) {
                         flagValue: false,
                       },
                     ]);
-                  } else {
-                    if (value !== auth().currentUser?.uid)
-                      documentView.current!.setFlagsForAnnotations([
-                        {
-                          id: annotation.id,
-                          pageNumber: annotation.pageNumber,
-                          flag: Config.AnnotationFlags.hidden,
-                          flagValue: true,
-                        },
-                      ]);
-                    else {
-                      const step =
-                        await documentView.current!.getCustomDataForAnnotation(
-                          annotation.id,
-                          annotation.pageNumber,
-                          'step',
-                        );
-                      if (isContinous) {
-                        const user =
-                          await documentView.current!.getCustomDataForAnnotation(
-                            annotation.id,
-                            annotation.pageNumber,
-                            'user',
-                          );
-                        if (
-                          step > prevStep.current &&
-                          user === auth().currentUser?.uid
-                        )
-                          prevStep.current = step;
-                        else isContinous = false;
-                      }
-                      if (step == prevStep.current) {
-                        documentView.current!.setFlagsForAnnotations([
-                          {
-                            id: annotation.id,
-                            pageNumber: annotation.pageNumber,
-                            flag: Config.AnnotationFlags.hidden,
-                            flagValue: false,
-                          },
-                        ]);
-                      } else {
-                        documentView.current!.setFlagsForAnnotations([
-                          {
-                            id: annotation.id,
-                            pageNumber: annotation.pageNumber,
-                            flag: Config.AnnotationFlags.hidden,
-                            flagValue: true,
-                          },
-                        ]);
-                      }
-                    }
+                  } else if (step >= stepNow.current && stepNow.current > 0) {
+                    documentView.current!.setFlagsForAnnotations([
+                      {
+                        id: annotation.id,
+                        pageNumber: annotation.pageNumber,
+                        flag: Config.AnnotationFlags.hidden,
+                        flagValue: true,
+                      },
+                    ]);
                   }
                 });
               });
           }
         }}
         onAnnotationChanged={({action, annotations}: any) => {
-          if (action === 'add') {
-            annotNum.current += 1;
+          if (action === 'add')
             annotations.forEach((annotation: any) => {
               documentView.current!.setPropertiesForAnnotation(
                 annotation.id,
                 annotation.pageNumber,
                 {
                   customData: {
-                    user: currentUser.current,
-                    step: `${stepNow.current}`,
+                    user: currentStep.current._id,
+                    step: `${currentStep.current.step}`,
                   },
                 },
               );
@@ -517,9 +605,6 @@ function DocumentSignScreen({route, navigation}: any) {
                 },
               ]);
             });
-          } else if (action === 'delete') {
-            annotNum.current -= 1;
-          }
         }}
         onFormFieldValueChanged={({fields}: any) => {
           fields.forEach(async (field: any) => {

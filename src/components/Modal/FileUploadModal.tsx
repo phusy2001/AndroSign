@@ -52,7 +52,7 @@ function FileUploadModal({
       path: response[0].uri,
       file: response[0],
       action: 'upload',
-      createFileFunction: () => {
+      handleFileCreated: () => {
         handleCreateFile();
       },
     });
