@@ -25,7 +25,6 @@ function TrashScreen({navigation, route}: any) {
   const [pageNumber, setPageNumber] = React.useState(1);
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
-  // const [status, setStatus] = React.useState<string>('');
   const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
   const uploadModal = React.useRef<BottomSheetModal>(null);
@@ -70,7 +69,7 @@ function TrashScreen({navigation, route}: any) {
 
   React.useEffect(() => {
     if (!initial.current) {
-      const timeOut = setTimeout(() => refreshData(), 500);
+      const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
     } else initial.current = false;
   }, [searchQuery, sorting, order]);

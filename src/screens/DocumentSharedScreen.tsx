@@ -27,7 +27,7 @@ function DocumentSharedScreen({navigation, route}: any) {
   const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
-  // const [status, setStatus] = React.useState<string>('');
+  const [status, setStatus] = React.useState<string>('all');
   const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
   const uploadModal = React.useRef<BottomSheetModal>(null);
@@ -42,6 +42,7 @@ function DocumentSharedScreen({navigation, route}: any) {
         searchQuery,
         sorting,
         order,
+        status,
       );
       if (result.data.data.data.length < 10) setEnd(true);
       const newData = result.data.data.data;
@@ -59,7 +60,7 @@ function DocumentSharedScreen({navigation, route}: any) {
     setData([]);
     setPageNumber(1);
     setEnd(false);
-    setRefresh(refresh + 1);
+    setRefresh(prevRefresh => prevRefresh + 1);
   };
 
   React.useEffect(() => {
@@ -72,10 +73,10 @@ function DocumentSharedScreen({navigation, route}: any) {
 
   React.useEffect(() => {
     if (!initial.current) {
-      const timeOut = setTimeout(() => refreshData(), 500);
+      const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
     } else initial.current = false;
-  }, [searchQuery, sorting, order]);
+  }, [searchQuery, sorting, order, status]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
     if (filterModal || editModal) {
@@ -158,6 +159,9 @@ function DocumentSharedScreen({navigation, route}: any) {
                 item={item}
                 navigation={navigation}
                 onPressMoreFunction={handlePressMoreFunction}
+                handleEditFunction={() => {
+                  refreshData();
+                }}
               />
             )}
             keyExtractor={(item, index): any => index}
@@ -229,6 +233,8 @@ function DocumentSharedScreen({navigation, route}: any) {
           setOrder={setOrder}
           sorting={sorting}
           setSorting={setSorting}
+          status={status}
+          setStatus={setStatus}
         />
         <FileEditModal
           editModalRef={editModal}

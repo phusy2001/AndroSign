@@ -70,7 +70,7 @@ function FolderScreen({navigation, route}: any) {
 
   React.useEffect(() => {
     if (!initial.current) {
-      const timeOut = setTimeout(() => refreshData(), 500);
+      const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
     } else initial.current = false;
   }, [searchQuery, sorting, order]);

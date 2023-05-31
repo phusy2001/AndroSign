@@ -6,9 +6,10 @@ const DocumentAPI = {
     keyword: string,
     sort: string,
     order: string,
+    status: string,
   ) => {
     return await axiosClient.get(`/getMyFiles`, {
-      params: {offset: pageNumber, keyword, sort, order},
+      params: {offset: pageNumber, keyword, sort, order, status},
     });
   },
 
@@ -130,6 +131,7 @@ const DocumentAPI = {
     keyword: string,
     sort: string,
     order: string,
+    status: string,
   ) => {
     return await axiosClient.get(`/getStarredFiles`, {
       params: {
@@ -137,6 +139,7 @@ const DocumentAPI = {
         keyword,
         sort,
         order,
+        status,
       },
     });
   },
@@ -146,6 +149,7 @@ const DocumentAPI = {
     keyword: string,
     sort: string,
     order: string,
+    status: string,
   ) => {
     return await axiosClient.get(`/getFilesShared`, {
       params: {
@@ -153,6 +157,7 @@ const DocumentAPI = {
         keyword,
         sort,
         order,
+        status,
       },
     });
   },

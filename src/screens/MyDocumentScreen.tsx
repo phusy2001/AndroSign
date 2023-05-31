@@ -27,7 +27,7 @@ function MyDocumentScreen({navigation, route}: any) {
   const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
-  // const [status, setStatus] = React.useState<string>('');
+  const [status, setStatus] = React.useState<string>('all');
   const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
   const uploadModal = React.useRef<BottomSheetModal>(null);
@@ -47,6 +47,7 @@ function MyDocumentScreen({navigation, route}: any) {
           searchQuery,
           sorting,
           order,
+          status,
         );
         if (result.data.data.data.length < 10) setEnd(true);
         const newData = result.data.data.data;
@@ -76,10 +77,10 @@ function MyDocumentScreen({navigation, route}: any) {
 
   React.useEffect(() => {
     if (!initial.current) {
-      const timeOut = setTimeout(() => refreshData(), 500);
+      const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
     } else initial.current = false;
-  }, [searchQuery, sorting, order]);
+  }, [searchQuery, sorting, order, status]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
     if (filterModal || editModal) {
@@ -169,6 +170,9 @@ function MyDocumentScreen({navigation, route}: any) {
                 item={item}
                 navigation={navigation}
                 onPressMoreFunction={handlePressMoreFunction}
+                handleEditFunction={() => {
+                  refreshData();
+                }}
               />
             )}
             keyExtractor={(item, index): any => index}
@@ -247,6 +251,8 @@ function MyDocumentScreen({navigation, route}: any) {
           setOrder={setOrder}
           sorting={sorting}
           setSorting={setSorting}
+          status={status}
+          setStatus={setStatus}
         />
         <FileEditModal
           editModalRef={editModal}

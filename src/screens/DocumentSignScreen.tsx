@@ -31,7 +31,8 @@ import auth from '@react-native-firebase/auth';
 import DocumentStepItem from '../components/DocumentStepItem';
 
 function DocumentSignScreen({route, navigation}: any) {
-  const {id, name, path, file, action, handleFileCreated} = route.params;
+  const {id, name, path, file, action, handleFileCreated, handleEditFunction} =
+    route.params;
   const screenHeight = Dimensions.get('window').height;
   const insets = useSafeAreaInsets();
   const confirmSnapPoints = React.useMemo(() => ['30%'], []);
@@ -180,6 +181,7 @@ function DocumentSignScreen({route, navigation}: any) {
       }
     }
     const xfdf = await documentView.current!.exportAnnotations();
+    let isEdited = false;
     const userIdArr = userItem
       .filter((item: any) => item._id !== auth().currentUser?.uid)
       .map((item: any) => item._id);
@@ -215,9 +217,11 @@ function DocumentSignScreen({route, navigation}: any) {
         type: result.data.status === 'true' ? 'success' : 'error',
         position: 'bottom',
       });
+      isEdited = true;
     }
     navigation.goBack();
     if (handleFileCreated) handleFileCreated();
+    else if (handleEditFunction && isEdited) handleEditFunction();
   };
 
   if (progress === 'user' && action === 'upload')

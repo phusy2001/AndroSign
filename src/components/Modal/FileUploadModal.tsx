@@ -27,7 +27,7 @@ function FileUploadModal({
   const createFolder = async () => {
     const result = await DocumentAPI.createFolder(
       folderName,
-      auth().currentUser?.uid,
+      auth().currentUser!.uid,
     );
     Toast.show({
       text1: result.data.message,

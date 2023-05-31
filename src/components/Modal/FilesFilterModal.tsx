@@ -9,8 +9,13 @@ function FilesFilterModal({
   setOrder,
   sorting,
   setSorting,
+  status,
+  setStatus,
 }: any) {
-  const filterSnapPoints = React.useMemo(() => ['50%'], []);
+  const filterSnapPoints = React.useMemo(
+    () => (status ? ['80%'] : ['50%']),
+    [],
+  );
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -33,54 +38,77 @@ function FilesFilterModal({
       snapPoints={filterSnapPoints}
       enablePanDownToClose={true}>
       <View style={{padding: 20}}>
-        <View style={{marginBottom: 15}}>
-          {/* <Text variant="labelLarge" style={{fontSize: 20, marginBottom: 10}}>
-            Trạng thái
-          </Text>
-          <RadioButton.Group
-            onValueChange={newStatus => setStatus(newStatus)}
-            value={status}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <RadioButton value="1" />
-              <View style={{marginLeft: 20}}>
-                <Text style={{fontSize: 16}}>Tất cả</Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <RadioButton value="2" />
+        {status && (
+          <View style={{marginBottom: 15}}>
+            <Text variant="labelLarge" style={{fontSize: 20, marginBottom: 10}}>
+              Trạng thái
+            </Text>
+            <RadioButton.Group
+              onValueChange={newStatus => setStatus(newStatus)}
+              value={status}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <RadioButton value="all" />
+                <View style={{marginLeft: 20}}>
+                  <Text style={{fontSize: 16}}>Tất cả</Text>
+                </View>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <RadioButton value="completed" />
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 6,
+                      backgroundColor: '#3CB371',
+                      marginLeft: 20,
+                      marginRight: 8,
+                    }}></View>
+                  <Text style={{fontSize: 16}}>Đã hoàn thành</Text>
+                </View>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <RadioButton value="me" />
                 <View
                   style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 6,
-                    backgroundColor: '#FF7A00',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     marginLeft: 20,
-                    marginRight: 8,
-                  }}></View>
-                <Text style={{fontSize: 16}}>Đang xử lý</Text>
+                  }}>
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 6,
+                      backgroundColor: '#146C94',
+                      marginRight: 8,
+                    }}></View>
+                  <Text style={{fontSize: 16}}>Lượt của bạn</Text>
+                </View>
               </View>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <RadioButton value="3" />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginLeft: 20,
-                }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <RadioButton value="others" />
                 <View
                   style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 6,
-                    backgroundColor: '#42FF00',
-                    marginRight: 8,
-                  }}></View>
-                <Text style={{fontSize: 16}}>Đã ký</Text>
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginLeft: 20,
+                  }}>
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 6,
+                      backgroundColor: '#394867',
+                      marginRight: 8,
+                    }}></View>
+                  <Text style={{fontSize: 16}}>Lượt của người khác</Text>
+                </View>
               </View>
-            </View>
-          </RadioButton.Group> */}
+            </RadioButton.Group>
+          </View>
+        )}
+        <View style={{marginBottom: 15}}>
           <Text variant="labelLarge" style={{fontSize: 20, marginBottom: 10}}>
             Thứ tự
           </Text>
@@ -128,13 +156,6 @@ function FilesFilterModal({
             </View>
           </RadioButton.Group>
         </View>
-        {/* <Button
-          mode="contained"
-          onPress={() => {
-            filterModal.current?.dismiss();
-          }}>
-          Xác nhận{' '}
-        </Button> */}
       </View>
     </BottomSheetModal>
   );
