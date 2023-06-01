@@ -1,10 +1,29 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Appbar, Button, Card, Divider, Text} from 'react-native-paper';
+import auth from '@react-native-firebase/auth';
 import AxiosClient from '../services/clients/api';
 
 function CheckoutScreen({route, navigation}: any) {
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const client = new AxiosClient('http://10.0.2.2:3005');
+
+      try {
+        const curUser = await client.get(`/users/${auth().currentUser?.uid}`);
+
+        setUser(curUser);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const pay = async () => {
     const client = new AxiosClient('http://10.0.2.2:3004');
     try {
@@ -39,7 +58,10 @@ function CheckoutScreen({route, navigation}: any) {
               Thông tin khách hàng
             </Text>
             <Card>
-              <Card.Title title="Trong Le" titleVariant="titleMedium" />
+              <Card.Title
+                title={user?.display_name}
+                titleVariant="titleMedium"
+              />
               <Card.Content>
                 <View
                   style={{
@@ -50,7 +72,7 @@ function CheckoutScreen({route, navigation}: any) {
                     Số điện thoại:
                   </Text>
                   <Text variant="bodyMedium" style={{marginLeft: 20}}>
-                    +84 8xx xxx xxx
+                    {user?.phone_number || 'Không có'}
                   </Text>
                 </View>
                 <View
@@ -62,7 +84,7 @@ function CheckoutScreen({route, navigation}: any) {
                     Email:
                   </Text>
                   <Text variant="bodyMedium" style={{marginLeft: 20}}>
-                    trongle@gmail.com
+                    {auth().currentUser?.email}
                   </Text>
                 </View>
                 <View
@@ -74,13 +96,13 @@ function CheckoutScreen({route, navigation}: any) {
                     Địa chỉ:
                   </Text>
                   <Text variant="bodyMedium" style={{marginLeft: 20}}>
-                    227 Nguyễn Văn Cừ, Phường 4, Quận 5
+                    {user?.address || 'Không có'}
                   </Text>
                 </View>
               </Card.Content>
               <Card.Actions>
                 <Button mode="contained" style={{flex: 1}}>
-                  EDIT ADDRESS
+                  Chỉnh sửa địa chỉ
                 </Button>
               </Card.Actions>
             </Card>

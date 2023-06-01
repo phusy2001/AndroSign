@@ -43,10 +43,6 @@ function LoginScreen({navigation, route}: any) {
   const onSubmit = async (data: any) => {
     try {
       await signinWithEmail(data.email, data.password);
-
-      if (auth().currentUser) {
-        navigation.navigate('Onboarding');
-      }
     } catch (error: any) {
       onToggleSnackBar(error.code);
     }
@@ -54,10 +50,13 @@ function LoginScreen({navigation, route}: any) {
 
   useEffect(() => {
     auth().onAuthStateChanged(user => {
+      console.log('On Auth State Change');
       console.log('User', user);
+      
       if (user) {
+        navigation.navigate('Onboarding');
         user.getIdToken().then(async token => {
-          console.log('token', token);
+          console.log('token when auth state change =>', token);
           axiosClient.interceptors.request.use(config => {
             config.headers.Authorization = `Bearer ${token}`;
             return config;

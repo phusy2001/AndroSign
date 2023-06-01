@@ -51,9 +51,7 @@ function SignUpScreen({navigation, route}: any) {
     try {
       await signupWithEmail(data.email, data.password, data.username);
 
-      if (auth().currentUser) {
-        navigation.navigate('Onboarding');
-      }
+      navigation.navigate('Login');
     } catch (error: any) {
       onToggleSnackBar(error.code);
     }

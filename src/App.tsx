@@ -7,8 +7,8 @@ import {AppNavigator} from './navigation/AppNavigator';
 import SplashScreen from './screens/SplashScreen';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import auth from '@react-native-firebase/auth';
-import axiosClient from './services/clients/axios';
 import {navigationRef} from './navigation/RootNavigation';
+import {storeData} from './utils/asyncStore';
 import './i18n/i18n';
 
 export default function App() {
@@ -59,11 +59,16 @@ export default function App() {
       console.log('Token refresh');
       if (user) {
         user.getIdToken().then(async token => {
-          console.log('token', token);
+          console.log('token when token change =>', token);
           axiosClient.interceptors.request.use(config => {
             config.headers.Authorization = `Bearer ${token}`;
             return config;
           });
+          try {
+            await storeData('userToken', token);
+          } catch (e) {
+            console.log(e);
+          }
         });
       }
     });

@@ -6,6 +6,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
+import auth from '@react-native-firebase/auth';
 
 const phoneRegExp = /^((\+)33|0)[1-9](\d{2}){4}$/;
 
@@ -29,6 +30,7 @@ function InfoChangeScreen({navigation}: any) {
   } = useForm({
     resolver: yupResolver(InfoSchema),
   });
+
   const onSubmit = (data: any) => {
     console.log(data);
   };
@@ -80,7 +82,7 @@ function InfoChangeScreen({navigation}: any) {
             placeholder="Nhập email của bạn"
             inputMode="email"
             textContentType="emailAddress"
-            value="trongle@gmail.com"
+            value={auth().currentUser?.email || null || undefined}
             editable={false}
           />
           <Controller

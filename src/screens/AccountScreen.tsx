@@ -1,13 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, ScrollView, StyleSheet} from 'react-native';
 import {Appbar, Text, Avatar, IconButton, Divider} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth';
 import {FlashList} from '@shopify/flash-list';
 import TransText from '../components/TransText';
+import AxiosClient from '../services/clients/api';
 
 const plans = [
   {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
@@ -24,6 +26,24 @@ function AccountScreen({navigation}: any) {
       navigation.dispatch(DrawerActions.openDrawer());
     }
   };
+
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const client = new AxiosClient('http://10.0.2.2:3005');
+
+      try {
+        const curUser = await client.get(`/users/${auth().currentUser?.uid}`);
+
+        setUser(curUser);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const renderGroupHeader = ({item}) => {
     return (
@@ -108,8 +128,10 @@ function AccountScreen({navigation}: any) {
             <Avatar.Text size={48} label="TL" />
           </View>
           <View style={{width: '70%', justifyContent: 'center'}}>
-            <Text style={{fontSize: 18, fontWeight: 'bold'}}>Trong Le</Text>
-            <Text style={{fontSize: 15}}>trongle@gmail.com</Text>
+            <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+              {user?.display_name}
+            </Text>
+            <Text style={{fontSize: 15}}>{auth().currentUser?.email}</Text>
           </View>
           <View
             style={{

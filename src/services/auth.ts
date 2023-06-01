@@ -42,6 +42,12 @@ export async function signupWithEmail(
     .then(async ({user}) => {
       console.log('User account created');
 
+      try {
+        await auth().currentUser?.updateProfile({displayName: display_name});
+      } catch (e) {
+        console.log(e);
+      }
+
       const fcmToken = await AsyncStorage.getItem('fcmToken');
 
       if (fcmToken) {

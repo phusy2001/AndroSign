@@ -6,6 +6,8 @@ import axios, {
   AxiosError,
 } from 'axios';
 
+import {getData} from '../../utils/asyncStore';
+
 class AxiosClient {
   private client: AxiosInstance;
   private baseURL: string;
@@ -23,10 +25,10 @@ class AxiosClient {
     this.client.interceptors.request.use(
       async config => {
         // Add authorization header or modify request before it is sent
+        const token = await getData('userToken');
+
         if (config.headers) {
-          config.headers.Authorization = `Bearer ${await AsyncStorage.getItem(
-            'token',
-          )}`;
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
