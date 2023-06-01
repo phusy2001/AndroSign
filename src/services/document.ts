@@ -183,6 +183,12 @@ const DocumentAPI = {
       id,
     });
   },
+
+  deletePermanently: async (id: string) => {
+    return await axiosClient.post(`/deletePermanently`, {
+      id,
+    });
+  },
 };
 
 export default DocumentAPI;

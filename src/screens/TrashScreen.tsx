@@ -14,6 +14,7 @@ import FilesFilterModal from '../components/Modal/FilesFilterModal';
 import ListFooter from '../components/ListFooter';
 import TrashSVG from '../assets/images/trash_empty.svg';
 import RsEmptySVG from '../assets/images/result_empty.svg';
+import FileDeletedModal from '../components/Modal/FileDeletedModal';
 
 function TrashScreen({navigation, route}: any) {
   const initial = React.useRef(true);
@@ -23,6 +24,7 @@ function TrashScreen({navigation, route}: any) {
   const [data, setData] = React.useState<any>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
+  const [item, setItem] = React.useState({});
   const [end, setEnd] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
   const [sorting, setSorting] = React.useState<string>('updated');
@@ -90,11 +92,35 @@ function TrashScreen({navigation, route}: any) {
     filterModal.current?.present();
   }, []);
 
-  const handlePressRestoreFunction = async (id: string) => {
+  const handlePressMoreFunction = async (data: any) => {
+    if (uploadModal || filterModal) {
+      uploadModal.current?.dismiss();
+      filterModal.current?.dismiss();
+    }
+    editModal.current?.present(data);
+    setItem(data);
+  };
+
+  const handleDeleteFunction = async (id: string) => {
+    const result = await DocumentAPI.deletePermanently(id);
+    if (result.data.status === 'true') {
+      const filteredData = data.filter((item: any) => item._id !== id);
+      setData(filteredData);
+      editModal.current?.dismiss();
+    }
+    Toast.show({
+      text1: result.data.message,
+      type: result.data.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+  };
+
+  const handleRestoreFunction = async (id: string) => {
     const result = await DocumentAPI.restoreFile(id);
     if (result.data.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
+      editModal.current?.dismiss();
     }
     Toast.show({
       text1: result.data.message,
@@ -133,7 +159,8 @@ function TrashScreen({navigation, route}: any) {
               <FileItem
                 item={item}
                 navigation={navigation}
-                onPressRestoreFunction={handlePressRestoreFunction}
+                onPressMoreFunction={handlePressMoreFunction}
+                itemDeleted={true}
               />
             )}
             keyExtractor={(item, index): any => index}
@@ -206,6 +233,13 @@ function TrashScreen({navigation, route}: any) {
           setOrder={setOrder}
           sorting={sorting}
           setSorting={setSorting}
+        />
+        <FileDeletedModal
+          editModalRef={editModal}
+          navigation={navigation}
+          item={item}
+          handleDeleteFunction={handleDeleteFunction}
+          handleRestoreFunction={handleRestoreFunction}
         />
       </BottomSheetModalProvider>
     </ImageBackground>

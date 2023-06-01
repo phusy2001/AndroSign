@@ -9,8 +9,8 @@ function FileItem({
   item,
   navigation,
   onPressMoreFunction,
-  onPressRestoreFunction,
   handleEditFunction,
+  itemDeleted,
 }: any) {
   return (
     <Card
@@ -40,7 +40,7 @@ function FileItem({
                 {item.name + '.pdf'}
               </Text>
             </View>
-            {item.total === 0 || !onPressMoreFunction ? (
+            {item.total === 0 || itemDeleted ? (
               <></>
             ) : item.completed ? (
               <View
@@ -126,22 +126,14 @@ function FileItem({
       <Card.Content
         style={{
           position: 'absolute',
-          top: item.total === 0 || !onPressMoreFunction ? '20%' : '35%',
+          top: item.total === 0 || itemDeleted ? '20%' : '35%',
           right: 0,
         }}>
-        {onPressMoreFunction ? (
-          <IconButton
-            onPress={() => onPressMoreFunction(item)}
-            icon="dots-horizontal"
-            size={24}
-          />
-        ) : (
-          <IconButton
-            onPress={() => onPressRestoreFunction(item._id)}
-            icon="restore"
-            size={24}
-          />
-        )}
+        <IconButton
+          onPress={() => onPressMoreFunction(item)}
+          icon="dots-horizontal"
+          size={24}
+        />
       </Card.Content>
     </Card>
   );

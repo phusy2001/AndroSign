@@ -4,6 +4,7 @@ import {Button, Dialog, Text} from 'react-native-paper';
 function DeleteConfirmDialog({
   item,
   type,
+  description,
   dlgVisible,
   setDlgVisible,
   handleDeleteFunction,
@@ -17,8 +18,8 @@ function DeleteConfirmDialog({
         <Text style={{fontSize: 20}}>Xóa {type}</Text>
       </Dialog.Title>
       <Dialog.Content>
-        <Text style={{fontSize: 18, textAlign: 'center'}}>
-          Bạn có chắc chắn xóa {type} này?
+        <Text style={{fontSize: 16, textAlign: 'center'}}>
+          Bạn có chắc chắn xóa {type} này? {description}
         </Text>
       </Dialog.Content>
       <Dialog.Actions>
@@ -28,7 +29,7 @@ function DeleteConfirmDialog({
           }}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: 'bold',
               color: 'blue',
             }}>
@@ -42,7 +43,7 @@ function DeleteConfirmDialog({
           }}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               color: 'blue',
             }}>
             Xóa
