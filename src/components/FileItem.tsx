@@ -17,15 +17,16 @@ function FileItem({
       style={{marginBottom: 10}}
       id={item._id}
       onPress={() => {
-        navigation.navigate('DocumentSign', {
-          id: item._id,
-          name: item.name + '.pdf',
-          path: item.path,
-          action: 'edit',
-          handleEditFunction: () => {
-            handleEditFunction();
-          },
-        });
+        if (!itemDeleted)
+          navigation.navigate('DocumentSign', {
+            id: item._id,
+            name: item.name + '.pdf',
+            path: item.path,
+            action: 'edit',
+            handleEditFunction: () => {
+              handleEditFunction();
+            },
+          });
       }}>
       <Card.Title
         title={
