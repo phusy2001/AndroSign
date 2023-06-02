@@ -12,23 +12,7 @@ const service = 'users';
 
 //Sign in
 export async function signinWithEmail(email: string, password: string) {
-  return auth()
-    .signInWithEmailAndPassword(email, password)
-    .then(() => {
-      console.log('Logged in');
-    })
-    .catch(error => {
-      switch (error.code) {
-        case 'auth/user-not-found':
-          console.error('User not available');
-          break;
-        case 'auth/wrong-password':
-          console.error('Wrong password');
-          break;
-        default:
-          console.error(error);
-      }
-    });
+  return auth().signInWithEmailAndPassword(email, password);
 }
 
 //Sign up

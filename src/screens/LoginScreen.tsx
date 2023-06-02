@@ -1,15 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions, StyleSheet} from 'react-native';
-import {Text, Button, TextInput, Snackbar} from 'react-native-paper';
+import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import {signinWithEmail} from '../services/auth';
-import {navigate} from '../navigation/RootNavigation';
 import axiosClient from '../services/clients/axios';
+import Toast from 'react-native-toast-message';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -23,15 +23,15 @@ function LoginScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
-  const [visible, setVisible] = useState(false);
-  const [snackbarContent, setSnackbarContent] = useState('');
 
-  const onToggleSnackBar = (mssgError: string) => {
-    setSnackbarContent(mssgError);
-    setVisible(!visible);
+  const handleLoginError = (mssgError: string) => {
+    Toast.show({
+      text1: mssgError,
+      type: 'error',
+      position: 'top',
+      visibilityTime: 1500,
+    });
   };
-
-  const onDismissSnackBar = () => setVisible(false);
 
   const {
     control,
@@ -44,7 +44,7 @@ function LoginScreen({navigation, route}: any) {
     try {
       await signinWithEmail(data.email, data.password);
     } catch (error: any) {
-      onToggleSnackBar(error.code);
+      handleLoginError(error.code);
     }
   };
 
@@ -52,7 +52,7 @@ function LoginScreen({navigation, route}: any) {
     auth().onAuthStateChanged(user => {
       console.log('On Auth State Change');
       console.log('User', user);
-      
+
       if (user) {
         navigation.navigate('Onboarding');
         user.getIdToken().then(async token => {
@@ -181,19 +181,6 @@ function LoginScreen({navigation, route}: any) {
           contentStyle={{flexDirection: 'row-reverse'}}>
           Đăng nhập
         </Button>
-        <Snackbar
-          style={{position: 'absolute', bottom: 0}}
-          visible={visible}
-          onDismiss={onDismissSnackBar}
-          action={{
-            label: '',
-            icon: 'close',
-            onPress: () => {
-              onDismissSnackBar();
-            },
-          }}>
-          {snackbarContent}
-        </Snackbar>
       </View>
     </View>
   );
