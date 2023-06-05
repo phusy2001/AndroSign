@@ -22,7 +22,7 @@ function FileEditModal({
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
 
   const editSnapPoints =
-    typeEdit === 'owned' || item.fileOwner ? ['70%'] : ['50%'];
+    typeEdit === 'owned' || item.fileOwner ? ['76%'] : ['50%'];
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -140,13 +140,24 @@ function FileEditModal({
             }}
           />
           {(item.fileOwner || typeEdit === 'owned') && (
-            <List.Item
-              onPress={() => {
-                navigation.navigate('DocumentShare', {id: item._id});
-              }}
-              title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
-              left={props => <List.Icon {...props} icon="share" />}
-            />
+            <>
+              <List.Item
+                onPress={() => {
+                  navigation.navigate('DocumentShare', {id: item._id});
+                }}
+                title={<Text style={{fontSize: 16}}>Chia sẻ</Text>}
+                left={props => <List.Icon {...props} icon="share" />}
+              />
+              <List.Item
+                onPress={() => {
+                  navigation.navigate('DocumentHistory', {id: item._id});
+                }}
+                title={
+                  <Text style={{fontSize: 16}}>Lịch sử thay đổi tài liệu</Text>
+                }
+                left={props => <List.Icon {...props} icon="history" />}
+              />
+            </>
           )}
           <List.Item
             title={<Text style={{fontSize: 16}}>Tải về tài liệu</Text>}

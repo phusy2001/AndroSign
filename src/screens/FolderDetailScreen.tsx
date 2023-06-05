@@ -10,12 +10,14 @@ import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import FileEditModal from '../components/Modal/FileEditModal';
 import {useIsFocused} from '@react-navigation/native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import FileFolderEmptySVG from '../assets/images/document_empty.svg';
 
 function FolderDetailScreen({navigation, route}: any) {
   const {id, name} = route.params;
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const screenHeight = Dimensions.get('window').height;
+  const initial = React.useRef(true);
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
@@ -37,7 +39,8 @@ function FolderDetailScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (refresh > 0) loadData();
+    if (refresh > 0 && !initial.current) loadData();
+    else initial.current = false;
   }, [refresh]);
 
   React.useEffect(() => {
@@ -146,22 +149,42 @@ function FolderDetailScreen({navigation, route}: any) {
             paddingRight: 20,
             flex: 1,
           }}>
-          <FlashList
-            data={data}
-            renderItem={({item}) => (
-              <FileItem
-                item={item}
-                navigation={navigation}
-                onPressMoreFunction={handlePressMoreFunction}
-              />
-            )}
-            keyExtractor={(item: any) => item?._id}
-            onEndReached={loadData}
-            onEndReachedThreshold={0.001}
-            estimatedItemSize={100}
-            ListFooterComponent={renderFooter}
-            showsVerticalScrollIndicator={false}
-          />
+          {data.length !== 0 || initial.current ? (
+            <FlashList
+              data={data}
+              renderItem={({item}) => (
+                <FileItem
+                  item={item}
+                  navigation={navigation}
+                  onPressMoreFunction={handlePressMoreFunction}
+                />
+              )}
+              keyExtractor={(item: any) => item?._id}
+              onEndReached={loadData}
+              onEndReachedThreshold={0.001}
+              estimatedItemSize={100}
+              ListFooterComponent={renderFooter}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <FileFolderEmptySVG width={170} height={180} />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  paddingHorizontal: 60,
+                  textAlign: 'center',
+                }}>
+                Không có tài liệu trong thư mục này
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       <BottomSheetModalProvider>

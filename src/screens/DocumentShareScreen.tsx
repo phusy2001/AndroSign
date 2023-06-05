@@ -10,6 +10,7 @@ import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import ListFooter from '../components/ListFooter';
+import USharedEmptySVG from '../assets/images/usershared_empty.svg';
 
 const DocShareSchema = yup.object().shape({
   email: yup
@@ -22,6 +23,7 @@ function DocumentShareScreen({navigation, route}: any) {
   const {id} = route.params;
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
+  const initial = React.useRef(true);
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
@@ -54,7 +56,8 @@ function DocumentShareScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    loadData();
+    if (!initial.current) loadData();
+    else initial.current = false;
   }, [refresh]);
 
   const handlePressAddFunction = async (email: string) => {
@@ -164,21 +167,41 @@ function DocumentShareScreen({navigation, route}: any) {
             marginBottom: 30,
             flex: 1,
           }}>
-          <FlashList
-            data={data}
-            renderItem={({item}) => (
-              <UserSharedItem
-                item={item}
-                onPressRemoveFunction={handlePressRemoveFunction}
-              />
-            )}
-            keyExtractor={(item, index): any => index}
-            onEndReached={loadData}
-            onEndReachedThreshold={0.001}
-            estimatedItemSize={100}
-            ListFooterComponent={<ListFooter isLoading={isLoading} />}
-            showsVerticalScrollIndicator={false}
-          />
+          {data.length !== 0 || initial.current ? (
+            <FlashList
+              data={data}
+              renderItem={({item}) => (
+                <UserSharedItem
+                  item={item}
+                  onPressRemoveFunction={handlePressRemoveFunction}
+                />
+              )}
+              keyExtractor={(item, index): any => index}
+              onEndReached={loadData}
+              onEndReachedThreshold={0.001}
+              estimatedItemSize={100}
+              ListFooterComponent={<ListFooter isLoading={isLoading} />}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <USharedEmptySVG width={170} height={180} />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  paddingHorizontal: 60,
+                  textAlign: 'center',
+                }}>
+                Không có người dùng được chia sẻ tài liệu này
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </View>

@@ -28,6 +28,7 @@ import FolderChooseScreen from '../screens/FolderChooseScreen';
 import DocumentSharedScreen from '../screens/DocumentSharedScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
+import DocumentHistoryScreen from '../screens/DocumentHistoryScreen';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -194,6 +195,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="FolderChoose"
         component={FolderChooseScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="DocumentHistory"
+        component={DocumentHistoryScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

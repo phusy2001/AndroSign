@@ -189,6 +189,15 @@ const DocumentAPI = {
       id,
     });
   },
+
+  getFileHistory: async (id: string, pageNumber: number) => {
+    return await axiosClient.get(`/getFileHistory`, {
+      params: {
+        id,
+        offset: pageNumber,
+      },
+    });
+  },
 };
 
 export default DocumentAPI;

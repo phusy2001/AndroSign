@@ -4,15 +4,13 @@ import {Dimensions, View} from 'react-native';
 import {IconButton, Text} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ListFooter from '../components/ListFooter';
-import FolderChooseItem from '../components/FolderChooseItem';
 import DocumentAPI from '../services/document';
-import FolderSVG from '../assets/images/folder_empty.svg';
+import FileHistoryItem from '../components/FileHistoryItem';
 
-function FolderChooseScreen({navigation, route}: any) {
+function DocumentHistoryScreen({navigation, route}: any) {
   const {id} = route.params;
   const screenHeight = Dimensions.get('window').height;
   const insets = useSafeAreaInsets();
-  const initial = React.useRef(true);
   const [data, setData] = React.useState([]);
   const [end, setEnd] = React.useState(false);
   const [pageNumber, setPageNumber] = React.useState(1);
@@ -21,7 +19,7 @@ function FolderChooseScreen({navigation, route}: any) {
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getFolderListOfFile(id, pageNumber);
+      const result = await DocumentAPI.getFileHistory(id, pageNumber);
       if (result.data.data.data.length < 10) setEnd(true);
       const newData = await result.data.data.data;
       setData(data.concat(newData));
@@ -29,10 +27,6 @@ function FolderChooseScreen({navigation, route}: any) {
       setIsLoading(false);
     }
   };
-
-  React.useEffect(() => {
-    if (initial.current) initial.current = false;
-  }, []);
 
   return (
     <View
@@ -63,7 +57,7 @@ function FolderChooseScreen({navigation, route}: any) {
               fontWeight: 'bold',
               fontSize: 20,
             }}>
-            Chọn thư mục
+            Lịch sử thay đổi
           </Text>
         </View>
         <View
@@ -73,42 +67,20 @@ function FolderChooseScreen({navigation, route}: any) {
             paddingRight: 20,
             flex: 1,
           }}>
-          {data.length !== 0 || initial.current ? (
-            <FlashList
-              data={data}
-              renderItem={({item}) => (
-                <FolderChooseItem item={item} fileId={id} />
-              )}
-              keyExtractor={(item: any) => item._id}
-              onEndReached={loadData}
-              onEndReachedThreshold={0.001}
-              estimatedItemSize={100}
-              ListFooterComponent={<ListFooter isLoading={isLoading} />}
-              showsVerticalScrollIndicator={false}
-            />
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <FolderSVG width={170} height={180} />
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  paddingHorizontal: 60,
-                  textAlign: 'center',
-                }}>
-                Không có thư mục nào đã được tạo
-              </Text>
-            </View>
-          )}
+          <FlashList
+            data={data}
+            renderItem={({item}) => <FileHistoryItem item={item} />}
+            keyExtractor={(item, index): any => index}
+            onEndReached={loadData}
+            onEndReachedThreshold={0.001}
+            estimatedItemSize={100}
+            ListFooterComponent={<ListFooter isLoading={isLoading} />}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
       </View>
     </View>
   );
 }
 
-export default FolderChooseScreen;
+export default DocumentHistoryScreen;
