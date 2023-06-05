@@ -1,13 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
-import {Text, TextInput, Button, Snackbar} from 'react-native-paper';
+import {Text, TextInput, Button} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
-import auth from '@react-native-firebase/auth';
 import {signupWithEmail} from '../services/auth';
+import Toast from 'react-native-toast-message';
 
 const SignUpSchema = yup.object().shape({
   username: yup.string().required('Tên người dùng là bắt buộc'),
@@ -25,20 +25,20 @@ const SignUpSchema = yup.object().shape({
     .oneOf([yup.ref('password'), null], 'Mật khẩu không trùng nhau'),
 });
 
-function SignUpScreen({navigation, route}: any) {
+function SignUpScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
   const [hide2, setHide2] = useState(true);
-  const [visible, setVisible] = useState(false);
-  const [snackbarContent, setSnackbarContent] = useState('');
 
-  const onToggleSnackBar = (mssgError: string) => {
-    setSnackbarContent(mssgError);
-    setVisible(!visible);
+  const handleSignUpError = (mssgError: string) => {
+    Toast.show({
+      text1: mssgError,
+      type: 'error',
+      position: 'top',
+      visibilityTime: 1500,
+    });
   };
-
-  const onDismissSnackBar = () => setVisible(false);
 
   const {
     control,
@@ -53,7 +53,7 @@ function SignUpScreen({navigation, route}: any) {
 
       navigation.navigate('Login');
     } catch (error: any) {
-      onToggleSnackBar(error.code);
+      handleSignUpError(error.code);
     }
   };
 
@@ -199,19 +199,6 @@ function SignUpScreen({navigation, route}: any) {
           contentStyle={{flexDirection: 'row-reverse'}}>
           Tiếp tục
         </Button>
-        <Snackbar
-          style={{position: 'absolute', bottom: 0}}
-          visible={visible}
-          onDismiss={onDismissSnackBar}
-          action={{
-            label: '',
-            icon: 'close',
-            onPress: () => {
-              onDismissSnackBar();
-            },
-          }}>
-          {snackbarContent}
-        </Snackbar>
       </View>
     </View>
   );
