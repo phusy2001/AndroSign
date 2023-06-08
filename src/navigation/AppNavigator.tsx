@@ -23,7 +23,6 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import MyDocumentScreen from '../screens/MyDocumentScreen';
 import FolderScreen from '../screens/FolderScreen';
 import FolderDetailScreen from '../screens/FolderDetailScreen';
-import axiosClient from '../services/clients/axios';
 import FolderChooseScreen from '../screens/FolderChooseScreen';
 import DocumentSharedScreen from '../screens/DocumentSharedScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
@@ -117,18 +116,6 @@ export function AppNavigator() {
         setLoading(false);
       });
   }, [navigation]);
-
-  useEffect(() => {
-    if (auth().currentUser) {
-      const user = auth().currentUser;
-      user?.getIdToken().then(async token => {
-        axiosClient.interceptors.request.use(config => {
-          config.headers.Authorization = `Bearer ${token}`;
-          return config;
-        });
-      });
-    }
-  }, []);
 
   if (loading) {
     return null;

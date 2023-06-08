@@ -7,10 +7,12 @@ import {Button, Divider} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {signout} from '../services/auth';
 import {navigate} from './RootNavigation';
-import axiosClient from '../services/clients/axios';
+import AxiosClient from '../services/clients/api';
 
 function CustomDrawer(props: any) {
   const screenHeight = Dimensions.get('window').height;
+  const client = new AxiosClient('http://10.0.2.2:3001');
+
   const logout = async () => {
     try {
       await signout();
@@ -69,7 +71,7 @@ function CustomDrawer(props: any) {
             icon={() => <Icon name="cog" size={24} color="#000" />}
             label="Cài đặt"
             onPress={() => {
-              axiosClient.get('/users');
+              client.get('/users');
               // props.navigation.navigate('Settings');
             }}
           />

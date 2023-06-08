@@ -60,10 +60,6 @@ export default function App() {
       if (user) {
         user.getIdToken().then(async token => {
           console.log('token when token change =>', token);
-          axiosClient.interceptors.request.use(config => {
-            config.headers.Authorization = `Bearer ${token}`;
-            return config;
-          });
           try {
             await storeData('userToken', token);
           } catch (e) {

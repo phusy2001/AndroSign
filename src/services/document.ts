@@ -1,4 +1,6 @@
-import axiosClient from './clients/axios';
+import AxiosClient from './clients/api';
+
+const client = new AxiosClient('http://10.0.2.2:3001');
 
 const DocumentAPI = {
   getOwnFiles: async (
@@ -8,13 +10,13 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await axiosClient.get(`/getMyFiles`, {
+    return await client.get(`/getMyFiles`, {
       params: {offset: pageNumber, keyword, sort, order, status},
     });
   },
 
   uploadDocument: async (formData: any) => {
-    return await axiosClient.post(`/uploadFile`, formData, {
+    return await client.post(`/uploadFile`, formData, {
       headers: {
         Accept: 'application/json',
         'content-type': 'multipart/form-data',
@@ -23,7 +25,7 @@ const DocumentAPI = {
   },
 
   getAnnotations: async (fileId: string) => {
-    return await axiosClient.get(`/getXfdf`, {
+    return await client.get(`/getXfdf`, {
       params: {id: fileId},
     });
   },
@@ -35,7 +37,7 @@ const DocumentAPI = {
     step: number,
     user: string,
   ) => {
-    return await axiosClient.post(`/editFile`, {
+    return await client.post(`/editFile`, {
       id: fileId,
       xfdf,
       signed,
@@ -45,31 +47,31 @@ const DocumentAPI = {
   },
 
   deleteDocument: async (fileId: string) => {
-    return await axiosClient.post(`/deleteFile`, {id: fileId});
+    return await client.post(`/deleteFile`, {id: fileId});
   },
 
   getUserShared: async (fileId: string, pageNumber: number) => {
-    return await axiosClient.get(`/getUserShared`, {
+    return await client.get(`/getUserShared`, {
       params: {id: fileId, offset: pageNumber},
     });
   },
 
   deleteUserShared: async (fileId: string, userId: string) => {
-    return await axiosClient.post(`/deleteShared`, {
+    return await client.post(`/deleteShared`, {
       fileId,
       userId,
     });
   },
 
   addUserShared: async (email: string, fileId: string) => {
-    return await axiosClient.post(`/addShared`, {
+    return await client.post(`/addShared`, {
       email,
       id: fileId,
     });
   },
 
   createFolder: async (name: string, userId: string) => {
-    return await axiosClient.post(`/createFolder`, {
+    return await client.post(`/createFolder`, {
       name,
       user: userId,
     });
@@ -81,32 +83,32 @@ const DocumentAPI = {
     sort: string,
     order: string,
   ) => {
-    return await axiosClient.get(`/getFolders`, {
+    return await client.get(`/getFolders`, {
       params: {offset: pageNumber, keyword, sort, order},
     });
   },
 
   deleteFolder: async (folderId: string) => {
-    return await axiosClient.post(`/deleteFolder`, {
+    return await client.post(`/deleteFolder`, {
       id: folderId,
     });
   },
 
   getFilesInFolder: async (folderId: string, pageNumber: number) => {
-    return await axiosClient.get(`/getFilesInFolder`, {
+    return await client.get(`/getFilesInFolder`, {
       params: {id: folderId, offset: pageNumber},
     });
   },
 
   updateFileInFolder: async (fileId: string, folderId: string) => {
-    return await axiosClient.post(`/updateFileInFolder`, {
+    return await client.post(`/updateFileInFolder`, {
       fileId,
       folderId,
     });
   },
 
   getFolderListOfFile: async (fileId: string, pageNumber: number) => {
-    return await axiosClient.get(`/getFolderListOfFile`, {
+    return await client.get(`/getFolderListOfFile`, {
       params: {
         id: fileId,
         offset: pageNumber,
@@ -115,13 +117,13 @@ const DocumentAPI = {
   },
 
   markFile: async (fileId: string) => {
-    return await axiosClient.post(`/markFile`, {
+    return await client.post(`/markFile`, {
       id: fileId,
     });
   },
 
   unmarkFile: async (fileId: string) => {
-    return await axiosClient.post(`/unmarkFile`, {
+    return await client.post(`/unmarkFile`, {
       id: fileId,
     });
   },
@@ -133,7 +135,7 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await axiosClient.get(`/getStarredFiles`, {
+    return await client.get(`/getStarredFiles`, {
       params: {
         offset: pageNumber,
         keyword,
@@ -151,7 +153,7 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await axiosClient.get(`/getFilesShared`, {
+    return await client.get(`/getFilesShared`, {
       params: {
         offset: pageNumber,
         keyword,
@@ -168,7 +170,7 @@ const DocumentAPI = {
     sort: string,
     order: string,
   ) => {
-    return await axiosClient.get(`/getDeletedFiles`, {
+    return await client.get(`/getDeletedFiles`, {
       params: {
         offset: pageNumber,
         keyword,
@@ -179,13 +181,13 @@ const DocumentAPI = {
   },
 
   restoreFile: async (id: string) => {
-    return await axiosClient.post(`/restoreFile`, {
+    return await client.post(`/restoreFile`, {
       id,
     });
   },
 
   deletePermanently: async (id: string) => {
-    return await axiosClient.post(`/deletePermanently`, {
+    return await client.post(`/deletePermanently`, {
       id,
     });
   },

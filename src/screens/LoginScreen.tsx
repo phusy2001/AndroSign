@@ -8,8 +8,8 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import {signinWithEmail} from '../services/auth';
-import axiosClient from '../services/clients/axios';
 import Toast from 'react-native-toast-message';
+import {storeData} from '../utils/asyncStore';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -57,10 +57,11 @@ function LoginScreen({navigation, route}: any) {
         navigation.navigate('Onboarding');
         user.getIdToken().then(async token => {
           console.log('token when auth state change =>', token);
-          axiosClient.interceptors.request.use(config => {
-            config.headers.Authorization = `Bearer ${token}`;
-            return config;
-          });
+          try {
+            await storeData('userToken', token);
+          } catch (e) {
+            console.log(e);
+          }
         });
       }
     });
