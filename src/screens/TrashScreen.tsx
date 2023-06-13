@@ -42,8 +42,8 @@ function TrashScreen({navigation, route}: any) {
         sorting,
         order,
       );
-      if (result.data.data.data.length < 10) setEnd(true);
-      const newData = result.data.data.data;
+      if (result.data.data.length < 10) setEnd(true);
+      const newData = result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
@@ -103,28 +103,28 @@ function TrashScreen({navigation, route}: any) {
 
   const handleDeleteFunction = async (id: string) => {
     const result = await DocumentAPI.deletePermanently(id);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };
 
   const handleRestoreFunction = async (id: string) => {
     const result = await DocumentAPI.restoreFile(id);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };

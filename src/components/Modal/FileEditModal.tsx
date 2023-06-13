@@ -8,6 +8,7 @@ import DeleteConfirmDialog from '../Dialog/DeleteConfirmDialog';
 import DocumentAPI from '../../services/document';
 import Toast from 'react-native-toast-message';
 import RNFetchBlob from 'rn-fetch-blob';
+import RenameDialog from '../Dialog/RenameDialog';
 
 function FileEditModal({
   editModalRef,
@@ -15,14 +16,17 @@ function FileEditModal({
   handleDeleteFunction,
   handleUnmarkFunction,
   handleDelFolderFunction,
+  handleRenameFunction,
   typeEdit,
   item,
 }: any) {
   const [refresh, setRefresh] = React.useState(false);
+
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
+  const [renDlgVisible, setRenDlgVisible] = React.useState(false);
 
   const editSnapPoints =
-    typeEdit === 'owned' || item.fileOwner ? ['76%'] : ['50%'];
+    typeEdit === 'owned' || item.fileOwner ? ['76%'] : ['42%'];
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -40,11 +44,11 @@ function FileEditModal({
   const markFile = async () => {
     const result = await DocumentAPI.markFile(item._id);
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       item.fileStarred = !item.fileStarred;
       setRefresh(!refresh);
     }
@@ -127,20 +131,15 @@ function FileEditModal({
           }}
         />
         <List.Section>
-          <List.Item
-            title={<Text style={{fontSize: 16}}>Mở tài liệu</Text>}
-            left={props => <List.Icon {...props} icon="file-document" />}
-            onPress={() => {
-              navigation.navigate('DocumentSign', {
-                id: item._id,
-                name: item.name + '.pdf',
-                path: item.path,
-                action: 'edit',
-              });
-            }}
-          />
           {(item.fileOwner || typeEdit === 'owned') && (
             <>
+              <List.Item
+                onPress={() => setRenDlgVisible(true)}
+                title={<Text style={{fontSize: 16}}>Đổi tên tài liệu</Text>}
+                left={props => (
+                  <List.Icon {...props} icon="file-document-edit" />
+                )}
+              />
               <List.Item
                 onPress={() => {
                   navigation.navigate('DocumentShare', {id: item._id});
@@ -220,6 +219,12 @@ function FileEditModal({
           setDlgVisible={setDelDlgVisible}
           handleDeleteFunction={handleDeleteFunction}
           type={'tài liệu'}
+          item={item}
+        />
+        <RenameDialog
+          dlgVisible={renDlgVisible}
+          setDlgVisible={setRenDlgVisible}
+          handleRenameFunction={handleRenameFunction}
           item={item}
         />
       </Portal>

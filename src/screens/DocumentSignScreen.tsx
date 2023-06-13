@@ -200,8 +200,8 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('file', file);
       const result = await DocumentAPI.uploadDocument(formData);
       Toast.show({
-        text1: result.data.message,
-        type: result.data.status === 'true' ? 'success' : 'error',
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
         position: 'bottom',
       });
     } else if (action === 'edit' && params.changed) {
@@ -213,8 +213,8 @@ function DocumentSignScreen({route, navigation}: any) {
         params.user,
       );
       Toast.show({
-        text1: result.data.message,
-        type: result.data.status === 'true' ? 'success' : 'error',
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
         position: 'bottom',
       });
       isEdited = true;
@@ -551,11 +551,11 @@ function DocumentSignScreen({route, navigation}: any) {
         onDocumentLoaded={async () => {
           if (action === 'edit') {
             const result = await DocumentAPI.getAnnotations(id);
-            stepNow.current = result.data.data.data.stepNow;
-            stepUser.current = result.data.data.data.stepUser;
+            stepNow.current = result.data.data.stepNow;
+            stepUser.current = result.data.data.stepUser;
             let base64 = '';
-            for (let i = 0; i < result.data.data.data.xfdf.data.length; ++i)
-              base64 += String.fromCharCode(result.data.data.data.xfdf.data[i]);
+            for (let i = 0; i < result.data.data.xfdf.data.length; ++i)
+              base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
             documentView
               .current!.importAnnotations(base64)
               .then((importedAnnotations: any) => {

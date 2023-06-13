@@ -25,17 +25,17 @@ function DocumentUserItem({item, data, setData}: any) {
 
   const onSubmit = async (form: any) => {
     const result = await UserAPI.findUserByEmail(form.email);
-    if (result.data.status === 'true') {
-      item._id = result.data.data.uid;
-      item.name = result.data.data.display_name;
+    if (result.status === 'true') {
+      item._id = result.data.uid;
+      item.name = result.data.display_name;
       item.email = form.email;
     } else {
       const filteredData = data.filter((i: any) => i.index !== item.index);
       setData(filteredData);
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };

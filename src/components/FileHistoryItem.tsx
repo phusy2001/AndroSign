@@ -36,7 +36,7 @@ function FileHistoryItem({item}: any) {
           </Text>
         )}
         <Text style={{fontSize: 14}}>
-          Vào {moment(item.date).format('DD/MM/YYYY HH:mm:ss')}
+          Lúc {moment(item.date).format('DD/MM/YYYY HH:mm:ss')}
         </Text>
       </View>
     </View>

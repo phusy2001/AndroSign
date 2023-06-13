@@ -30,11 +30,11 @@ function FileUploadModal({
       auth().currentUser!.uid,
     );
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       setFolderName('');
       setSaveDlgVisible(false);
       uploadModalRef.current?.dismiss();

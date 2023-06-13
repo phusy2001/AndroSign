@@ -22,8 +22,8 @@ function FolderChooseScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getFolderListOfFile(id, pageNumber);
-      if (result.data.data.data.length < 10) setEnd(true);
-      const newData = await result.data.data.data;
+      if (result.data.data.length < 10) setEnd(true);
+      const newData = await result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);

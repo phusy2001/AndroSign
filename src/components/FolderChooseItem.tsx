@@ -11,12 +11,12 @@ function FolderChooseItem({item, fileId}: any) {
   const updateFileInFolder = async () => {
     const result = await DocumentAPI.updateFileInFolder(fileId, item._id);
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
       visibilityTime: 1000,
     });
-    if (result.data.status === 'true') setChecked(!checked);
+    if (result.status === 'true') setChecked(!checked);
   };
 
   React.useEffect(() => {

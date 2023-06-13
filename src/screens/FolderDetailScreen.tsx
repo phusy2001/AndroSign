@@ -30,8 +30,8 @@ function FolderDetailScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getFilesInFolder(id, pageNumber);
-      if (result.data.data.data.length < 10) setEnd(true);
-      const newData = await result.data.data.data;
+      if (result.data.data.length < 10) setEnd(true);
+      const newData = await result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
@@ -58,32 +58,66 @@ function FolderDetailScreen({navigation, route}: any) {
     setItem(data);
   }, []);
 
+  const refreshData = () => {
+    setData([]);
+    setPageNumber(1);
+    setEnd(false);
+    setRefresh(prevRefresh => prevRefresh + 1);
+  };
+
   const deleteDocument = async (id: string) => {
     const result = await DocumentAPI.deleteDocument(id);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };
 
   const removeFromFolder = async (fileId: string) => {
     const result = await DocumentAPI.updateFileInFolder(fileId, id);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== fileId);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
+  };
+
+  const unmarkDocument = async (id: string) => {
+    try {
+      const result = await DocumentAPI.unmarkFile(id);
+      Toast.show({
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renameDocument = async (id: string, name: string) => {
+    try {
+      const result = await DocumentAPI.renameDocument(id, name);
+      if (result.status === 'true') refreshData();
+      Toast.show({
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const renderFooter = () => {
@@ -193,6 +227,8 @@ function FolderDetailScreen({navigation, route}: any) {
           navigation={navigation}
           handleDeleteFunction={deleteDocument}
           handleDelFolderFunction={removeFromFolder}
+          handleUnmarkFunction={unmarkDocument}
+          handleRenameFunction={renameDocument}
           typeEdit={'mixed'}
           item={item}
         />

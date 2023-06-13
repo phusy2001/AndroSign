@@ -55,7 +55,7 @@ class AxiosClient {
 
   async get<T = any>(url: string, config: AxiosRequestConfig = {}): Promise<T> {
     const response = await this.client.get<T>(url, config);
-    return response.data;
+    return response as T;
   }
 
   async post<T = any>(
@@ -64,7 +64,7 @@ class AxiosClient {
     config: AxiosRequestConfig = {},
   ): Promise<T> {
     const response = await this.client.post<T>(url, data, config);
-    return response.data;
+    return response as T;
   }
 
   async put<T = any>(
@@ -73,7 +73,7 @@ class AxiosClient {
     config: AxiosRequestConfig = {},
   ): Promise<T> {
     const response = await this.client.put<T>(url, data, config);
-    return response.data;
+    return response as T;
   }
 
   async delete<T = any>(
@@ -81,7 +81,7 @@ class AxiosClient {
     config: AxiosRequestConfig = {},
   ): Promise<T> {
     const response = await this.client.delete<T>(url, config);
-    return response.data;
+    return response as T;
   }
 }
 

@@ -193,11 +193,18 @@ const DocumentAPI = {
   },
 
   getFileHistory: async (id: string, pageNumber: number) => {
-    return await axiosClient.get(`/getFileHistory`, {
+    return await client.get(`/getFileHistory`, {
       params: {
         id,
         offset: pageNumber,
       },
+    });
+  },
+
+  renameDocument: async (id: string, name: string) => {
+    return await client.post(`/renameFile`, {
+      id,
+      name,
     });
   },
 };

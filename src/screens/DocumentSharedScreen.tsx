@@ -44,8 +44,8 @@ function DocumentSharedScreen({navigation, route}: any) {
         order,
         status,
       );
-      if (result.data.data.data.length < 10) setEnd(true);
-      const newData = result.data.data.data;
+      if (result.data.data.length < 10) setEnd(true);
+      const newData = result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
@@ -105,14 +105,14 @@ function DocumentSharedScreen({navigation, route}: any) {
 
   const deleteDocument = async (id: string) => {
     const result = await DocumentAPI.deleteDocument(id);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item._id !== id);
       setData(filteredData);
       editModal.current?.dismiss();
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };
@@ -120,8 +120,8 @@ function DocumentSharedScreen({navigation, route}: any) {
   const unmarkDocument = async (id: string) => {
     const result = await DocumentAPI.unmarkFile(id);
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };

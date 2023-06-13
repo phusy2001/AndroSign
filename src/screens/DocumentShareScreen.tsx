@@ -47,8 +47,8 @@ function DocumentShareScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getUserShared(id, pageNumber);
-      if (result.data.data.length < 10) setEnd(true);
-      const newData = await result.data.data;
+      if (result.data.length < 10) setEnd(true);
+      const newData = await result.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
@@ -63,11 +63,11 @@ function DocumentShareScreen({navigation, route}: any) {
   const handlePressAddFunction = async (email: string) => {
     const result = await DocumentAPI.addUserShared(email, id);
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       email = '';
       Keyboard.dismiss();
       setData([]);
@@ -79,13 +79,13 @@ function DocumentShareScreen({navigation, route}: any) {
 
   const handlePressRemoveFunction = async (userId: string) => {
     const result = await DocumentAPI.deleteUserShared(id, userId);
-    if (result.data.status === 'true') {
+    if (result.status === 'true') {
       const filteredData = data.filter((item: any) => item.uid !== userId);
       setData(filteredData);
     }
     Toast.show({
-      text1: result.data.message,
-      type: result.data.status === 'true' ? 'success' : 'error',
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
   };
