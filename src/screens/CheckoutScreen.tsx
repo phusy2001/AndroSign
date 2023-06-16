@@ -39,7 +39,7 @@ function CheckoutScreen({route, navigation}: any) {
       <Appbar.Header>
         <Appbar.BackAction
           onPress={() => {
-            navigation.navigate('Account');
+            navigation.navigate('AccountNavigator');
           }}
         />
         <Appbar.Content title="Checkout" />

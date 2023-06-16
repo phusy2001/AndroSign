@@ -12,7 +12,6 @@ import TrashScreen from '../screens/TrashScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import {useNavigation} from '@react-navigation/native';
 import DocumentSignScreen from '../screens/DocumentSignScreen';
-import AccountScreen from '../screens/AccountScreen';
 import InfoChangeScreen from '../screens/InfoChangeScreen';
 import PasswordChangeScreen from '../screens/PasswordChangeScreen';
 import SignatureSettingScreen from '../screens/SignatureSettingScreen';
@@ -28,10 +27,12 @@ import DocumentSharedScreen from '../screens/DocumentSharedScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import DocumentHistoryScreen from '../screens/DocumentHistoryScreen';
+import AccountScreen from '../screens/AccountScreen';
 
 const AuthStack = createNativeStackNavigator();
-
+const AccountStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+
 export const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
@@ -63,8 +64,40 @@ export const DrawerNavigator = () => {
         options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen
+        name="AccountNavigator"
+        component={AccountNavigator}
+        options={{headerShown: false}}
+      />
+      <Drawer.Screen
+        name="Trash"
+        component={TrashScreen}
+        options={{headerShown: false, unmountOnBlur: true}}
+      />
+    </Drawer.Navigator>
+  );
+};
+
+export const AccountNavigator = () => {
+  return (
+    <AccountStack.Navigator initialRouteName="Account">
+      <AccountStack.Screen
         name="Account"
         component={AccountScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="InfoChange"
+        component={InfoChangeScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="PasswordChange"
+        component={PasswordChangeScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="SignatureAdd"
+        component={SignatureAddScreen}
         options={{headerShown: false}}
       />
       <Drawer.Screen
@@ -77,13 +110,7 @@ export const DrawerNavigator = () => {
         component={PaymentScreen}
         options={{headerShown: false}}
       />
-
-      <Drawer.Screen
-        name="Trash"
-        component={TrashScreen}
-        options={{headerShown: false, unmountOnBlur: true}}
-      />
-    </Drawer.Navigator>
+    </AccountStack.Navigator>
   );
 };
 
@@ -145,23 +172,8 @@ export function AppNavigator() {
         options={{headerShown: false}}
       />
       <AuthStack.Screen
-        name="InfoChange"
-        component={InfoChangeScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
-        name="PasswordChange"
-        component={PasswordChangeScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
         name="SignatureSetting"
         component={SignatureSettingScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
-        name="SignatureAdd"
-        component={SignatureAddScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

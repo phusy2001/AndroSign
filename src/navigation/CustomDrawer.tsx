@@ -65,7 +65,7 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="account" size={24} color="#000" />}
             label="Tài khoản"
-            onPress={() => props.navigation.navigate('Account')}
+            onPress={() => props.navigation.navigate('AccountNavigator')}
           />
           <DrawerItem
             icon={() => <Icon name="cog" size={24} color="#000" />}
