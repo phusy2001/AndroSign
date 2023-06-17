@@ -1,4 +1,3 @@
-import notifee, {EventType} from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
 import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect} from 'react';
@@ -10,27 +9,29 @@ import auth from '@react-native-firebase/auth';
 import {navigationRef} from './navigation/RootNavigation';
 import {storeData} from './utils/asyncStore';
 import './i18n/i18n';
+import notifee, {EventType} from '@notifee/react-native';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      notifee.createChannel({
-        id: '1',
-        name: 'Chanel1',
-      });
-
-      notifee.displayNotification({
-        title: remoteMessage.data?.title,
-        body: remoteMessage.data?.body,
-        android: {
-          channelId: '1',
-          timestamp: Date.now(),
-          showTimestamp: true,
-        },
-      });
+  const onMessageReceived = async (message: any) => {
+    const channelId = await notifee.createChannel({
+      id: 'Chanel1',
+      name: 'Chanel1',
     });
+
+    const {title, body} = message.data;
+    notifee.displayNotification({
+      title: title,
+      body: body,
+      android: {
+        channelId,
+      },
+    });
+  };
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(onMessageReceived);
 
     return unsubscribe;
   }, []);
@@ -48,7 +49,7 @@ export default function App() {
     });
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -68,6 +69,29 @@ export default function App() {
         });
       }
     });
+  }, []);
+
+  useEffect(() => {
+    const requestPermission = async () => {
+      try {
+        await messaging().requestPermission();
+      } catch (error) {
+        console.log('Permission rejected');
+      }
+    };
+    requestPermission();
+  }, []);
+
+  useEffect(() => {
+    const getFCMToken = async () => {
+      try {
+        const token = await messaging().getToken();
+        console.log('FCM token:', token);
+      } catch (error) {
+        console.log('Failed to get FCM token:', error);
+      }
+    };
+    getFCMToken();
   }, []);
 
   return (

@@ -1,12 +1,11 @@
-import notifee, {EventType} from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
 import React, {useEffect} from 'react';
 import {AppRegistry} from 'react-native';
 import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
 import {name as appName} from './app.json';
 import App from './src/App';
-import AxiosClient from './src/services/clients/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import notifee, {EventType} from '@notifee/react-native';
 
 const theme = {
   dark: true,
@@ -17,22 +16,23 @@ const theme = {
   },
 };
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
-  notifee.createChannel({
-    id: '1',
+const onMessageReceived = async message => {
+  const channelId = await notifee.createChannel({
+    id: 'Chanel1',
     name: 'Chanel1',
   });
 
+  const {title, body} = message.data;
   notifee.displayNotification({
-    title: remoteMessage.data?.title,
-    body: remoteMessage.data?.body,
+    title: title,
+    body: body,
     android: {
-      channelId: '1',
-      timestamp: Date.now(),
-      showTimestamp: true,
+      channelId,
     },
   });
-});
+};
+
+messaging().setBackgroundMessageHandler(onMessageReceived);
 
 notifee.onBackgroundEvent(async ({type, detail}) => {
   const {notification, pressAction} = detail;
@@ -50,8 +50,6 @@ notifee.onBackgroundEvent(async ({type, detail}) => {
 });
 
 export default function Main() {
-  const api = new AxiosClient();
-
   const onAppBootstrap = async () => {
     // Register the device with FCM
     await messaging().registerDeviceForRemoteMessages();
