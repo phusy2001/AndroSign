@@ -24,14 +24,18 @@ function FileHistoryItem({item}: any) {
         <Avatar.Text size={48} label="" />
       </View>
       <View style={{width: '70%', justifyContent: 'center'}}>
-        {item.action === 'open' ? (
+        {item.action === 'open' || item.action === 'create' ? (
           <Text style={{fontSize: 18, fontWeight: 'bold'}}>{item.text}</Text>
-        ) : item.action === 'create' ? (
-          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#009FBD'}}>
+        ) : item.action === 'save' ? (
+          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#3CB371'}}>
+            {item.text}
+          </Text>
+        ) : item.action === 'delete' ? (
+          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#F54437'}}>
             {item.text}
           </Text>
         ) : (
-          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#3CB371'}}>
+          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#009FBD'}}>
             {item.text}
           </Text>
         )}
