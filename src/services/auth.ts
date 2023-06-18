@@ -10,7 +10,26 @@ const service = 'users';
 
 //Sign in
 export async function signinWithEmail(email: string, password: string) {
-  return auth().signInWithEmailAndPassword(email, password);
+  return auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(async user => {
+      const resUser = await client.get(`/${service}/${user.user.uid}`);
+
+      let fcmTokenList = resUser.data.fcm_tokens;
+
+      const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+      if (!fcmTokenList?.includes(fcmToken)) {
+        fcmTokenList = [...fcmTokenList, fcmToken];
+      }
+
+      console.log(fcmTokenList);
+
+      await client.put(`/${service}/${user.user.uid}`, {
+        fcm_tokens: fcmTokenList,
+      });
+    })
+    .catch(e => console.log(e));
 }
 
 //Sign up
@@ -59,6 +78,21 @@ export function changePassword(password: string) {
 }
 
 //Sign out
-export function signout() {
+export async function signout() {
+  const uid = auth().currentUser?.uid;
+
+  const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+  if (fcmToken) {
+    try {
+      await client.post(`/${service}/remove-fcm-token`, {
+        uid,
+        fcmToken,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return auth().signOut();
 }
