@@ -116,6 +116,7 @@ function DocumentSignScreen({route, navigation}: any) {
       step: 0,
       user: 'null',
       changed: false,
+      totalStep: [],
     };
     const pageCount = await documentView.current!.getPageCount();
     for (let i = 1; i <= pageCount; i++) {
@@ -135,6 +136,8 @@ function DocumentSignScreen({route, navigation}: any) {
               annotation.pageNumber,
               'step',
             );
+          if (params.totalStep.indexOf(annotStep) === -1)
+            params.totalStep.push(annotStep);
           if (annotStep < params.step || params.count === 0) {
             params.step = annotStep;
             params.user =
@@ -192,7 +195,7 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('signed', params.signed);
       formData.append('total', params.total);
       formData.append('stepIndex', 0);
-      formData.append('stepTotal', totalStep.current);
+      formData.append('stepTotal', params.totalStep.length);
       if (userIdArr.length > 0) formData.append('sharedTo', userIdArr);
       formData.append('stepNow', params.step);
       formData.append('stepUser', params.user);
