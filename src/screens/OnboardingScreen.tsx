@@ -49,7 +49,7 @@ function OnboardingScreen({navigation}) {
     // Handle button press on last slide
     try {
       await storeData('hasLoggedIn', 'false');
-      navigation.navigate('Drawer');
+      navigation.navigate('Home', {reload: true});
     } catch (error) {
       // Handle error here
       console.log(error);
@@ -67,7 +67,7 @@ function OnboardingScreen({navigation}) {
           setIsLoading(false);
           return true;
         } else {
-          navigation.navigate('Drawer');
+          navigation.navigate('Home', {reload: true});
           setIsLoading(false);
           return false;
         }

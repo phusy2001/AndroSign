@@ -39,6 +39,7 @@ export const DrawerNavigator = () => {
       initialRouteName="Home"
       drawerContent={props => <CustomDrawer {...props} />}>
       <Drawer.Screen
+        initialParams={{reload: false}}
         name="Home"
         component={MyDocumentScreen}
         options={{headerShown: false, unmountOnBlur: true}}
@@ -66,7 +67,7 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="AccountNavigator"
         component={AccountNavigator}
-        options={{headerShown: false}}
+        options={{headerShown: false, unmountOnBlur: true}}
       />
       <Drawer.Screen
         name="Trash"

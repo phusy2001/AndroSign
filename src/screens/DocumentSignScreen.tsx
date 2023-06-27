@@ -222,7 +222,8 @@ function DocumentSignScreen({route, navigation}: any) {
       });
       isEdited = true;
     }
-    navigation.goBack();
+    if (action !== 'upload') navigation.goBack();
+    else navigation.navigate('Home', {reload: true});
     if (handleFileCreated) handleFileCreated();
     else if (handleEditFunction && isEdited) handleEditFunction();
   };
@@ -593,6 +594,15 @@ function DocumentSignScreen({route, navigation}: any) {
                         id: annotation.id,
                         pageNumber: annotation.pageNumber,
                         flag: Config.AnnotationFlags.hidden,
+                        flagValue: true,
+                      },
+                    ]);
+                  } else {
+                    documentView.current!.setFlagsForAnnotations([
+                      {
+                        id: annotation.id,
+                        pageNumber: annotation.pageNumber,
+                        flag: Config.AnnotationFlags.locked,
                         flagValue: true,
                       },
                     ]);

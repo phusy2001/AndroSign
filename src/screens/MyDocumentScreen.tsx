@@ -18,6 +18,7 @@ import RsEmptySVG from '../assets/images/result_empty.svg';
 
 function MyDocumentScreen({navigation, route}: any) {
   const initial = React.useRef(true);
+  const {reload} = route.params;
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
   const isDrawerOpen = useDrawerStatus() === 'open';
@@ -69,6 +70,10 @@ function MyDocumentScreen({navigation, route}: any) {
 
   React.useEffect(() => {
     if (isFocused) uploadModal.current?.dismiss();
+    if (reload) {
+      setSearchQuery('');
+      refreshData();
+    }
   }, [isFocused]);
 
   React.useEffect(() => {
