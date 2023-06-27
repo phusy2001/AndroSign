@@ -5,7 +5,7 @@ import {Button, IconButton, Text} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
 import {getData, storeData} from '../utils/asyncStore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import SplashScreen from './SplashScreen';
 
 const slides = [
   {
@@ -30,6 +30,7 @@ const slides = [
 
 function OnboardingScreen({navigation}) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const insets = useSafeAreaInsets();
   const swiperRef = React.useRef<ScrollView>(null);
@@ -57,19 +58,23 @@ function OnboardingScreen({navigation}) {
   };
 
   const checkFirstLogin = async () => {
+    setIsLoading(true);
     try {
       const value = await getData('hasLoggedIn');
       if (value !== null) {
         // Value exists, not first login
         if (value === true) {
+          setIsLoading(false);
           return true;
         } else {
           navigation.navigate('Drawer');
+          setIsLoading(false);
           return false;
         }
       } else {
         // Value does not exist, first login
         await storeData('hasLoggedIn', 'true');
+        setIsLoading(false);
         return true;
       }
     } catch (error) {
@@ -82,6 +87,10 @@ function OnboardingScreen({navigation}) {
   React.useEffect(() => {
     checkFirstLogin();
   }, []);
+
+  if (isLoading) {
+    return <SplashScreen />;
+  }
 
   return (
     <View

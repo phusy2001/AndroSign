@@ -6,6 +6,7 @@ import axios, {
   AxiosError,
 } from 'axios';
 
+import {signout} from '../auth';
 import {getData} from '../../utils/asyncStore';
 
 class AxiosClient {
@@ -45,9 +46,13 @@ class AxiosClient {
         // Modify response data before it is returned
         return response.data;
       },
-      (error: AxiosError) => {
+      async (error: AxiosError) => {
         // Handle response error
         console.error(error);
+
+        if (error.response?.status === 401) {
+          await signout();
+        }
         return Promise.reject(error);
       },
     );
