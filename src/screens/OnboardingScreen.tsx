@@ -6,6 +6,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
 import {getData, storeData} from '../utils/asyncStore';
 import SplashScreen from './SplashScreen';
+import {navigate} from '../navigation/RootNavigation';
 
 const slides = [
   {
@@ -49,7 +50,7 @@ function OnboardingScreen({navigation}) {
     // Handle button press on last slide
     try {
       await storeData('hasLoggedIn', 'false');
-      navigation.navigate('Home', {reload: true});
+      navigate('Home', {reload: true});
     } catch (error) {
       // Handle error here
       console.log(error);
