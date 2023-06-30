@@ -1,19 +1,13 @@
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AxiosClient from './clients/api';
-
-const client = new AxiosClient('http://10.0.2.2:3005');
-
-const service = 'users';
-
-//expired_time = 20*60
+import UserAPI from './user';
 
 //Sign in
 export async function signinWithEmail(email: string, password: string) {
   return auth()
     .signInWithEmailAndPassword(email, password)
     .then(async user => {
-      const resUser = await client.get(`/${service}/${user.user.uid}`);
+      const resUser = await UserAPI.findUserByUid(user.user.uid);
 
       let fcmTokenList = resUser.data.fcm_tokens;
 
@@ -25,7 +19,7 @@ export async function signinWithEmail(email: string, password: string) {
 
       console.log(fcmTokenList);
 
-      await client.put(`/${service}/${user.user.uid}`, {
+      await UserAPI.updateUserByUid(user.user.uid, {
         fcm_tokens: fcmTokenList,
       });
     })
@@ -52,7 +46,7 @@ export async function signupWithEmail(
       const fcmToken = await AsyncStorage.getItem('fcmToken');
 
       if (fcmToken) {
-        await client.post(`/${service}`, {
+        await UserAPI.createUser({
           display_name,
           uid: user.uid,
           email,
@@ -85,7 +79,7 @@ export async function signout() {
 
   if (fcmToken) {
     try {
-      await client.post(`/${service}/remove-fcm-token`, {
+      await UserAPI.removeFcmToken({
         uid,
         fcmToken,
       });

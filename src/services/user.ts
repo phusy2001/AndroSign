@@ -8,6 +8,22 @@ const UserAPI = {
   findUserByEmail: async (email: string) => {
     return await client.get(`/${service}/email/${email}`);
   },
+
+  findUserByUid: (uid: string | undefined) => {
+    return client.get(`/${service}/${uid}`);
+  },
+
+  updateUserByUid(uid: string, body: any) {
+    return client.put(`/${service}/${uid}`, body);
+  },
+
+  createUser(body: any) {
+    return client.post(`${service}`, body);
+  },
+
+  removeFcmToken(body: any) {
+    return client.post(`${service}/remove-fcm-token`, body);
+  },
 };
 
 export default UserAPI;

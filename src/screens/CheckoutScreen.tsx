@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Appbar, Button, Card, Divider, Text} from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
+import UserAPI from '../services/user';
 import AxiosClient from '../services/clients/api';
 
 function CheckoutScreen({route, navigation}: any) {
@@ -10,10 +11,8 @@ function CheckoutScreen({route, navigation}: any) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const client = new AxiosClient('http://10.0.2.2:3005');
-
       try {
-        const curUser = await client.get(`/users/${auth().currentUser?.uid}`);
+        const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
 
         setUser(curUser);
       } catch (e) {

@@ -9,7 +9,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import {FlashList} from '@shopify/flash-list';
 import TransText from '../components/TransText';
-import AxiosClient from '../services/clients/api';
+import UserAPI from '../services/user';
 import SplashScreen from './SplashScreen';
 
 const plans = [
@@ -34,10 +34,9 @@ function AccountScreen({navigation}: any) {
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
-      const client = new AxiosClient('http://10.0.2.2:3005');
 
       try {
-        const curUser = await client.get(`/users/${auth().currentUser?.uid}`);
+        const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
 
         setUser(curUser.data);
 
@@ -116,7 +115,7 @@ function AccountScreen({navigation}: any) {
         </View>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('InfoChange');
+            navigation.navigate('InfoChange', {user});
           }}>
           <View
             style={{

@@ -3,23 +3,30 @@ import React from 'react';
 import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
 import {Text, Button, TextInput, IconButton} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
+import UserAPI from '../services/user';
 
-const phoneRegExp = /^((\+)33|0)[1-9](\d{2}){4}$/;
+function InfoChangeScreen({route, navigation}: any) {
+  const phoneRegExp = /^((\+)33|0)[1-9](\d{2}){4}$/;
 
-const InfoSchema = yup.object().shape({
-  username: yup.string().required('Tên người dùng là bắt buộc'),
-  phone: yup.string().matches(phoneRegExp, {
-    message: 'Số điện thoại không hợp lệ',
-    excludeEmptyString: true,
-  }),
-  address: yup.string(),
-});
+  const InfoSchema = yup.object().shape({
+    display_name: yup
+      .string()
+      .default(route.params?.user?.display_name ?? undefined),
+    phone_number: yup
+      .string()
+      .matches(phoneRegExp, {
+        message: 'Số điện thoại không hợp lệ',
+        excludeEmptyString: true,
+      })
+      .default(route.params?.user?.phone_number ?? undefined),
+    address: yup.string().default(route.params?.user?.addresss ?? undefined),
+  });
 
-function InfoChangeScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
 
@@ -31,8 +38,20 @@ function InfoChangeScreen({navigation}: any) {
     resolver: yupResolver(InfoSchema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    const response = await UserAPI.updateUserByUid(
+      route.params?.user?.uid,
+      data,
+    );
+
+    if (response.status === 'true') {
+      navigation.navigate('Home');
+      Toast.show({
+        text1: response.message,
+        type: 'success',
+        position: 'bottom',
+      });
+    }
   };
 
   return (
@@ -87,23 +106,21 @@ function InfoChangeScreen({navigation}: any) {
           />
           <Controller
             control={control}
-            rules={{
-              required: true,
-            }}
             render={({field: {onChange, onBlur, value}}) => (
               <TextInput
                 style={{marginTop: 25}}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
                 mode="outlined"
                 label="Tên người dùng"
                 placeholder="Nhập tên của bạn"
                 inputMode="text"
                 textContentType="name"
+                defaultValue={route.params?.user?.display_name || null}
+                value={value}
               />
             )}
-            name="username"
+            name="display_name"
           />
           <Text style={{color: 'red'}}>
             {errors.username && `${errors.username.message}`}
@@ -115,18 +132,19 @@ function InfoChangeScreen({navigation}: any) {
                 style={{marginTop: 5}}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                value={value}
                 mode="outlined"
                 label="Số điện thoại"
                 placeholder="Nhập số điện thoại của bạn"
                 inputMode="tel"
                 textContentType="telephoneNumber"
+                value={value}
+                defaultValue={route.params?.user?.phone_number || null}
               />
             )}
-            name="phone"
+            name="phone_number"
           />
           <Text style={{color: 'red'}}>
-            {errors.phone && `${errors.phone.message}`}
+            {errors.phone_number && `${errors.phone_number.message}`}
           </Text>
           <Controller
             control={control}
@@ -136,6 +154,7 @@ function InfoChangeScreen({navigation}: any) {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                defaultValue={route.params?.user?.address || null}
                 mode="outlined"
                 label="Địa chỉ"
                 placeholder="Nhập địa chỉ của bạn"
