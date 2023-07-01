@@ -7,7 +7,10 @@ import {
   Keyboard,
 } from 'react-native';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 import {signupWithEmail} from '../services/auth';
+import UserAPI from '../services/user';
 
 const VerifyPasswordCaScreen = ({route, navigation}) => {
   const [pin, setPin] = useState<string>('');
@@ -52,7 +55,63 @@ const VerifyPasswordCaScreen = ({route, navigation}) => {
 
       Keyboard.dismiss();
     } else {
-      await signupWithEmail(email, password, username, pin);
+      try {
+        const {user} = await signupWithEmail(email, password);
+
+        const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+        if (fcmToken) {
+          await UserAPI.createUser({
+            username,
+            uid: user.uid,
+            email,
+            fcm_tokens: [fcmToken],
+          });
+        }
+
+        await auth().currentUser?.updateProfile({
+          displayName: username,
+        });
+
+        await UserAPI.createCaPassword(user.uid, {email, passwordCa: pin});
+      } catch (error: any) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            Toast.show({
+              text1: 'This account has been existed.',
+              type: 'error',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+            break;
+          case 'auth/invalid-email':
+            Toast.show({
+              text1: 'This email is invalid.',
+              type: 'error',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+            break;
+          case 'auth/operation-not-allowed':
+            Toast.show({
+              text1: 'Your email/password accounts are not enabled.',
+              type: 'error',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+            break;
+          case 'auth/weak-password':
+            Toast.show({
+              text1: 'Your password is weak.',
+              type: 'error',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+            break;
+          default:
+            console.error(error);
+        }
+      }
 
       navigation.navigate('Login');
     }
@@ -77,7 +136,7 @@ const VerifyPasswordCaScreen = ({route, navigation}) => {
             secureTextEntry
             theme={{roundness: 50}}
             style={styles.textInput}
-            ref={ref => (inputRefs.current[index] = ref)}
+            ref={(ref: any) => (inputRefs.current[index] = ref)}
             onSubmitEditing={() => {
               if (index === 5) {
                 handleSubmit();

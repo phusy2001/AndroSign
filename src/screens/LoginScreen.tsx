@@ -7,9 +7,11 @@ import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
-import {signinWithEmail} from '../services/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import {signinWithEmail} from '../services/auth';
 import {storeData} from '../utils/asyncStore';
+import UserAPI from '../services/user';
 
 const SignInSchema = yup.object().shape({
   email: yup
@@ -24,15 +26,6 @@ function LoginScreen({navigation, route}: any) {
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
 
-  const handleLoginError = (mssgError: string) => {
-    Toast.show({
-      text1: mssgError,
-      type: 'error',
-      position: 'top',
-      visibilityTime: 1500,
-    });
-  };
-
   const {
     control,
     handleSubmit,
@@ -42,9 +35,58 @@ function LoginScreen({navigation, route}: any) {
   });
   const onSubmit = async (data: any) => {
     try {
-      await signinWithEmail(data.email, data.password);
+      const user = await signinWithEmail(data.email, data.password);
+
+      const resUser = await UserAPI.findUserByUid(user.user.uid);
+
+      let fcmTokenList = resUser.data.fcm_tokens;
+
+      const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+      if (!fcmTokenList?.includes(fcmToken)) {
+        fcmTokenList = [...fcmTokenList, fcmToken];
+      }
+
+      await UserAPI.updateUserByUid(user.user.uid, {
+        fcm_tokens: fcmTokenList,
+      });
     } catch (error: any) {
-      handleLoginError(error.code);
+      switch (error.code) {
+        case 'auth/wrong-password':
+          Toast.show({
+            text1: 'Your password is wrong. Please try again.',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/invalid-email':
+          Toast.show({
+            text1: 'Your email is invalid.',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/user-disabled':
+          Toast.show({
+            text1: 'Your account has been disabled.',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/user-not-found':
+          Toast.show({
+            text1: 'Your account is not found.',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        default:
+          console.error(error);
+      }
     }
   };
 
