@@ -67,27 +67,28 @@ export async function signupWithEmail(
   email: string,
   password: string,
   display_name: string,
+  passwordCa: string,
 ) {
   return auth()
     .createUserWithEmailAndPassword(email, password)
     .then(async ({user}) => {
-      console.log('User account created');
-
       try {
+        const fcmToken = await AsyncStorage.getItem('fcmToken');
+
+        if (fcmToken) {
+          await UserAPI.createUser({
+            display_name,
+            uid: user.uid,
+            email,
+            fcm_tokens: [fcmToken],
+          });
+        }
+
         await auth().currentUser?.updateProfile({displayName: display_name});
+
+        await UserAPI.createCaPassword(user.uid, {email, passwordCa});
       } catch (e) {
         console.log(e);
-      }
-
-      const fcmToken = await AsyncStorage.getItem('fcmToken');
-
-      if (fcmToken) {
-        await UserAPI.createUser({
-          display_name,
-          uid: user.uid,
-          email,
-          fcm_tokens: [fcmToken],
-        });
       }
     })
     .catch(error => {

@@ -24,6 +24,10 @@ const UserAPI = {
   removeFcmToken(body: any) {
     return client.post(`${service}/remove-fcm-token`, body);
   },
+
+  createCaPassword(uid: string, body: any) {
+    return client.put(`${service}/${uid}/createUserCa`, body);
+  },
 };
 
 export default UserAPI;

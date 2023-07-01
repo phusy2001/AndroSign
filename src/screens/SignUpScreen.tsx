@@ -6,7 +6,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
-import {signupWithEmail} from '../services/auth';
 import Toast from 'react-native-toast-message';
 
 const SignUpSchema = yup.object().shape({
@@ -49,9 +48,11 @@ function SignUpScreen({navigation}: any) {
   });
   const onSubmit = async (data: any) => {
     try {
-      await signupWithEmail(data.email, data.password, data.username);
-
-      navigation.navigate('Login');
+      navigation.navigate('PasswordCa', {
+        email: data.email,
+        password: data.password,
+        username: data.username,
+      });
     } catch (error: any) {
       handleSignUpError(error.code);
     }

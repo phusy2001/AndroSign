@@ -28,6 +28,8 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import DocumentHistoryScreen from '../screens/DocumentHistoryScreen';
 import AccountScreen from '../screens/AccountScreen';
+import PasswordCaScreen from '../screens/PasswordCaScreen';
+import VerifyPasswordCaScreen from '../screens/VerifyPasswordCaScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
@@ -165,6 +167,16 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="Onboarding"
         component={OnboardingScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="PasswordCa"
+        component={PasswordCaScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="VerifyPasswordCa"
+        component={VerifyPasswordCaScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
