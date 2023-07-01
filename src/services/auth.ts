@@ -156,3 +156,16 @@ export async function signout() {
 
   return auth().signOut();
 }
+
+//Reset password
+export function resetPassword(email: string) {
+  return auth().sendPasswordResetEmail(email);
+}
+
+export function confirmThePasswordReset(oobCode: string, newPassword: string) {
+  if (!oobCode && !newPassword) {
+    return;
+  }
+
+  return auth().confirmPasswordReset(oobCode, newPassword);
+}

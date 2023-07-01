@@ -30,6 +30,7 @@ import DocumentHistoryScreen from '../screens/DocumentHistoryScreen';
 import AccountScreen from '../screens/AccountScreen';
 import PasswordCaScreen from '../screens/PasswordCaScreen';
 import VerifyPasswordCaScreen from '../screens/VerifyPasswordCaScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
@@ -162,6 +163,11 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="Login"
         component={LoginScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
