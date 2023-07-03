@@ -48,6 +48,9 @@ function DocumentSignScreen({route, navigation}: any) {
   const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
+  const [confirmDlgVisible, setConfirmDlgVisible] = React.useState(false);
+  const [password, setPassword] = React.useState('');
+  const [disabled, setDisabled] = React.useState(true);
   const [stepItem, setStepItem] = React.useState<any[]>([]);
   const [userItem, setUserItem] = React.useState<any[]>([
     {
@@ -90,7 +93,7 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
-      Config.Tools.annotationCreateFreeText,
+      // Config.Tools.annotationCreateFreeText,
       Config.Tools.formCreateSignatureField,
       // Config.Buttons.undo,
       // Config.Buttons.redo,
@@ -214,6 +217,8 @@ function DocumentSignScreen({route, navigation}: any) {
         params.signed,
         params.step,
         params.user,
+        stepNow.current,
+        password,
       );
       Toast.show({
         text1: result.message,
@@ -729,7 +734,7 @@ function DocumentSignScreen({route, navigation}: any) {
             <TouchableOpacity
               onPress={() => {
                 if (action === 'upload') setSaveDlgVisible(true);
-                else saveDocument();
+                else if (action === 'edit') setConfirmDlgVisible(true);
               }}
               style={{
                 display: 'flex',
@@ -796,6 +801,54 @@ function DocumentSignScreen({route, navigation}: any) {
                 style={{
                   fontSize: 16,
                   color: 'blue',
+                }}>
+                Xác nhận
+              </Text>
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog
+          visible={confirmDlgVisible}
+          style={{backgroundColor: '#fff'}}
+          onDismiss={() => setConfirmDlgVisible(false)}>
+          <Dialog.Title style={{textAlign: 'center'}}>
+            <Text style={{fontSize: 18}}>Nhập mã bảo vệ tài liệu của bạn</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              theme={{roundness: 10}}
+              mode="outlined"
+              placeholder="Mã bảo vệ"
+              onChangeText={text => {
+                if (text.length >= 6) setDisabled(false);
+                else setDisabled(true);
+                setPassword(text);
+              }}
+              value={password}
+              secureTextEntry
+              maxLength={6}
+              keyboardType="numeric"
+              right={
+                <TextInput.Icon onPress={() => setPassword('')} icon="close" />
+              }
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setConfirmDlgVisible(false)}>
+              <Text
+                style={{
+                  color: 'red',
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
+                Hủy
+              </Text>
+            </Button>
+            <Button onPress={saveDocument} disabled={disabled}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: disabled ? 'gray' : 'blue',
                 }}>
                 Xác nhận
               </Text>

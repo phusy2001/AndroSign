@@ -49,7 +49,7 @@ function AccountScreen({navigation}: any) {
     fetchUser();
   }, []);
 
-  const renderGroupHeader = ({item}) => {
+  const renderGroupHeader = ({item}: any) => {
     return (
       <View
         style={{
@@ -152,11 +152,11 @@ function AccountScreen({navigation}: any) {
         </TouchableOpacity>
         <Text
           style={{
-            marginTop: 10,
+            marginTop: 20,
             fontWeight: 'bold',
             fontSize: 18,
             marginLeft: 10,
-            marginBottom: 10,
+            marginBottom: 20,
           }}>
           Dịch vụ
         </Text>
@@ -227,11 +227,11 @@ function AccountScreen({navigation}: any) {
         </View>
         <Text
           style={{
-            marginTop: 10,
+            marginTop: 20,
             fontWeight: 'bold',
             fontSize: 18,
             marginLeft: 10,
-            marginBottom: 10,
+            marginBottom: 20,
           }}>
           Thiết lập chung
         </Text>
@@ -274,10 +274,9 @@ function AccountScreen({navigation}: any) {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={{paddingVertical: 20, paddingHorizontal: 40}}>
+        <View style={{paddingVertical: 20, paddingHorizontal: 20}}>
           <Text
             style={{
-              textDecorationLine: 'underline',
               color: 'red',
               fontSize: 16,
             }}>

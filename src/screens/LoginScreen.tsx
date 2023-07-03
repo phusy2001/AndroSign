@@ -131,7 +131,7 @@ function LoginScreen({navigation, route}: any) {
         <KeyboardAvoidingView
           behavior="position"
           style={{
-            marginTop: 70,
+            marginTop: 50,
           }}>
           <Controller
             control={control}
@@ -208,7 +208,7 @@ function LoginScreen({navigation, route}: any) {
           </Text>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               color: 'blue',
             }}
             onPress={() => navigation.navigate('SignUp')}>
@@ -222,7 +222,7 @@ function LoginScreen({navigation, route}: any) {
           onPress={handleSubmit(onSubmit)}
           icon="login"
           contentStyle={{flexDirection: 'row-reverse'}}>
-          Đăng nhập
+          <Text style={{fontSize: 16, color: 'white'}}>Đăng nhập</Text>
         </Button>
       </View>
     </View>

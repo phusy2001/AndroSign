@@ -36,6 +36,8 @@ const DocumentAPI = {
     signed: number,
     step: number,
     user: string,
+    stepOld: number,
+    passCa: string,
   ) => {
     return await client.post(`/editFile`, {
       id: fileId,
@@ -43,6 +45,8 @@ const DocumentAPI = {
       signed,
       step,
       user,
+      stepOld,
+      passCa,
     });
   },
 

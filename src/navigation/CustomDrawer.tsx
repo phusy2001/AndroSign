@@ -3,7 +3,7 @@
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import React from 'react';
 import {Dimensions, View} from 'react-native';
-import {Button, Divider} from 'react-native-paper';
+import {Button, Divider, Text} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {signout} from '../services/auth';
 import {navigate} from './RootNavigation';
@@ -33,30 +33,40 @@ function CustomDrawer(props: any) {
         }}>
         <View>
           <DrawerItem
+            style={{marginBottom: 10}}
             icon={() => <Icon name="file-document" size={24} color="#000" />}
             label="Tài liệu"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('Home')}
           />
           <DrawerItem
+            style={{marginBottom: 10}}
             icon={() => (
               <Icon name="file-document-edit" size={24} color="#000" />
             )}
             label="Tài liệu được chia sẻ"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('Shared')}
           />
           <DrawerItem
+            style={{marginBottom: 10}}
             icon={() => <Icon name="folder" size={24} color="#000" />}
             label="Thư mục"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('Folders')}
           />
           <DrawerItem
+            style={{marginBottom: 10}}
             icon={() => <Icon name="star" size={24} color="#000" />}
             label="Được gắn sao"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('Starred')}
           />
           <DrawerItem
+            style={{marginBottom: 10}}
             icon={() => <Icon name="trash-can" size={24} color="#000" />}
             label="Thùng rác"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('Trash')}
           />
           <View style={{paddingHorizontal: 20}}>
@@ -65,15 +75,8 @@ function CustomDrawer(props: any) {
           <DrawerItem
             icon={() => <Icon name="account" size={24} color="#000" />}
             label="Tài khoản"
+            labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('AccountNavigator')}
-          />
-          <DrawerItem
-            icon={() => <Icon name="cog" size={24} color="#000" />}
-            label="Cài đặt"
-            onPress={() => {
-              client.get('/users');
-              // props.navigation.navigate('Settings');
-            }}
           />
         </View>
         <View style={{paddingHorizontal: 20}}>
@@ -83,7 +86,7 @@ function CustomDrawer(props: any) {
             buttonColor="#EBD6D6"
             textColor="#6B2B2B"
             onPress={logout}>
-            Đăng xuất
+            <Text style={{fontSize: 16}}>Đăng xuất</Text>
           </Button>
         </View>
       </View>

@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
-import {Text, TextInput, Button} from 'react-native-paper';
+import {Text, TextInput, Button, IconButton} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -70,16 +70,29 @@ function SignUpScreen({navigation}: any) {
         height: screenHeight,
       }}>
       <KeyboardAvoidingView behavior="position">
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 22,
-          }}>
-          Đăng ký
-        </Text>
         <View
           style={{
-            marginTop: 70,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginLeft: -30,
+          }}>
+          <IconButton
+            icon="arrow-left"
+            size={26}
+            onPress={() => navigation.goBack()}
+          />
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 22,
+            }}>
+            Đăng ký
+          </Text>
+        </View>
+        <View
+          style={{
+            marginTop: 50,
           }}>
           <Controller
             control={control}
@@ -198,7 +211,7 @@ function SignUpScreen({navigation}: any) {
           onPress={handleSubmit(onSubmit)}
           icon="arrow-right"
           contentStyle={{flexDirection: 'row-reverse'}}>
-          Tiếp tục
+          <Text style={{fontSize: 16, color: 'white'}}>Tiếp tục</Text>
         </Button>
       </View>
     </View>
