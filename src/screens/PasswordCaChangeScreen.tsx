@@ -6,12 +6,15 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
+import UserAPI from '../services/user';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-toast-message';
 
 const ChangePasswordSchema = yup.object().shape({
   oPassword: yup.string().required('Mật khẩu cũ là bắt buộc'),
   nPassword: yup
     .string()
-    .min(8, 'Mật khẩu phải có ít nhất 8 kí tự')
+    .min(6, 'Mật khẩu phải có ít nhất 6 kí tự')
     .required('Mật khẩu mới là bắt buộc'),
   nPassword2: yup
     .string()
@@ -19,7 +22,7 @@ const ChangePasswordSchema = yup.object().shape({
     .oneOf([yup.ref('nPassword'), null], 'Mật khẩu không trùng nhau'),
 });
 
-function PasswordChangeScreen({navigation}: any) {
+function PasswordCaChangeScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide0, setHide0] = useState(true);
@@ -30,10 +33,24 @@ function PasswordChangeScreen({navigation}: any) {
     control,
     handleSubmit,
     formState: {errors},
+    reset,
   } = useForm({
     resolver: yupResolver(ChangePasswordSchema),
   });
-  const onSubmit = (data: any) => {};
+  const onSubmit = async (data: any) => {
+    const result = await UserAPI.updateCaPassword(auth().currentUser?.uid, {
+      email: auth().currentUser?.email,
+      nPasswordCa: data.nPassword,
+      oPasswordCa: data.oPassword,
+    });
+    Toast.show({
+      text1: result.message,
+      type: result.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+    if (result.status === 'true')
+      reset({oPassword: '', nPassword: '', nPassword2: ''});
+  };
 
   return (
     <KeyboardAvoidingView
@@ -61,7 +78,7 @@ function PasswordChangeScreen({navigation}: any) {
               fontWeight: 'bold',
               fontSize: 20,
             }}>
-            Thay đổi mật khẩu
+            Thay đổi mật khẩu bảo vệ
           </Text>
         </View>
         <KeyboardAvoidingView
@@ -79,13 +96,15 @@ function PasswordChangeScreen({navigation}: any) {
               <TextInput
                 style={{marginTop: 5}}
                 mode="outlined"
-                label="Mật khẩu cũ"
+                label="Mật khẩu bảo vệ cũ"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                placeholder="Nhập mật khẩu cũ của bạn"
+                placeholder="Nhập mật khẩu bảo vệ cũ của bạn"
                 textContentType="password"
                 secureTextEntry={hide0}
+                maxLength={6}
+                keyboardType="numeric"
                 right={
                   <TextInput.Icon
                     onPress={() => setHide0(!hide0)}
@@ -106,13 +125,15 @@ function PasswordChangeScreen({navigation}: any) {
               <TextInput
                 style={{marginTop: 5}}
                 mode="outlined"
-                label="Mật khẩu mới"
+                label="Mật khẩu bảo vệ mới"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                placeholder="Nhập mật khẩu mới"
+                placeholder="Nhập mật khẩu bảo vệ mới"
                 textContentType="password"
                 secureTextEntry={hide}
+                maxLength={6}
+                keyboardType="numeric"
                 right={
                   <TextInput.Icon
                     onPress={() => setHide(!hide)}
@@ -133,13 +154,15 @@ function PasswordChangeScreen({navigation}: any) {
               <TextInput
                 style={{marginTop: 5}}
                 mode="outlined"
-                label="Xác nhận mật khẩu mới"
+                label="Xác nhận mật khẩu bảo vệ mới"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
-                placeholder="Nhập lại mật khẩu mới"
+                placeholder="Nhập lại mật khẩu bảo vệ mới"
                 textContentType="password"
                 secureTextEntry={hide2}
+                maxLength={6}
+                keyboardType="numeric"
                 right={
                   <TextInput.Icon
                     onPress={() => setHide2(!hide2)}
@@ -176,4 +199,4 @@ function PasswordChangeScreen({navigation}: any) {
   );
 }
 
-export default PasswordChangeScreen;
+export default PasswordCaChangeScreen;

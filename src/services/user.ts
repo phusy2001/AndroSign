@@ -28,6 +28,10 @@ const UserAPI = {
   createCaPassword(uid: string, body: any) {
     return client.put(`${service}/${uid}/createUserCa`, body);
   },
+
+  updateCaPassword(uid: string, body: any) {
+    return client.put(`${service}/${uid}/updateUserCa`, body);
+  },
 };
 
 export default UserAPI;

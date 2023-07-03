@@ -22,14 +22,14 @@ const plans = [
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const isDrawerOpen = useDrawerStatus() === 'open';
+  const [user, setUser] = useState<any>();
+  const [isLoading, setIsLoading] = useState(true);
+
   const handleDrawer = () => {
     if (!isDrawerOpen) {
       navigation.dispatch(DrawerActions.openDrawer());
     }
   };
-
-  const [user, setUser] = useState();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -62,9 +62,9 @@ function AccountScreen({navigation}: any) {
         <View
           style={{
             paddingLeft: 20,
-            paddingTop: 20,
+            paddingTop: 15,
             paddingRight: 20,
-            paddingBottom: 20,
+            paddingBottom: 15,
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -136,7 +136,7 @@ function AccountScreen({navigation}: any) {
             </View>
             <View style={{width: '70%', justifyContent: 'center'}}>
               <Text style={{fontSize: 18, fontWeight: 'bold'}}>
-                {user?.display_name}
+                {user.display_name}
               </Text>
               <Text style={{fontSize: 15}}>{auth().currentUser?.email}</Text>
             </View>
@@ -171,9 +171,9 @@ function AccountScreen({navigation}: any) {
           <View
             style={{
               paddingLeft: 20,
-              paddingTop: 20,
+              paddingTop: 15,
               paddingRight: 20,
-              paddingBottom: 20,
+              paddingBottom: 15,
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -195,9 +195,9 @@ function AccountScreen({navigation}: any) {
           <View
             style={{
               paddingLeft: 20,
-              paddingTop: 20,
+              paddingTop: 15,
               paddingRight: 20,
-              paddingBottom: 20,
+              paddingBottom: 15,
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -237,7 +237,7 @@ function AccountScreen({navigation}: any) {
         </Text>
         <View
           style={{
-            height: 120,
+            height: 160,
             backgroundColor: '#f7f3f9',
             paddingLeft: 20,
             paddingRight: 20,
@@ -254,6 +254,22 @@ function AccountScreen({navigation}: any) {
                 display: 'flex',
               }}>
               <Text style={{fontSize: 16}}>Đổi mật khẩu</Text>
+              <IconButton icon="arrow-right" size={24} />
+            </View>
+          </TouchableOpacity>
+          <Divider bold={true}></Divider>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('PasswordCaChange');
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                display: 'flex',
+              }}>
+              <Text style={{fontSize: 16}}>Đổi mật khẩu bảo vệ tài liệu</Text>
               <IconButton icon="arrow-right" size={24} />
             </View>
           </TouchableOpacity>

@@ -31,6 +31,7 @@ import AccountScreen from '../screens/AccountScreen';
 import PasswordCaScreen from '../screens/PasswordCaScreen';
 import VerifyPasswordCaScreen from '../screens/VerifyPasswordCaScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import PasswordCaChangeScreen from '../screens/PasswordCaChangeScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
@@ -92,6 +93,11 @@ export const AccountNavigator = () => {
       <AuthStack.Screen
         name="InfoChange"
         component={InfoChangeScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="PasswordCaChange"
+        component={PasswordCaChangeScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
