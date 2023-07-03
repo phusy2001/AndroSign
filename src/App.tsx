@@ -10,9 +10,33 @@ import {navigationRef} from './navigation/RootNavigation';
 import {storeData} from './utils/asyncStore';
 import './i18n/i18n';
 import notifee, {EventType} from '@notifee/react-native';
+import {ErrorToast, SuccessToast} from 'react-native-toast-message';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
+
+  const toastConfig = {
+    success: (props: any) => (
+      <SuccessToast
+        {...props}
+        style={{borderLeftWidth: 10, borderLeftColor: '#59CE8F'}}
+        text1Style={{
+          fontSize: 14,
+          fontWeight: '500',
+        }}
+      />
+    ),
+    error: (props: any) => (
+      <ErrorToast
+        {...props}
+        style={{borderLeftWidth: 10, borderLeftColor: 'red'}}
+        text1Style={{
+          fontSize: 14,
+          fontWeight: '500',
+        }}
+      />
+    ),
+  };
 
   const onMessageReceived = async (message: any) => {
     const channelId = await notifee.createChannel({
@@ -99,7 +123,7 @@ export default function App() {
       <NavigationContainer ref={navigationRef}>
         {loading ? <SplashScreen /> : <AppNavigator />}
       </NavigationContainer>
-      <Toast></Toast>
+      <Toast config={toastConfig}></Toast>
     </SafeAreaProvider>
   );
 }
