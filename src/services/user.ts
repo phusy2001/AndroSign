@@ -1,6 +1,7 @@
 import AxiosClient from './clients/api';
+import Config from 'react-native-config';
 
-const client = new AxiosClient('http://10.0.2.2:3005');
+const client = new AxiosClient(`${Config.API_URL}:3005`);
 
 const service = 'users';
 
