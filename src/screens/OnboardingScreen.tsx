@@ -50,7 +50,7 @@ function OnboardingScreen({navigation}) {
     // Handle button press on last slide
     try {
       await storeData('hasLoggedIn', 'false');
-      navigate('Home', {reload: true});
+      navigation.navigate('Drawer', {screen: 'Home'});
     } catch (error) {
       // Handle error here
       console.log(error);
