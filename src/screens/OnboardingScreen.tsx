@@ -68,7 +68,10 @@ function OnboardingScreen({navigation}) {
           setIsLoading(false);
           return true;
         } else {
-          navigation.navigate('Home', {reload: true});
+          navigation.navigate('Drawer', {
+            screen: 'Home',
+            params: {reload: true},
+          });
           setIsLoading(false);
           return false;
         }
