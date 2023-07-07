@@ -163,6 +163,8 @@ function LoginScreen({navigation, route}: any) {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                outlineColor={errors.email && 'red'}
+                activeOutlineColor={errors.email && 'red'}
                 placeholder="Nhập email của bạn"
                 inputMode="email"
                 textContentType="emailAddress"
@@ -188,6 +190,8 @@ function LoginScreen({navigation, route}: any) {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                outlineColor={errors.password && 'red'}
+                activeOutlineColor={errors.password && 'red'}
                 placeholder="Nhập mật khẩu của bạn"
                 textContentType="password"
                 secureTextEntry={hide}
@@ -209,7 +213,9 @@ function LoginScreen({navigation, route}: any) {
           style={{
             textAlign: 'right',
             fontSize: 16,
-          }}>
+            color: 'blue',
+          }}
+          onPress={() => navigation.navigate('ForgotPassword')}>
           Quên mật khẩu?
         </Text>
       </KeyboardAvoidingView>

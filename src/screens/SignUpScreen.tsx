@@ -98,6 +98,8 @@ function SignUpScreen({navigation}: any) {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                outlineColor={errors.username && 'red'}
+                activeOutlineColor={errors.username && 'red'}
                 placeholder="Nhập tên của bạn"
                 inputMode="text"
                 textContentType="name"
@@ -125,6 +127,8 @@ function SignUpScreen({navigation}: any) {
                 value={value}
                 placeholder="Nhập email của bạn"
                 inputMode="email"
+                outlineColor={errors.email && 'red'}
+                activeOutlineColor={errors.email && 'red'}
                 textContentType="emailAddress"
               />
             )}
@@ -150,6 +154,8 @@ function SignUpScreen({navigation}: any) {
                 value={value}
                 placeholder="Nhập mật khẩu của bạn"
                 textContentType="password"
+                outlineColor={errors.password && 'red'}
+                activeOutlineColor={errors.password && 'red'}
                 secureTextEntry={hide}
                 right={
                   <TextInput.Icon
@@ -181,6 +187,8 @@ function SignUpScreen({navigation}: any) {
                 value={value}
                 placeholder="Nhập lại mật khẩu"
                 textContentType="password"
+                outlineColor={errors.password2 && 'red'}
+                activeOutlineColor={errors.password2 && 'red'}
                 secureTextEntry={hide2}
                 right={
                   <TextInput.Icon

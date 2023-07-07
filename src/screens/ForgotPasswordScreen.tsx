@@ -7,6 +7,8 @@ import {Button, Text, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {resetPassword} from '../services/auth';
+import SignUpSVG from '../assets/images/signup.svg';
+import Toast from 'react-native-toast-message';
 
 const ForgotPasswordSchema = yup.object().shape({
   email: yup
@@ -18,53 +20,61 @@ const ForgotPasswordSchema = yup.object().shape({
 function ForgotPasswordScreen({navigation, route}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
-  const [email, setEmail] = useState('');
-  const [emailMessage, setEmailMessage] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: {errors},
+    reset,
   } = useForm({
     resolver: yupResolver(ForgotPasswordSchema),
   });
   const onSubmit = async (data: any) => {
-    const {email} = data;
     try {
-      await resetPassword(email);
-      setEmailMessage(true);
+      await resetPassword(data.email);
+      Toast.show({
+        text1: 'Đường dẫn đặt lại mật khẩu đã được gửi đến Email của bạn',
+        type: 'info',
+        position: 'bottom',
+      });
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        //alert('User not found, try again!');
-        setEmail('');
+        Toast.show({
+          text1: 'Không tìm thấy Email',
+          type: 'error',
+          position: 'bottom',
+        });
       }
     }
+    reset({email: ''});
   };
 
   return (
     <View
       style={{
-        paddingBottom: insets.bottom,
         paddingTop: insets.top,
-        paddingLeft: 30,
-        paddingRight: 30,
+        paddingBottom: insets.bottom,
+        marginLeft: 30,
+        marginRight: 30,
         display: 'flex',
         justifyContent: 'space-evenly',
         height: screenHeight,
       }}>
-      <View>
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 22,
-          }}>
-          Quên mật khẩu
-        </Text>
-        <KeyboardAvoidingView
-          behavior="position"
-          style={{
-            marginTop: 70,
-          }}>
+      <KeyboardAvoidingView behavior="position">
+        <View>
+          <View style={{alignItems: 'center'}}>
+            <SignUpSVG width={170} height={120} />
+          </View>
+          <View style={{alignItems: 'center', marginTop: 10}}>
+            <Text style={{fontWeight: 'bold', fontSize: 24}}>
+              Quên mật khẩu
+            </Text>
+            <Text style={{fontSize: 14, marginTop: 10}}>
+              Vui lòng nhập Email và nhận đường dẫn đặt lại mật khẩu
+            </Text>
+          </View>
+        </View>
+        <View style={{marginTop: 10}}>
           <Controller
             control={control}
             rules={{
@@ -72,11 +82,16 @@ function ForgotPasswordScreen({navigation, route}: any) {
             }}
             render={({field: {onChange, onBlur, value}}) => (
               <TextInput
+                style={{
+                  marginTop: 5,
+                }}
                 mode="outlined"
                 label="Email"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                outlineColor={errors.email && 'red'}
+                activeOutlineColor={errors.email && 'red'}
                 placeholder="Nhập email của bạn"
                 inputMode="email"
                 textContentType="emailAddress"
@@ -87,16 +102,28 @@ function ForgotPasswordScreen({navigation, route}: any) {
           <Text style={{color: 'red'}}>
             {errors.email && `${errors.email.message}`}
           </Text>
-        </KeyboardAvoidingView>
-      </View>
-      <View>
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          icon="login"
-          contentStyle={{flexDirection: 'row-reverse'}}>
-          Reset Your Password
-        </Button>
+        </View>
+      </KeyboardAvoidingView>
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        contentStyle={{flexDirection: 'row-reverse'}}>
+        <Text style={{fontSize: 16, color: 'white'}}>Xác nhận</Text>
+      </Button>
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            color: 'blue',
+          }}
+          onPress={() => navigation.navigate('Login')}>
+          Quay về màn hình đăng nhập
+        </Text>
       </View>
     </View>
   );
