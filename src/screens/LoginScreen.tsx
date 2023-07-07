@@ -70,7 +70,7 @@ function LoginScreen({navigation, route}: any) {
       switch (error.code) {
         case 'auth/wrong-password':
           Toast.show({
-            text1: 'Your password is wrong. Please try again.',
+            text1: 'Mật khẩu của bạn không đúng. Vui lòng thử lại',
             type: 'error',
             position: 'bottom',
             visibilityTime: 2000,
@@ -78,7 +78,7 @@ function LoginScreen({navigation, route}: any) {
           break;
         case 'auth/invalid-email':
           Toast.show({
-            text1: 'Your email is invalid.',
+            text1: 'Email của bạn không hợp lệ',
             type: 'error',
             position: 'bottom',
             visibilityTime: 2000,
@@ -86,7 +86,7 @@ function LoginScreen({navigation, route}: any) {
           break;
         case 'auth/user-disabled':
           Toast.show({
-            text1: 'Your account has been disabled.',
+            text1: 'Tài khoản của bạn đã bị vô hiệu',
             type: 'error',
             position: 'bottom',
             visibilityTime: 2000,
@@ -94,7 +94,7 @@ function LoginScreen({navigation, route}: any) {
           break;
         case 'auth/user-not-found':
           Toast.show({
-            text1: 'Your account is not found.',
+            text1: 'Tài khoản này không tồn tại',
             type: 'error',
             position: 'bottom',
             visibilityTime: 2000,

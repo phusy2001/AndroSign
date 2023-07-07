@@ -5,7 +5,9 @@ import {Text, Button, TextInput, IconButton} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
+import auth from '@react-native-firebase/auth';
 import {useForm, Controller} from 'react-hook-form';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
 
 const ChangePasswordSchema = yup.object().shape({
   oPassword: yup.string().required('Mật khẩu cũ là bắt buộc'),
@@ -36,7 +38,49 @@ function PasswordChangeScreen({navigation}: any) {
   } = useForm({
     resolver: yupResolver(ChangePasswordSchema),
   });
-  const onSubmit = (data: any) => {};
+
+  const onSubmit = async (data: any) => {
+    const user = auth().currentUser;
+
+    const email = user.email;
+
+    const credential = auth.EmailAuthProvider.credential(email, data.oPassword);
+
+    await user
+      ?.reauthenticateWithCredential(credential)
+      .then(async () => {
+        await user
+          ?.updatePassword(data.nPassword)
+          .then(() => {
+            Toast.show({
+              text1: 'Đổi mật khẩu thành công!',
+              type: 'success',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+
+            navigation.navigate('Account');
+          })
+          .catch(error => {
+            Toast.show({
+              text1: 'Đổi mật khẩu thất bại!',
+              type: 'error',
+              position: 'bottom',
+              visibilityTime: 2000,
+            });
+            console.log('Error updating password:', error);
+          });
+      })
+      .catch(error => {
+        Toast.show({
+          text1: 'Mật khẩu cũ không đúng. Vui lòng nhập lại!',
+          type: 'error',
+          position: 'bottom',
+          visibilityTime: 2000,
+        });
+        console.log(' reauthenticating user:', error);
+      });
+  };
 
   return (
     <KeyboardAvoidingView

@@ -85,7 +85,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         switch (error.code) {
           case 'auth/email-already-in-use':
             Toast.show({
-              text1: 'This account has been existed.',
+              text1: 'Tài khoản này đã tồn tại',
               type: 'error',
               position: 'bottom',
               visibilityTime: 2000,
@@ -93,7 +93,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             break;
           case 'auth/invalid-email':
             Toast.show({
-              text1: 'This email is invalid.',
+              text1: 'Email này không hợp lệ',
               type: 'error',
               position: 'bottom',
               visibilityTime: 2000,
@@ -101,7 +101,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             break;
           case 'auth/operation-not-allowed':
             Toast.show({
-              text1: 'Your email/password accounts are not enabled.',
+              text1: 'Tài khoản email/mật khẩu của bạn chưa được kích hoạt',
               type: 'error',
               position: 'bottom',
               visibilityTime: 2000,
@@ -109,7 +109,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             break;
           case 'auth/weak-password':
             Toast.show({
-              text1: 'Your password is weak.',
+              text1: 'Mật khẩu của bạn yếu',
               type: 'error',
               position: 'bottom',
               visibilityTime: 2000,

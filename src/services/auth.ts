@@ -12,12 +12,6 @@ export function signupWithEmail(email: string, password: string) {
   return auth().createUserWithEmailAndPassword(email, password);
 }
 
-//Change password
-export function changePassword(password: string) {
-  const user = auth().currentUser;
-  return user?.updatePassword(password);
-}
-
 //Sign out
 export async function signout() {
   const uid = auth().currentUser?.uid;
