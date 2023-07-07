@@ -223,12 +223,12 @@ function DocumentSignScreen({route, navigation}: any) {
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
-        position: 'bottom',
+        position: result.status === 'true' ? 'bottom' : 'top',
       });
-      isEdited = true;
+      if (result.status === 'true') isEdited = true;
     }
-    if (action !== 'upload') navigation.goBack();
-    else navigation.navigate('Home', {reload: true});
+    if (action !== 'upload' && isEdited) navigation.goBack();
+    else if (action === 'upload') navigation.navigate('Home', {reload: true});
     if (handleFileCreated) handleFileCreated();
     else if (handleEditFunction && isEdited) handleEditFunction();
   };
