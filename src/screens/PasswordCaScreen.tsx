@@ -64,13 +64,16 @@ const PasswordCaScreen = ({navigation, route}: any) => {
         </Text>
       </View>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={styles.title}>Nhập mật khẩu bảo vệ</Text>
+        <Text style={styles.title}>Nhập mã bảo vệ</Text>
         <View style={styles.textInputGroup}>
           {Array.from({length: 6}).map((_, index) => (
             <TextInput
               key={index}
               value={pin[index] ?? ''}
-              onChangeText={value => handlePinChange(value, index)}
+              onChangeText={value => {
+                handlePinChange(value, index);
+                console.log(pin.length, index);
+              }}
               onKeyPress={({nativeEvent}) => {
                 if (nativeEvent.key === 'Backspace') {
                   handleBackspace(index);
@@ -81,11 +84,11 @@ const PasswordCaScreen = ({navigation, route}: any) => {
               secureTextEntry
               style={styles.textInput}
               ref={(ref: any) => (inputRefs.current[index] = ref)}
-              onSubmitEditing={() => {
-                if (index === 5) {
-                  handleSubmit();
-                }
-              }}
+              // onSubmitEditing={() => {
+              //   if (index === 5) {
+              //     handleSubmit();
+              //   }
+              // }}
             />
           ))}
         </View>

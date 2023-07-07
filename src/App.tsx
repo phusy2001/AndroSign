@@ -89,21 +89,21 @@ export default function App() {
     }, 1000);
   }, []);
 
-  useEffect(() => {
-    auth().onIdTokenChanged(user => {
-      console.log('Token refresh');
-      if (user) {
-        user.getIdToken().then(async token => {
-          console.log('token when token change =>', token);
-          try {
-            await storeData('userToken', token);
-          } catch (e) {
-            console.log(e);
-          }
-        });
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   auth().onIdTokenChanged(user => {
+  //     console.log('Token refresh');
+  //     if (user) {
+  //       user.getIdToken().then(async token => {
+  //         console.log('token when token change =>', token);
+  //         try {
+  //           await storeData('userToken', token);
+  //         } catch (e) {
+  //           console.log(e);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, []);
 
   useEffect(() => {
     const requestPermission = async () => {

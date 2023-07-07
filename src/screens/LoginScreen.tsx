@@ -34,19 +34,38 @@ function LoginScreen({navigation, route}: any) {
     try {
       const user = await signinWithEmail(data.email, data.password);
 
-      const resUser = await UserAPI.findUserByUid(user.user.uid);
+      if (user.user.emailVerified) {
+        // const resUser = await UserAPI.findUserByUid(user.user.uid);
 
-      let fcmTokenList = resUser.data.fcm_tokens;
+        // let fcmTokenList = resUser.data.fcm_tokens;
 
-      const fcmToken = await AsyncStorage.getItem('fcmToken');
+        const fcmToken = await AsyncStorage.getItem('fcmToken');
 
-      if (!fcmTokenList?.includes(fcmToken)) {
-        fcmTokenList = [...fcmTokenList, fcmToken];
+        // if (!fcmTokenList?.includes(fcmToken)) {
+        //   fcmTokenList = [...fcmTokenList, fcmToken];
+        // }
+
+        // await UserAPI.updateUserByUid(user.user.uid, {
+        //   fcm_tokens: fcmTokenList,
+        // });
+
+        navigation.navigate('Onboarding');
+
+        user.user.getIdToken().then(async token => {
+          console.log('token when auth state change =>', token);
+          try {
+            await storeData('userToken', token);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      } else {
+        Toast.show({
+          text1: 'Vui lòng kiểm tra Email để kích hoạt tài khoản',
+          type: 'info',
+          position: 'bottom',
+        });
       }
-
-      await UserAPI.updateUserByUid(user.user.uid, {
-        fcm_tokens: fcmTokenList,
-      });
     } catch (error: any) {
       switch (error.code) {
         case 'auth/wrong-password':
@@ -87,24 +106,24 @@ function LoginScreen({navigation, route}: any) {
     }
   };
 
-  useEffect(() => {
-    auth().onAuthStateChanged(user => {
-      console.log('On Auth State Change');
-      console.log('User', user);
+  // useEffect(() => {
+  //   auth().onAuthStateChanged(user => {
+  //     console.log('On Auth State Change');
+  //     console.log('User', user);
 
-      if (user) {
-        navigation.navigate('Onboarding');
-        user.getIdToken().then(async token => {
-          console.log('token when auth state change =>', token);
-          try {
-            await storeData('userToken', token);
-          } catch (e) {
-            console.log(e);
-          }
-        });
-      }
-    });
-  }, []);
+  //     if (user) {
+  //       navigation.navigate('Onboarding');
+  //       user.getIdToken().then(async token => {
+  //         console.log('token when auth state change =>', token);
+  //         try {
+  //           await storeData('userToken', token);
+  //         } catch (e) {
+  //           console.log(e);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, []);
 
   return (
     <View

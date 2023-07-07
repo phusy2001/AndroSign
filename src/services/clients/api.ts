@@ -7,10 +7,10 @@ import axios, {
 } from 'axios';
 
 import {signout} from '../auth';
-import {getData} from '../../utils/asyncStore';
+import {getData, storeData} from '../../utils/asyncStore';
 import {navigate} from '../../navigation/RootNavigation';
 import Toast from 'react-native-toast-message';
-
+import auth from '@react-native-firebase/auth';
 class AxiosClient {
   private client: AxiosInstance;
   private baseURL: string;
@@ -28,6 +28,31 @@ class AxiosClient {
     this.client.interceptors.request.use(
       async config => {
         // Add authorization header or modify request before it is sent
+        const user = auth().currentUser;
+
+        // Get the idTokenResult
+        user
+          ?.getIdTokenResult()
+          .then(idTokenResult => {
+            const now = Date.now();
+            const exp = new Date(idTokenResult.expirationTime);
+            const expiresIn = exp.getTime() - now;
+
+            if (expiresIn < 15 * 60 * 1000) {
+              user
+                .getIdToken(true)
+                .then(async idToken => {
+                  await storeData('userToken', idToken);
+                })
+                .catch(error => {
+                  console.log(error);
+                });
+            }
+          })
+          .catch(error => {
+            // Handle error
+          });
+
         const token = await getData('userToken');
 
         if (config.headers) {
@@ -46,6 +71,7 @@ class AxiosClient {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
         // Modify response data before it is returned
+
         return response.data;
       },
       async (error: AxiosError) => {

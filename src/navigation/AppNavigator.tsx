@@ -160,7 +160,7 @@ export function AppNavigator() {
 
   return (
     <AuthStack.Navigator
-      initialRouteName={auth().currentUser ? 'Drawer' : 'Login'}>
+      initialRouteName={auth().currentUser?.emailVerified ? 'Drawer' : 'Login'}>
       <AuthStack.Screen
         name="SignUp"
         component={SignUpScreen}

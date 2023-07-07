@@ -55,24 +55,32 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
       Keyboard.dismiss();
     } else {
       try {
-        const {user} = await signupWithEmail(email, password);
+        const {user} = await auth().createUserWithEmailAndPassword(
+          email,
+          password,
+        );
+        user.sendEmailVerification();
+        await auth().signOut();
+        navigation.navigate('Login');
+        // const {user} = await signupWithEmail(email, password);
 
-        const fcmToken = await AsyncStorage.getItem('fcmToken');
-
-        if (fcmToken) {
-          await UserAPI.createUser({
-            username,
-            uid: user.uid,
-            email,
-            fcm_tokens: [fcmToken],
-          });
-        }
-
-        await auth().currentUser?.updateProfile({
-          displayName: username,
+        Toast.show({
+          text1: 'Một đường dẫn đã được gửi đến Email của bạn',
+          type: 'info',
+          position: 'bottom',
         });
 
-        await UserAPI.createCaPassword(user.uid, {email, passwordCa: pin});
+        UserAPI.createUser({
+          display_name: username,
+          uid: user.uid,
+          email,
+        });
+
+        // await auth().currentUser?.updateProfile({
+        //   displayName: username,
+        // });
+
+        UserAPI.createCaPassword(user.uid, {email, passwordCa: pin});
       } catch (error: any) {
         switch (error.code) {
           case 'auth/email-already-in-use':
@@ -111,8 +119,6 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             console.error(error);
         }
       }
-
-      navigation.navigate('Login');
     }
   };
 
@@ -138,7 +144,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         </Text>
       </View>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={styles.title}>Nhập lại mật khẩu</Text>
+        <Text style={styles.title}>Nhập lại mã bảo vệ</Text>
         <View style={styles.textInputGroup}>
           {Array.from({length: 6}).map((_, index) => (
             <TextInput
@@ -155,11 +161,11 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
               secureTextEntry
               style={styles.textInput}
               ref={(ref: any) => (inputRefs.current[index] = ref)}
-              onSubmitEditing={() => {
-                if (index === 5) {
-                  handleSubmit();
-                }
-              }}
+              // onSubmitEditing={() => {
+              //   if (index === 5) {
+              //     handleSubmit();
+              //   }
+              // }}
             />
           ))}
         </View>
