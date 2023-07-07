@@ -19,6 +19,8 @@ export default function App() {
     success: (props: any) => (
       <SuccessToast
         {...props}
+        text1NumberOfLines={2}
+        text2NumberOfLines={2}
         style={{borderLeftWidth: 10, borderLeftColor: '#59CE8F'}}
         text1Style={{
           fontSize: 14,
@@ -29,6 +31,8 @@ export default function App() {
     error: (props: any) => (
       <ErrorToast
         {...props}
+        text1NumberOfLines={2}
+        text2NumberOfLines={2}
         style={{borderLeftWidth: 10, borderLeftColor: 'red'}}
         text1Style={{
           fontSize: 14,
@@ -39,6 +43,8 @@ export default function App() {
     info: (props: any) => (
       <InfoToast
         {...props}
+        text1NumberOfLines={2}
+        text2NumberOfLines={2}
         style={{borderLeftWidth: 10, borderLeftColor: '#068FFF'}}
         text1Style={{
           fontSize: 14,
