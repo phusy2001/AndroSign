@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import Toast from 'react-native-toast-message';
+import SignUpSVG from '../assets/images/signup.svg';
 
 const SignUpSchema = yup.object().shape({
   username: yup.string().required('Tên người dùng là bắt buộc'),
@@ -16,8 +17,11 @@ const SignUpSchema = yup.object().shape({
     .required('Email là bắt buộc'),
   password: yup
     .string()
-    .min(8, 'Mật khẩu phải có ít nhất 8 kí tự')
-    .required('Mật khẩu là bắt buộc'),
+    .required('Mật khẩu là bắt buộc')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      'Mật khẩu phải có 8 kí tự, bao gồm chữ số, chữ hoa, chữ thường và có ít nhất một ký tự đặc biệt',
+    ),
   password2: yup
     .string()
     .required('Vui lòng nhập lại mật khẩu')
@@ -70,30 +74,18 @@ function SignUpScreen({navigation}: any) {
         height: screenHeight,
       }}>
       <KeyboardAvoidingView behavior="position">
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginLeft: -30,
-          }}>
-          <IconButton
-            icon="arrow-left"
-            size={26}
-            onPress={() => navigation.goBack()}
-          />
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-            }}>
-            Đăng ký
-          </Text>
+        <View>
+          <View style={{alignItems: 'center'}}>
+            <SignUpSVG width={170} height={120} />
+          </View>
+          <View style={{alignItems: 'center', marginTop: 10}}>
+            <Text style={{fontWeight: 'bold', fontSize: 24}}>Đăng Ký Ngay</Text>
+            <Text style={{fontSize: 14, marginTop: 10}}>
+              Vui lòng nhập các thông tin dưới đây và tạo tài khoản
+            </Text>
+          </View>
         </View>
-        <View
-          style={{
-            marginTop: 50,
-          }}>
+        <View style={{marginTop: 10}}>
           <Controller
             control={control}
             rules={{
@@ -205,14 +197,30 @@ function SignUpScreen({navigation}: any) {
           </Text>
         </View>
       </KeyboardAvoidingView>
-      <View>
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          icon="arrow-right"
-          contentStyle={{flexDirection: 'row-reverse'}}>
-          <Text style={{fontSize: 16, color: 'white'}}>Tiếp tục</Text>
-        </Button>
+      <Button
+        style={{marginTop: -30}}
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        icon="arrow-right"
+        contentStyle={{flexDirection: 'row-reverse'}}>
+        <Text style={{fontSize: 16, color: 'white'}}>Tiếp tục</Text>
+      </Button>
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          marginTop: -30,
+        }}>
+        <Text style={{fontSize: 16}}>Bạn đã có tài khoản? </Text>
+        <Text
+          style={{
+            fontSize: 16,
+            color: 'blue',
+          }}
+          onPress={() => navigation.navigate('Login')}>
+          Đăng nhập tại đây
+        </Text>
       </View>
     </View>
   );

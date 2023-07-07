@@ -1,6 +1,5 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, KeyboardAvoidingView, Dimensions, StyleSheet} from 'react-native';
+import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
 import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
@@ -12,13 +11,11 @@ import Toast from 'react-native-toast-message';
 import {signinWithEmail} from '../services/auth';
 import {storeData} from '../utils/asyncStore';
 import UserAPI from '../services/user';
+import LoginSVG from '../assets/images/login.svg';
 
 const SignInSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email('Email must be a valid email address')
-    .required('Email is a required field'),
-  password: yup.string().required('Password is a required field'),
+  email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
+  password: yup.string().required('Mật khẩu là bắt buộc'),
 });
 
 function LoginScreen({navigation, route}: any) {
@@ -120,19 +117,21 @@ function LoginScreen({navigation, route}: any) {
         justifyContent: 'space-evenly',
         height: screenHeight,
       }}>
-      <View>
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 22,
-          }}>
-          Đăng nhập
-        </Text>
-        <KeyboardAvoidingView
-          behavior="position"
-          style={{
-            marginTop: 50,
-          }}>
+      <KeyboardAvoidingView behavior="position">
+        <View>
+          <View style={{alignItems: 'center'}}>
+            <LoginSVG width={170} height={120} />
+          </View>
+          <View style={{alignItems: 'center'}}>
+            <Text style={{fontWeight: 'bold', fontSize: 24}}>
+              Đăng Nhập Ngay
+            </Text>
+            <Text style={{fontSize: 14, marginTop: 10}}>
+              Vui lòng đăng nhập để sử dụng ứng dụng AndroSign
+            </Text>
+          </View>
+        </View>
+        <View style={{marginTop: 40}}>
           <Controller
             control={control}
             rules={{
@@ -186,54 +185,36 @@ function LoginScreen({navigation, route}: any) {
           <Text style={{color: 'red'}}>
             {errors.password && `${errors.password.message}`}
           </Text>
-        </KeyboardAvoidingView>
+        </View>
         <Text
           style={{
-            marginTop: 24,
-            textAlign: 'center',
+            textAlign: 'right',
             fontSize: 16,
           }}>
           Quên mật khẩu?
         </Text>
-        <View
+      </KeyboardAvoidingView>
+      <Button
+        style={{marginTop: 20}}
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        icon="login"
+        contentStyle={{flexDirection: 'row-reverse'}}>
+        <Text style={{fontSize: 16, color: 'white'}}>Đăng nhập</Text>
+      </Button>
+      <View style={{alignItems: 'center'}}>
+        <Text style={{fontSize: 16}}>Bạn chưa có tài khoản?</Text>
+        <Text
           style={{
-            marginTop: 80,
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-            }}>
-            Chưa có tài khoản?
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              color: 'blue',
-            }}
-            onPress={() => navigation.navigate('SignUp')}>
-            Đăng ký ngay
-          </Text>
-        </View>
-      </View>
-      <View>
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          icon="login"
-          contentStyle={{flexDirection: 'row-reverse'}}>
-          <Text style={{fontSize: 16, color: 'white'}}>Đăng nhập</Text>
-        </Button>
+            fontSize: 16,
+            color: 'blue',
+          }}
+          onPress={() => navigation.navigate('SignUp')}>
+          Đăng ký ngay
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-});
 
 export default LoginScreen;

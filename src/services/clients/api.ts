@@ -8,6 +8,8 @@ import axios, {
 
 import {signout} from '../auth';
 import {getData} from '../../utils/asyncStore';
+import {navigate} from '../../navigation/RootNavigation';
+import Toast from 'react-native-toast-message';
 
 class AxiosClient {
   private client: AxiosInstance;
@@ -52,6 +54,12 @@ class AxiosClient {
 
         if (error.response?.status === 401) {
           await signout();
+          navigate('Login', {});
+          Toast.show({
+            text1: 'Bạn đã hết phiên đăng nhập',
+            type: 'info',
+            position: 'bottom',
+          });
         }
         return Promise.reject(error);
       },

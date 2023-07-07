@@ -10,7 +10,7 @@ import {navigationRef} from './navigation/RootNavigation';
 import {storeData} from './utils/asyncStore';
 import './i18n/i18n';
 import notifee, {EventType} from '@notifee/react-native';
-import {ErrorToast, SuccessToast} from 'react-native-toast-message';
+import {ErrorToast, InfoToast, SuccessToast} from 'react-native-toast-message';
 
 export default function App() {
   const [loading, setLoading] = React.useState(true);
@@ -30,6 +30,16 @@ export default function App() {
       <ErrorToast
         {...props}
         style={{borderLeftWidth: 10, borderLeftColor: 'red'}}
+        text1Style={{
+          fontSize: 14,
+          fontWeight: '500',
+        }}
+      />
+    ),
+    info: (props: any) => (
+      <InfoToast
+        {...props}
+        style={{borderLeftWidth: 10, borderLeftColor: '#068FFF'}}
         text1Style={{
           fontSize: 14,
           fontWeight: '500',

@@ -44,14 +44,11 @@ function InfoChangeScreen({route, navigation}: any) {
       data,
     );
 
-    if (response.status === 'true') {
-      navigation.navigate('Home');
-      Toast.show({
-        text1: response.message,
-        type: 'success',
-        position: 'bottom',
-      });
-    }
+    Toast.show({
+      text1: response.message,
+      type: response.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
   };
 
   return (

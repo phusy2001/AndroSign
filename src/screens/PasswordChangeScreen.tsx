@@ -11,11 +11,14 @@ const ChangePasswordSchema = yup.object().shape({
   oPassword: yup.string().required('Mật khẩu cũ là bắt buộc'),
   nPassword: yup
     .string()
-    .min(8, 'Mật khẩu phải có ít nhất 8 kí tự')
-    .required('Mật khẩu mới là bắt buộc'),
+    .required('Vui lòng nhập mật khẩu mới')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      'Mật khẩu phải có 8 kí tự, bao gồm chữ số, chữ hoa, chữ thường và có ít nhất một ký tự đặc biệt',
+    ),
   nPassword2: yup
     .string()
-    .required('Vui lòng nhập lại mật khẩu')
+    .required('Vui lòng nhập lại mật khẩu mới')
     .oneOf([yup.ref('nPassword'), null], 'Mật khẩu không trùng nhau'),
 });
 

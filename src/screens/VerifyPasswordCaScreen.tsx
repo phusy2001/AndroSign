@@ -118,13 +118,27 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
 
   return (
     <View style={styles.container}>
-      <IconButton
-        icon="arrow-left"
-        size={30}
-        onPress={() => navigation.goBack()}
-      />
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
+        <IconButton
+          icon="arrow-left"
+          size={26}
+          onPress={() => navigation.goBack()}
+        />
+        <Text
+          style={{
+            fontWeight: 'bold',
+            fontSize: 22,
+          }}>
+          Xác nhận mật khẩu bảo vệ tài liệu
+        </Text>
+      </View>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={styles.title}>Nhập lại mật khẩu bảo vệ tài liệu</Text>
+        <Text style={styles.title}>Nhập lại mật khẩu</Text>
         <View style={styles.textInputGroup}>
           {Array.from({length: 6}).map((_, index) => (
             <TextInput
@@ -170,8 +184,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 20,
     marginBottom: 30,
   },
 
