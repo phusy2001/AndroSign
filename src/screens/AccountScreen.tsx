@@ -11,23 +11,38 @@ import {FlashList} from '@shopify/flash-list';
 import TransText from '../components/TransText';
 import UserAPI from '../services/user';
 import SplashScreen from './SplashScreen';
+import {createOrder, getPlans} from '../services/payment';
 
-const plans = [
-  {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
-  {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '33500'},
-  {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '32000'},
-  {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: 'Annually', price: '30000'},
-];
+// const plans = [
+//   {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
+//   {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '33500'},
+//   {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '32000'},
+//   {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: 'Annually', price: '30000'},
+// ];
 
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const isDrawerOpen = useDrawerStatus() === 'open';
   const [user, setUser] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
+  const [plans, setPlans] = useState([]);
 
   const handleDrawer = () => {
     if (!isDrawerOpen) {
       navigation.dispatch(DrawerActions.openDrawer());
+    }
+  };
+
+  const createOrderLink = async (plan_id: string) => {
+    try {
+      const user_id = (await auth().currentUser?.uid) ?? '';
+      const orderInfo = await createOrder(user_id, plan_id);
+      navigation.navigate('Payment', {
+        order_url: orderInfo.data.order_url,
+        app_trans_id: orderInfo.data.app_trans_id,
+      });
+    } catch (error) {
+      console.log('Tạo đơn hàng thất bai');
     }
   };
 
@@ -38,7 +53,10 @@ function AccountScreen({navigation}: any) {
       try {
         const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
 
+        const plansData = await getPlans();
+
         setUser(curUser.data);
+        setPlans(plansData);
 
         setIsLoading(false);
       } catch (e) {
@@ -74,17 +92,17 @@ function AccountScreen({navigation}: any) {
               fontSize: 16,
               fontWeight: 'bold',
             }}>
-            {item.name}{' '}
+            {item.plan_name}
             <Text style={{fontSize: 14, color: '#808080'}}>
-              {item.plan_type}:
+              {' '}
+              {'Hàng tháng'}:
             </Text>
           </Text>
           <TouchableOpacity
-            disabled
-            onPress={() => navigation.navigate('Checkout', {plan_id: item.id})}
+            onPress={() => createOrderLink(item.plan_id)}
             style={{}}>
             <View style={styles.button}>
-              <Text style={styles.text}>{item.price}đ / tháng</Text>
+              <Text style={styles.text}>{item.plan_price}đ / tháng</Text>
             </View>
           </TouchableOpacity>
         </View>
