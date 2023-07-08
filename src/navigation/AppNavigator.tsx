@@ -9,7 +9,6 @@ import SignUpScreen from '../screens/SignUpScreen';
 import CustomDrawer from './CustomDrawer';
 import StarredScreen from '../screens/StarredScreen';
 import TrashScreen from '../screens/TrashScreen';
-import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import {useNavigation} from '@react-navigation/native';
 import DocumentSignScreen from '../screens/DocumentSignScreen';
 import InfoChangeScreen from '../screens/InfoChangeScreen';
@@ -189,11 +188,6 @@ export function AppNavigator() {
       <AuthStack.Screen
         name="VerifyPasswordCa"
         component={VerifyPasswordCaScreen}
-        options={{headerShown: false}}
-      />
-      <AuthStack.Screen
-        name="OTPVerification"
-        component={OTPVerificationScreen}
         options={{headerShown: false}}
       />
       <AuthStack.Screen

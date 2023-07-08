@@ -29,6 +29,7 @@ import DocumentUserItem from '../components/DocumentUserItem';
 import SelectDropdown from 'react-native-select-dropdown';
 import auth from '@react-native-firebase/auth';
 import DocumentStepItem from '../components/DocumentStepItem';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function DocumentSignScreen({route, navigation}: any) {
   const {id, name, path, file, action, handleFileCreated, handleEditFunction} =
@@ -49,6 +50,7 @@ function DocumentSignScreen({route, navigation}: any) {
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
   const [confirmDlgVisible, setConfirmDlgVisible] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const [password, setPassword] = React.useState('');
   const [disabled, setDisabled] = React.useState(true);
   const [stepItem, setStepItem] = React.useState<any[]>([]);
@@ -112,6 +114,7 @@ function DocumentSignScreen({route, navigation}: any) {
   };
 
   const saveDocument = async () => {
+    setLoading(true);
     const params = {
       signed: 0,
       total: 0,
@@ -205,6 +208,7 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('xfdf', xfdf);
       formData.append('file', file);
       const result = await DocumentAPI.uploadDocument(formData);
+      setLoading(false);
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
@@ -220,6 +224,7 @@ function DocumentSignScreen({route, navigation}: any) {
         stepNow.current,
         password,
       );
+      setLoading(false);
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
@@ -451,6 +456,12 @@ function DocumentSignScreen({route, navigation}: any) {
         styles.container,
         {paddingBottom: insets.bottom, paddingTop: insets.top},
       ]}>
+      <Spinner
+        visible={loading}
+        animation="fade"
+        textContent={'Đang xử lý...'}
+        textStyle={{color: '#FFF', fontWeight: 'bold'}}
+      />
       <View
         style={{
           display: 'flex',

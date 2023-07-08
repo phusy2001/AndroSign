@@ -78,7 +78,7 @@ class AxiosClient {
         // Handle response error
         console.error(error);
 
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 || error.response?.status === 500) {
           await signout();
           navigate('Login', {});
           Toast.show({

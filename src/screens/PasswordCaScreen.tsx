@@ -1,41 +1,24 @@
-import React, {useState, useRef} from 'react';
-import {View, TextInput as NativeTextInput, StyleSheet} from 'react-native';
-import {TextInput, Button, Text, IconButton} from 'react-native-paper';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, StyleSheet} from 'react-native';
+import {Button, Text, IconButton} from 'react-native-paper';
 
 const PasswordCaScreen = ({navigation, route}: any) => {
   const {email, password, username} = route.params;
-  const inputRefs = useRef<NativeTextInput[]>([]);
-  const [pin, setPin] = useState<string>('');
+  const [disabled, setDisabled] = useState(true);
+  const inputRef = useRef<any>();
+  const pin = useRef('');
 
-  const handlePinChange = (value: string, index: number) => {
-    if (value.length <= 1) {
-      setPin(prevPin => {
-        const newPin = prevPin.split('');
-        newPin[index] = value;
-        return newPin.join('');
-      });
-
-      if (value.length > 0 && index < inputRefs.current.length - 1) {
-        inputRefs.current[index + 1].focus();
-      }
-    }
-  };
-
-  const handleBackspace = (index: number) => {
-    if (index > 0) {
-      setPin(prevPin => {
-        const newPin = prevPin.split('');
-        newPin[index] = '';
-        return newPin.join('');
-      });
-
-      inputRefs.current[index - 1].focus();
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current.focusField(0);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = () => {
     navigation.navigate('VerifyPasswordCa', {
-      caPassword: pin,
+      caPassword: pin.current,
       email,
       password,
       username,
@@ -66,31 +49,21 @@ const PasswordCaScreen = ({navigation, route}: any) => {
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
         <Text style={styles.title}>Nhập mã bảo vệ</Text>
         <View style={styles.textInputGroup}>
-          {Array.from({length: 6}).map((_, index) => (
-            <TextInput
-              key={index}
-              value={pin[index] ?? ''}
-              onChangeText={value => {
-                handlePinChange(value, index);
-                console.log(pin.length, index);
-              }}
-              onKeyPress={({nativeEvent}) => {
-                if (nativeEvent.key === 'Backspace') {
-                  handleBackspace(index);
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={1}
-              secureTextEntry
-              style={styles.textInput}
-              ref={(ref: any) => (inputRefs.current[index] = ref)}
-              // onSubmitEditing={() => {
-              //   if (index === 5) {
-              //     handleSubmit();
-              //   }
-              // }}
-            />
-          ))}
+          <OTPInputView
+            ref={e => (inputRef.current = e)}
+            style={{width: '90%', height: 50}}
+            pinCount={6}
+            onCodeChanged={code => {
+              if (code.length === 6) {
+                pin.current = code;
+                setDisabled(false);
+              } else setDisabled(true);
+            }}
+            autoFocusOnLoad={false}
+            secureTextEntry
+            codeInputFieldStyle={styles.underlineStyleBase}
+            codeInputHighlightStyle={styles.underlineStyleHighLighted}
+          />
         </View>
       </View>
       <Button
@@ -99,6 +72,7 @@ const PasswordCaScreen = ({navigation, route}: any) => {
           marginRight: 30,
         }}
         mode="contained"
+        disabled={disabled}
         onPress={handleSubmit}>
         <Text style={{fontSize: 16, color: 'white'}}>Xác nhận</Text>
       </Button>
@@ -129,6 +103,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 22,
     textAlign: 'center',
+  },
+
+  underlineStyleBase: {
+    borderColor: 'black',
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    fontWeight: 'bold',
+    fontSize: 22,
+    color: 'black',
+  },
+
+  underlineStyleHighLighted: {
+    borderColor: '#03DAC6',
   },
 });
 

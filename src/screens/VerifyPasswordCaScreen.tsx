@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {TextInput, Button, Text, IconButton} from 'react-native-paper';
 import {
   View,
@@ -11,42 +11,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import {signupWithEmail} from '../services/auth';
 import UserAPI from '../services/user';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 const VerifyPasswordCaScreen = ({route, navigation}: any) => {
   const {caPassword, email, password, username} = route.params;
-  const inputRefs = useRef<NativeTextInput[]>([]);
-  const [pin, setPin] = useState<string>('');
+  const [disabled, setDisabled] = useState(true);
+  const inputRef = useRef<any>();
+  const pin = useRef('');
 
-  const handlePinChange = (value: string, index: number) => {
-    if (value.length <= 1) {
-      setPin(prevPin => {
-        const newPin = prevPin.split('');
-        newPin[index] = value;
-        return newPin.join('');
-      });
-
-      if (value.length > 0 && index < inputRefs.current.length - 1) {
-        inputRefs.current[index + 1].focus();
-      }
-    }
-  };
-
-  const handleBackspace = (index: number) => {
-    if (index > 0) {
-      setPin(prevPin => {
-        const newPin = prevPin.split('');
-        newPin[index] = '';
-        return newPin.join('');
-      });
-
-      inputRefs.current[index - 1].focus();
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current.focusField(0);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async () => {
-    if (pin !== caPassword) {
+    if (pin.current !== caPassword) {
       Toast.show({
-        text1: 'Mật khẩu bạn nhập không đúng. Vui lòng thử lại.',
+        text1: 'Mật khẩu của bạn nhập không khớp',
         type: 'error',
         position: 'bottom',
         visibilityTime: 2000,
@@ -65,7 +48,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         // const {user} = await signupWithEmail(email, password);
 
         Toast.show({
-          text1: 'Một đường dẫn đã được gửi đến Email của bạn',
+          text1: 'Đường dẫn kích hoạt đã được gửi đến Email của bạn',
           type: 'info',
           position: 'bottom',
         });
@@ -146,28 +129,21 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
         <Text style={styles.title}>Nhập lại mã bảo vệ</Text>
         <View style={styles.textInputGroup}>
-          {Array.from({length: 6}).map((_, index) => (
-            <TextInput
-              key={index}
-              value={pin[index] ?? ''}
-              onChangeText={value => handlePinChange(value, index)}
-              onKeyPress={({nativeEvent}) => {
-                if (nativeEvent.key === 'Backspace') {
-                  handleBackspace(index);
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={1}
-              secureTextEntry
-              style={styles.textInput}
-              ref={(ref: any) => (inputRefs.current[index] = ref)}
-              // onSubmitEditing={() => {
-              //   if (index === 5) {
-              //     handleSubmit();
-              //   }
-              // }}
-            />
-          ))}
+          <OTPInputView
+            ref={e => (inputRef.current = e)}
+            style={{width: '90%', height: 50}}
+            pinCount={6}
+            onCodeChanged={code => {
+              if (code.length === 6) {
+                pin.current = code;
+                setDisabled(false);
+              } else setDisabled(true);
+            }}
+            autoFocusOnLoad={false}
+            secureTextEntry
+            codeInputFieldStyle={styles.underlineStyleBase}
+            codeInputHighlightStyle={styles.underlineStyleHighLighted}
+          />
         </View>
       </View>
       <Button
@@ -176,6 +152,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
           marginRight: 30,
         }}
         mode="contained"
+        disabled={disabled}
         onPress={handleSubmit}>
         <Text style={{fontSize: 16, color: 'white'}}>Xác nhận</Text>
       </Button>
@@ -206,6 +183,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 22,
     textAlign: 'center',
+  },
+
+  underlineStyleBase: {
+    borderColor: 'black',
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    fontWeight: 'bold',
+    fontSize: 22,
+    color: 'black',
+  },
+
+  underlineStyleHighLighted: {
+    borderColor: '#03DAC6',
   },
 });
 
