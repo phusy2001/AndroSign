@@ -14,7 +14,7 @@ function FileItem({
 }: any) {
   return (
     <Card
-      style={{marginBottom: 10}}
+      style={{marginBottom: 10, paddingVertical: 10}}
       id={item._id}
       onPress={() => {
         if (!itemDeleted)

@@ -255,7 +255,7 @@ function AccountScreen({navigation}: any) {
         </Text>
         <View
           style={{
-            height: 160,
+            height: 110,
             backgroundColor: '#f7f3f9',
             paddingLeft: 20,
             paddingRight: 20,
@@ -291,7 +291,7 @@ function AccountScreen({navigation}: any) {
               <IconButton icon="arrow-right" size={24} />
             </View>
           </TouchableOpacity>
-          <Divider bold={true}></Divider>
+          {/* <Divider bold={true}></Divider>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('SignatureSetting');
@@ -306,7 +306,7 @@ function AccountScreen({navigation}: any) {
               <Text style={{fontSize: 16}}>Chỉnh sửa chữ ký cá nhân</Text>
               <IconButton icon="arrow-right" size={24} />
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={{paddingVertical: 20, paddingHorizontal: 20}}>
           <Text
