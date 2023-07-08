@@ -63,7 +63,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         //   displayName: username,
         // });
 
-        UserAPI.createCaPassword(user.uid, {email, passwordCa: pin});
+        UserAPI.createCaPassword(user.uid, {email, passwordCa: pin.current});
       } catch (error: any) {
         switch (error.code) {
           case 'auth/email-already-in-use':
