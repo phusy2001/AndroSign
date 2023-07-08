@@ -42,28 +42,59 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
           email,
           password,
         );
-        user.sendEmailVerification();
-        await auth().signOut();
-        navigation.navigate('Login');
-        // const {user} = await signupWithEmail(email, password);
 
-        Toast.show({
-          text1: 'Đường dẫn kích hoạt đã được gửi đến Email của bạn',
-          type: 'info',
-          position: 'bottom',
-        });
-
-        UserAPI.createUser({
+        const createdUser = await UserAPI.createUser({
           display_name: username,
           uid: user.uid,
           email,
         });
 
+        if (createdUser.status === 'true') {
+          const createdCa = await UserAPI.createCaPassword(user.uid, {
+            email,
+            passwordCa: pin.current,
+          });
+
+          if (createdCa.status === 'true') {
+            user.sendEmailVerification();
+            await auth().signOut();
+            navigation.navigate('Login');
+
+            Toast.show({
+              text1: 'Đường dẫn kích hoạt đã được gửi đến Email của bạn',
+              type: 'info',
+              position: 'bottom',
+            });
+          } else {
+            user.delete();
+            await UserAPI.deleteUserByUid(user.uid);
+            await auth().signOut();
+            navigation.navigate('Login');
+
+            Toast.show({
+              text1: 'Tạo mã bảo vệ file thất bại.',
+              type: 'error',
+              position: 'bottom',
+            });
+          }
+        } else {
+          user.delete();
+          await UserAPI.deleteUserByUid(user.uid);
+          await auth().signOut();
+          navigation.navigate('Login');
+
+          Toast.show({
+            text1: 'Tạo người dùng thất bại.',
+            type: 'error',
+            position: 'bottom',
+          });
+        }
+
+        // const {user} = await signupWithEmail(email, password);
+
         // await auth().currentUser?.updateProfile({
         //   displayName: username,
         // });
-
-        UserAPI.createCaPassword(user.uid, {email, passwordCa: pin.current});
       } catch (error: any) {
         switch (error.code) {
           case 'auth/email-already-in-use':

@@ -18,6 +18,10 @@ const UserAPI = {
     return client.put(`/${service}/${uid}`, body);
   },
 
+  deleteUserByUid(uid: string) {
+    return client.delete(`/${service}/${uid}`);
+  },
+
   createUser(body: any) {
     return client.post(`${service}`, body);
   },
