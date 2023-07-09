@@ -34,8 +34,6 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         position: 'bottom',
         visibilityTime: 2000,
       });
-
-      Keyboard.dismiss();
     } else {
       try {
         const {user} = await auth().createUserWithEmailAndPassword(
@@ -72,7 +70,8 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             navigation.navigate('Login');
 
             Toast.show({
-              text1: 'Tạo mã bảo vệ file thất bại.',
+              text1:
+                'Gặp lỗi trong quá trình tạo tài khoản! Vui lòng xác nhận lại',
               type: 'error',
               position: 'bottom',
             });
@@ -84,7 +83,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
           navigation.navigate('Login');
 
           Toast.show({
-            text1: 'Tạo người dùng thất bại.',
+            text1: 'Tạo người dùng thất bại',
             type: 'error',
             position: 'bottom',
           });
