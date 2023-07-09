@@ -4,7 +4,7 @@ import {View, ScrollView, StyleSheet} from 'react-native';
 import {Appbar, Text, Avatar, IconButton, Divider} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
-import {DrawerActions} from '@react-navigation/native';
+import {DrawerActions, useFocusEffect} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import {FlashList} from '@shopify/flash-list';
@@ -23,7 +23,7 @@ import {createOrder, getPlans} from '../services/payment';
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const isDrawerOpen = useDrawerStatus() === 'open';
-  const [user, setUser] = useState<any>();
+  const [user, setUser] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [plans, setPlans] = useState([]);
 
@@ -46,19 +46,27 @@ function AccountScreen({navigation}: any) {
     }
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const refreshUser = async () => {
+        const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
+
+        setUser(curUser.data);
+
+        setIsLoading(false);
+      };
+      refreshUser();
+    }, []),
+  );
+
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
 
       try {
-        const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
-
         const plansData = await getPlans();
 
-        setUser(curUser.data);
         setPlans(plansData);
-
-        setIsLoading(false);
       } catch (e) {
         console.log(e);
       }
