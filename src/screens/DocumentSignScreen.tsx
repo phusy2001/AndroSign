@@ -190,6 +190,7 @@ function DocumentSignScreen({route, navigation}: any) {
       }
     }
     const xfdf = await documentView.current!.exportAnnotations();
+    let result;
     let isEdited = false;
     const userIdArr = userItem
       .filter((item: any) => item._id !== auth().currentUser?.uid)
@@ -207,7 +208,7 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('stepUser', params.user);
       formData.append('xfdf', xfdf);
       formData.append('file', file);
-      const result = await DocumentAPI.uploadDocument(formData);
+      result = await DocumentAPI.uploadDocument(formData);
       setLoading(false);
       Toast.show({
         text1: result.message,
@@ -215,7 +216,7 @@ function DocumentSignScreen({route, navigation}: any) {
         position: 'bottom',
       });
     } else if (action === 'edit' && params.changed) {
-      const result = await DocumentAPI.editDocument(
+      result = await DocumentAPI.editDocument(
         id,
         xfdf,
         params.signed,
@@ -233,7 +234,8 @@ function DocumentSignScreen({route, navigation}: any) {
       if (result.status === 'true') isEdited = true;
     }
     if (action !== 'upload' && isEdited) navigation.goBack();
-    else if (action === 'upload') navigation.navigate('Home', {reload: true});
+    else if (action === 'upload' && result.status === 'true')
+      navigation.navigate('Home', {reload: true});
     if (handleFileCreated) handleFileCreated();
     else if (handleEditFunction && isEdited) handleEditFunction();
   };

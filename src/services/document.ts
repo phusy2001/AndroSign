@@ -212,6 +212,13 @@ const DocumentAPI = {
       name,
     });
   },
+
+  renameFolder: async (id: string, name: string) => {
+    return await client.post(`/renameFolder`, {
+      id,
+      name,
+    });
+  },
 };
 
 export default DocumentAPI;

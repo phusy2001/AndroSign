@@ -5,15 +5,18 @@ import {Divider, List, Text, Portal} from 'react-native-paper';
 import FolderSVG from '../../assets/images/folder.svg';
 import moment from 'moment';
 import DeleteConfirmDialog from '../Dialog/DeleteConfirmDialog';
+import RenameDialog from '../Dialog/RenameDialog';
 
 function FolderEditModal({
   editModalRef,
   navigation,
   handleDeleteFunction,
+  handleRenameFunction,
   item,
 }: any) {
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
-  const editSnapPoints = React.useMemo(() => ['35%'], []);
+  const [renDlgVisible, setRenDlgVisible] = React.useState(false);
+  const editSnapPoints = React.useMemo(() => ['43%'], []);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -73,6 +76,11 @@ function FolderEditModal({
             }}
           />
           <List.Item
+            onPress={() => setRenDlgVisible(true)}
+            title={<Text style={{fontSize: 16}}>Đổi tên tài liệu</Text>}
+            left={props => <List.Icon {...props} icon="folder-edit" />}
+          />
+          <List.Item
             onPress={() => setDelDlgVisible(true)}
             title={<Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>}
             left={props => (
@@ -99,6 +107,12 @@ function FolderEditModal({
           setDlgVisible={setDelDlgVisible}
           handleDeleteFunction={handleDeleteFunction}
           type={'thư mục'}
+          item={item}
+        />
+        <RenameDialog
+          dlgVisible={renDlgVisible}
+          setDlgVisible={setRenDlgVisible}
+          handleRenameFunction={handleRenameFunction}
           item={item}
         />
       </Portal>

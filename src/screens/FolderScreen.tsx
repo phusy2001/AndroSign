@@ -116,6 +116,21 @@ function FolderScreen({navigation, route}: any) {
 
   const createFolder = () => refreshData();
 
+  const renameDocument = async (id: string, name: string) => {
+    try {
+      const result = await DocumentAPI.renameFolder(id, name);
+      if (result.status === 'true') refreshData();
+      Toast.show({
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ImageBackground
       style={styles.container}
@@ -228,6 +243,7 @@ function FolderScreen({navigation, route}: any) {
           editModalRef={editModal}
           navigation={navigation}
           handleDeleteFunction={deleteFolder}
+          handleRenameFunction={renameDocument}
           item={item}
         />
       </BottomSheetModalProvider>

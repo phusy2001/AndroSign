@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, KeyboardAvoidingView, Dimensions} from 'react-native';
+import {View, KeyboardAvoidingView, Dimensions, Image} from 'react-native';
 import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
@@ -138,8 +138,11 @@ function LoginScreen({navigation, route}: any) {
       }}>
       <KeyboardAvoidingView behavior="position">
         <View>
-          <View style={{alignItems: 'center'}}>
-            <LoginSVG width={170} height={120} />
+          <View style={{alignItems: 'center', marginBottom: 10}}>
+            {/* <LoginSVG width={170} height={120} /> */}
+            <Image
+              source={require('../assets/images/login.png')}
+              style={{width: 250, height: 130}}></Image>
           </View>
           <View style={{alignItems: 'center'}}>
             <Text style={{fontWeight: 'bold', fontSize: 24}}>

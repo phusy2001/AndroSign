@@ -76,7 +76,7 @@ function SignUpScreen({navigation}: any) {
       <KeyboardAvoidingView behavior="position">
         <View>
           <View style={{alignItems: 'center'}}>
-            <SignUpSVG width={170} height={120} />
+            <SignUpSVG width={200} height={120} />
           </View>
           <View style={{alignItems: 'center', marginTop: 10}}>
             <Text style={{fontWeight: 'bold', fontSize: 24}}>Đăng Ký Ngay</Text>

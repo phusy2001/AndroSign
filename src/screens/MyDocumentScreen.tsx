@@ -154,6 +154,7 @@ function MyDocumentScreen({navigation, route}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: 'bottom',
       });
+      return result;
     } catch (error) {
       console.log(error);
     }

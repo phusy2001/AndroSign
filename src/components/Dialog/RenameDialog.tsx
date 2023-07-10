@@ -44,11 +44,13 @@ function RenameDialog({
         <Button
           onPress={() => {
             if (name !== '' && name !== item.name) {
-              handleRenameFunction(item._id, name).then(() => {
-                item.name = name;
+              handleRenameFunction(item._id, name).then((result: any) => {
+                if (result.status === 'true') {
+                  item.name = name;
+                  setDlgVisible(false);
+                }
               });
             }
-            setDlgVisible(false);
           }}>
           <Text
             style={{

@@ -90,7 +90,7 @@ function FileUploadModal({
           />
           <List.Item
             onPress={uploadFileFunc}
-            title={<Text style={{fontSize: 16}}>Tải lên file</Text>}
+            title={<Text style={{fontSize: 16}}>Tải lên tài liệu</Text>}
             left={() => <List.Icon icon="file-upload" />}
           />
         </List.Section>

@@ -7,7 +7,7 @@ import {Button, Text, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {resetPassword} from '../services/auth';
-import SignUpSVG from '../assets/images/signup.svg';
+import ForgotPassSVG from '../assets/images/forgot_password.svg';
 import Toast from 'react-native-toast-message';
 
 const ForgotPasswordSchema = yup.object().shape({
@@ -63,7 +63,7 @@ function ForgotPasswordScreen({navigation, route}: any) {
       <KeyboardAvoidingView behavior="position">
         <View>
           <View style={{alignItems: 'center'}}>
-            <SignUpSVG width={170} height={120} />
+            <ForgotPassSVG width={170} height={120} />
           </View>
           <View style={{alignItems: 'center', marginTop: 10}}>
             <Text style={{fontWeight: 'bold', fontSize: 24}}>
