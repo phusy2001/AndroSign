@@ -152,7 +152,7 @@ function MyDocumentScreen({navigation, route}: any) {
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
-        position: 'bottom',
+        position: result.status === 'true' ? 'bottom' : 'top',
       });
       return result;
     } catch (error) {

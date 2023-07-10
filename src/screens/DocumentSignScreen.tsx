@@ -213,7 +213,7 @@ function DocumentSignScreen({route, navigation}: any) {
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
-        position: 'bottom',
+        position: result.status === 'true' ? 'bottom' : 'top',
       });
     } else if (action === 'edit' && params.changed) {
       result = await DocumentAPI.editDocument(

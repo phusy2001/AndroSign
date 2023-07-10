@@ -13,6 +13,7 @@ import DocumentPicker, {types} from 'react-native-document-picker';
 import DocumentAPI from '../../services/document';
 import Toast from 'react-native-toast-message';
 import auth from '@react-native-firebase/auth';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function FileUploadModal({
   uploadModalRef,
@@ -23,8 +24,10 @@ function FileUploadModal({
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [folderName, setFolderName] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
 
   const createFolder = async () => {
+    setLoading(true);
     const result = await DocumentAPI.createFolder(
       folderName,
       auth().currentUser!.uid,
@@ -41,6 +44,7 @@ function FileUploadModal({
       if (handleCreateFolder) handleCreateFolder();
       else navigation.navigate('Folders');
     }
+    setLoading(false);
   };
 
   const uploadFileFunc = React.useCallback(async () => {
@@ -79,6 +83,12 @@ function FileUploadModal({
       backdropComponent={renderBackdrop}
       snapPoints={uploadSnapPoints}
       enablePanDownToClose={true}>
+      <Spinner
+        visible={loading}
+        animation="fade"
+        textContent={'Đang xử lý...'}
+        textStyle={{color: '#FFF', fontWeight: 'bold'}}
+      />
       <View style={{padding: 20}}>
         <List.Section>
           <List.Item
