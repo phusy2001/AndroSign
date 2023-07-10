@@ -13,8 +13,8 @@ import Toast from 'react-native-toast-message';
 const ForgotPasswordSchema = yup.object().shape({
   email: yup
     .string()
-    .email('Email must be a valid email address')
-    .required('Email is a required field'),
+    .email('Vui lòng nhập email hợp lệ')
+    .required('Email là bắt buộc'),
 });
 
 function ForgotPasswordScreen({navigation, route}: any) {

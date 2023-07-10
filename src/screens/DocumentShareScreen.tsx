@@ -15,8 +15,8 @@ import USharedEmptySVG from '../assets/images/usershared_empty.svg';
 const DocShareSchema = yup.object().shape({
   email: yup
     .string()
-    .email('Email must be a valid email address')
-    .required('Email is a required field'),
+    .email('Vui lòng nhập email hợp lệ')
+    .required('Email là bắt buộc'),
 });
 
 function DocumentShareScreen({navigation, route}: any) {
