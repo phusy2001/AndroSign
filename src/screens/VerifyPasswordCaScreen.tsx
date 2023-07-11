@@ -91,7 +91,8 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         switch (error.code) {
           case 'auth/email-already-in-use':
             Toast.show({
-              text1: 'Tài khoản này đã tồn tại',
+              text1:
+                'Tài khoản này đã tồn tại. Vui lòng kiểm tra Email nếu tài khoản chưa kích hoạt!',
               type: 'error',
               position: 'bottom',
               visibilityTime: 2000,
