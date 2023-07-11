@@ -8,7 +8,6 @@ import PdfSVG from '../../assets/images/pdf.svg';
 
 function FileDeletedModal({
   editModalRef,
-  navigation,
   item,
   handleDeleteFunction,
   handleRestoreFunction,

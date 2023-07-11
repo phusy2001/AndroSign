@@ -44,7 +44,9 @@ function InfoChangeScreen({route, navigation}: any) {
       data,
     );
 
-    if (response.status === 'true') navigation.goBack();
+    if (response.status === 'true') {
+      navigation.goBack();
+    }
 
     Toast.show({
       text1: response.message,

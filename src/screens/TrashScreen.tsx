@@ -16,7 +16,7 @@ import TrashSVG from '../assets/images/trash_empty.svg';
 import RsEmptySVG from '../assets/images/result_empty.svg';
 import FileDeletedModal from '../components/Modal/FileDeletedModal';
 
-function TrashScreen({navigation, route}: any) {
+function TrashScreen({navigation}: any) {
   const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
@@ -42,7 +42,9 @@ function TrashScreen({navigation, route}: any) {
         sorting,
         order,
       );
-      if (result.data.data.length < 10) setEnd(true);
+      if (result.data.data.length < 10) {
+        setEnd(true);
+      }
       const newData = result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
@@ -51,7 +53,9 @@ function TrashScreen({navigation, route}: any) {
   };
 
   const handleDrawer = React.useCallback(() => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+    if (!isDrawerOpen) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    }
   }, []);
 
   const refreshData = () => {
@@ -62,18 +66,24 @@ function TrashScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (isFocused) uploadModal.current?.dismiss();
+    if (isFocused) {
+      uploadModal.current?.dismiss();
+    }
   }, [isFocused]);
 
   React.useEffect(() => {
-    if (refresh > 0) loadData();
+    if (refresh > 0) {
+      loadData();
+    }
   }, [refresh]);
 
   React.useEffect(() => {
     if (!initial.current) {
       const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
-    } else initial.current = false;
+    } else {
+      initial.current = false;
+    }
   }, [searchQuery, sorting, order]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {

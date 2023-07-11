@@ -8,17 +8,9 @@ import {DrawerActions, useFocusEffect} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import {FlashList} from '@shopify/flash-list';
-import TransText from '../components/TransText';
 import UserAPI from '../services/user';
 import SplashScreen from './SplashScreen';
 import {createOrder, getPlans} from '../services/payment';
-
-// const plans = [
-//   {id: 1, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '35000'},
-//   {id: 2, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '33500'},
-//   {id: 3, name: 'GÓI TRẢ PHÍ', plan_type: 'Monthly', price: '32000'},
-//   {id: 4, name: 'GÓI TRẢ PHÍ', plan_type: 'Annually', price: '30000'},
-// ];
 
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
@@ -134,10 +126,7 @@ function AccountScreen({navigation}: any) {
           <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
         </Appbar.Header>
         <View style={{marginLeft: 20, marginRight: 20}}>
-          <TransText
-            i18nKey="account"
-            style={{fontSize: 20, fontWeight: '700'}}
-          />
+          <Text style={{fontSize: 20, fontWeight: '700'}}>Tài khoản</Text>
         </View>
         <TouchableOpacity
           onPress={() => {
@@ -283,7 +272,7 @@ function AccountScreen({navigation}: any) {
               <IconButton icon="arrow-right" size={24} />
             </View>
           </TouchableOpacity>
-          <Divider bold={true}></Divider>
+          <Divider bold={true} />
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('PasswordCaChange');

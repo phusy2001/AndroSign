@@ -63,7 +63,8 @@ function FilesFilterModal({
                       backgroundColor: '#3CB371',
                       marginLeft: 20,
                       marginRight: 8,
-                    }}></View>
+                    }}
+                  />
                   <Text style={{fontSize: 16}}>Đã hoàn thành</Text>
                 </View>
               </View>
@@ -82,7 +83,8 @@ function FilesFilterModal({
                       borderRadius: 6,
                       backgroundColor: '#146C94',
                       marginRight: 8,
-                    }}></View>
+                    }}
+                  />
                   <Text style={{fontSize: 16}}>Lượt của bạn</Text>
                 </View>
               </View>
@@ -101,7 +103,8 @@ function FilesFilterModal({
                       borderRadius: 6,
                       backgroundColor: '#394867',
                       marginRight: 8,
-                    }}></View>
+                    }}
+                  />
                   <Text style={{fontSize: 16}}>Lượt của người khác</Text>
                 </View>
               </View>

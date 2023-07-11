@@ -16,7 +16,9 @@ function FolderChooseItem({item, fileId}: any) {
       position: 'bottom',
       visibilityTime: 1000,
     });
-    if (result.status === 'true') setChecked(!checked);
+    if (result.status === 'true') {
+      setChecked(!checked);
+    }
   };
 
   React.useEffect(() => {

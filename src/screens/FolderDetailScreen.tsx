@@ -30,7 +30,9 @@ function FolderDetailScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getFilesInFolder(id, pageNumber);
-      if (result.data.data.length < 10) setEnd(true);
+      if (result.data.data.length < 10) {
+        setEnd(true);
+      }
       const newData = await result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
@@ -39,8 +41,11 @@ function FolderDetailScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (refresh > 0 && !initial.current) loadData();
-    else initial.current = false;
+    if (refresh > 0 && !initial.current) {
+      loadData();
+    } else {
+      initial.current = false;
+    }
   }, [refresh]);
 
   React.useEffect(() => {
@@ -109,7 +114,9 @@ function FolderDetailScreen({navigation, route}: any) {
   const renameDocument = async (id: string, name: string) => {
     try {
       const result = await DocumentAPI.renameDocument(id, name);
-      if (result.status === 'true') refreshData();
+      if (result.status === 'true') {
+        refreshData();
+      }
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',

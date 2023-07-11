@@ -1,24 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions, Image} from 'react-native';
 import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
-import auth from '@react-native-firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {signinWithEmail} from '../services/auth';
 import {storeData} from '../utils/asyncStore';
-import UserAPI from '../services/user';
-import LoginSVG from '../assets/images/login.svg';
 
 const SignInSchema = yup.object().shape({
   email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
   password: yup.string().required('Mật khẩu là bắt buộc'),
 });
 
-function LoginScreen({navigation, route}: any) {
+function LoginScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
@@ -38,8 +34,6 @@ function LoginScreen({navigation, route}: any) {
         // const resUser = await UserAPI.findUserByUid(user.user.uid);
 
         // let fcmTokenList = resUser.data.fcm_tokens;
-
-        const fcmToken = await AsyncStorage.getItem('fcmToken');
 
         // if (!fcmTokenList?.includes(fcmToken)) {
         //   fcmTokenList = [...fcmTokenList, fcmToken];
@@ -142,7 +136,8 @@ function LoginScreen({navigation, route}: any) {
             {/* <LoginSVG width={170} height={120} /> */}
             <Image
               source={require('../assets/images/login.png')}
-              style={{width: 250, height: 130}}></Image>
+              style={{width: 250, height: 130}}
+            />
           </View>
           <View style={{alignItems: 'center'}}>
             <Text style={{fontWeight: 'bold', fontSize: 24}}>

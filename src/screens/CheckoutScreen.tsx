@@ -6,7 +6,7 @@ import auth from '@react-native-firebase/auth';
 import UserAPI from '../services/user';
 import AxiosClient from '../services/clients/api';
 
-function CheckoutScreen({route, navigation}: any) {
+function CheckoutScreen({navigation}: any) {
   const [user, setUser] = useState();
 
   useEffect(() => {

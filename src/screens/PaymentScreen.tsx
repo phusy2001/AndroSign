@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, {useEffect} from 'react';
 import WebView from 'react-native-webview';
 import {checkStatus} from '../services/payment';

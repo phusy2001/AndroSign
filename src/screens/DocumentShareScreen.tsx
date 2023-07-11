@@ -47,7 +47,9 @@ function DocumentShareScreen({navigation, route}: any) {
     if (end === false) {
       setIsLoading(true);
       const result = await DocumentAPI.getUserShared(id, pageNumber);
-      if (result.data.length < 10) setEnd(true);
+      if (result.data.length < 10) {
+        setEnd(true);
+      }
       const newData = await result.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
@@ -56,8 +58,11 @@ function DocumentShareScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (!initial.current) loadData();
-    else initial.current = false;
+    if (!initial.current) {
+      loadData();
+    } else {
+      initial.current = false;
+    }
   }, [refresh]);
 
   const handlePressAddFunction = async (email: string) => {

@@ -5,10 +5,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AppNavigator} from './navigation/AppNavigator';
 import SplashScreen from './screens/SplashScreen';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
-import auth from '@react-native-firebase/auth';
 import {navigationRef} from './navigation/RootNavigation';
-import {storeData} from './utils/asyncStore';
-import './i18n/i18n';
 import notifee, {EventType} from '@notifee/react-native';
 import {ErrorToast, InfoToast, SuccessToast} from 'react-native-toast-message';
 
@@ -139,7 +136,7 @@ export default function App() {
       <NavigationContainer ref={navigationRef}>
         {loading ? <SplashScreen /> : <AppNavigator />}
       </NavigationContainer>
-      <Toast config={toastConfig}></Toast>
+      <Toast config={toastConfig} />
     </SafeAreaProvider>
   );
 }

@@ -37,7 +37,9 @@ function MyDocumentScreen({navigation, route}: any) {
   const editModal = React.useRef<BottomSheetModal>(null);
 
   const handleDrawer = React.useCallback(() => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+    if (!isDrawerOpen) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    }
   }, []);
 
   const loadData = async () => {
@@ -51,7 +53,9 @@ function MyDocumentScreen({navigation, route}: any) {
           order,
           status,
         );
-        if (result.data.data.length < 10) setEnd(true);
+        if (result.data.data.length < 10) {
+          setEnd(true);
+        }
         const newData = result.data.data;
         setData(data.concat(newData));
         setPageNumber(pageNumber + 1);
@@ -71,7 +75,9 @@ function MyDocumentScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (isFocused) uploadModal.current?.dismiss();
+    if (isFocused) {
+      uploadModal.current?.dismiss();
+    }
     if (reload) {
       setSearchQuery('');
       refreshData();
@@ -79,14 +85,18 @@ function MyDocumentScreen({navigation, route}: any) {
   }, [isFocused]);
 
   React.useEffect(() => {
-    if (refresh > 0) loadData();
+    if (refresh > 0) {
+      loadData();
+    }
   }, [refresh]);
 
   React.useEffect(() => {
     if (!initial.current) {
       const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
-    } else initial.current = false;
+    } else {
+      initial.current = false;
+    }
   }, [searchQuery, sorting, order, status]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
@@ -148,7 +158,9 @@ function MyDocumentScreen({navigation, route}: any) {
   const renameDocument = async (id: string, name: string) => {
     try {
       const result = await DocumentAPI.renameDocument(id, name);
-      if (result.status === 'true') refreshData();
+      if (result.status === 'true') {
+        refreshData();
+      }
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',

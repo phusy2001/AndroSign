@@ -8,7 +8,6 @@ import SignatureView, {SignatureViewRef} from 'react-native-signature-canvas';
 function SignatureAddScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const signatureRef = React.useRef<SignatureViewRef>(null);
-  const handleConfirm = signature => {};
 
   return (
     <View
@@ -25,7 +24,6 @@ function SignatureAddScreen({navigation}: any) {
       />
       <SignatureView
         ref={signatureRef}
-        onOK={handleConfirm}
         clearText="Xóa"
         confirmText="Lưu"
         descriptionText={'Vẽ chữ ký ở trên'}

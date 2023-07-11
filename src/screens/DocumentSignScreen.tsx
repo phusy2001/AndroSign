@@ -134,7 +134,9 @@ function DocumentSignScreen({route, navigation}: any) {
           annotation.pageNumber,
           'progress',
         );
-        if (value === 'done') params.signed += 1;
+        if (value === 'done') {
+          params.signed += 1;
+        }
         if (action === 'upload') {
           const annotStep =
             await documentView.current!.getCustomDataForAnnotation(
@@ -142,8 +144,9 @@ function DocumentSignScreen({route, navigation}: any) {
               annotation.pageNumber,
               'step',
             );
-          if (params.totalStep.indexOf(annotStep) === -1)
+          if (params.totalStep.indexOf(annotStep) === -1) {
             params.totalStep.push(annotStep);
+          }
           if (annotStep < params.step || params.count === 0) {
             params.step = annotStep;
             params.user =
@@ -176,7 +179,7 @@ function DocumentSignScreen({route, navigation}: any) {
                   'user',
                 );
             }
-          } else if (annotStep == stepNow.current)
+          } else if (annotStep == stepNow.current) {
             documentView.current!.setFlagsForAnnotations([
               {
                 id: annotation.id,
@@ -185,6 +188,7 @@ function DocumentSignScreen({route, navigation}: any) {
                 flagValue: true,
               },
             ]);
+          }
           params.changed = true;
         }
       }
@@ -203,7 +207,9 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('total', params.total);
       formData.append('stepIndex', 0);
       formData.append('stepTotal', params.totalStep.length);
-      if (userIdArr.length > 0) formData.append('sharedTo', userIdArr);
+      if (userIdArr.length > 0) {
+        formData.append('sharedTo', userIdArr);
+      }
       formData.append('stepNow', params.step);
       formData.append('stepUser', params.user);
       formData.append('xfdf', xfdf);
@@ -231,16 +237,23 @@ function DocumentSignScreen({route, navigation}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: result.status === 'true' ? 'bottom' : 'top',
       });
-      if (result.status === 'true') isEdited = true;
+      if (result.status === 'true') {
+        isEdited = true;
+      }
     }
-    if (action !== 'upload' && isEdited) navigation.goBack();
-    else if (action === 'upload' && result.status === 'true')
+    if (action !== 'upload' && isEdited) {
+      navigation.goBack();
+    } else if (action === 'upload' && result.status === 'true') {
       navigation.navigate('Home', {reload: true});
-    if (handleFileCreated) handleFileCreated();
-    else if (handleEditFunction && isEdited) handleEditFunction();
+    }
+    if (handleFileCreated) {
+      handleFileCreated();
+    } else if (handleEditFunction && isEdited) {
+      handleEditFunction();
+    }
   };
 
-  if (progress === 'user' && action === 'upload')
+  if (progress === 'user' && action === 'upload') {
     return (
       <View
         style={{
@@ -282,7 +295,7 @@ function DocumentSignScreen({route, navigation}: any) {
               marginBottom: 25,
             }}>
             {userItem.map((value: any, index: number) => {
-              if (index > 0)
+              if (index > 0) {
                 return (
                   <DocumentUserItem
                     key={value.index}
@@ -291,6 +304,7 @@ function DocumentSignScreen({route, navigation}: any) {
                     data={userItem}
                   />
                 );
+              }
             })}
             <TouchableOpacity
               onPress={() =>
@@ -343,8 +357,9 @@ function DocumentSignScreen({route, navigation}: any) {
         </View>
       </View>
     );
+  }
 
-  if (progress === 'step' && action === 'upload')
+  if (progress === 'step' && action === 'upload') {
     return (
       <View
         style={{
@@ -440,8 +455,9 @@ function DocumentSignScreen({route, navigation}: any) {
                 userItem.some((item2: any) => item2._id === item._id),
               );
               totalStep.current = filteredData.length;
-              if (filteredData.length > 0)
+              if (filteredData.length > 0) {
                 currentStep.current = filteredData[0];
+              }
               setStepItem(filteredData);
               setProgress('document');
             }}
@@ -451,6 +467,7 @@ function DocumentSignScreen({route, navigation}: any) {
         </View>
       </View>
     );
+  }
 
   return (
     <GestureHandlerRootView
@@ -486,7 +503,9 @@ function DocumentSignScreen({route, navigation}: any) {
                 setProgress('step');
                 savedXfdf.current =
                   await documentView.current!.exportAnnotations();
-              } else navigation.goBack();
+              } else {
+                navigation.goBack();
+              }
             }}
           />
           <Text
@@ -576,8 +595,9 @@ function DocumentSignScreen({route, navigation}: any) {
             stepNow.current = result.data.data.stepNow;
             stepUser.current = result.data.data.stepUser;
             let base64 = '';
-            for (let i = 0; i < result.data.data.xfdf.data.length; ++i)
+            for (let i = 0; i < result.data.data.xfdf.data.length; ++i) {
               base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
+            }
             documentView
               .current!.importAnnotations(base64)
               .then((importedAnnotations: any) => {
@@ -639,19 +659,20 @@ function DocumentSignScreen({route, navigation}: any) {
                       'step',
                     );
                   const isExist = stepItem.some(item => item.step == step);
-                  if (!isExist)
+                  if (!isExist) {
                     documentView.current!.deleteAnnotations([
                       {
                         id: annotation.id,
                         pageNumber: annotation.pageNumber,
                       },
                     ]);
+                  }
                 });
               });
           }
         }}
         onAnnotationChanged={({action, annotations}: any) => {
-          if (action === 'add')
+          if (action === 'add') {
             annotations.forEach((annotation: any) => {
               documentView.current!.setPropertiesForAnnotation(
                 annotation.id,
@@ -672,6 +693,7 @@ function DocumentSignScreen({route, navigation}: any) {
                 },
               ]);
             });
+          }
         }}
         onFormFieldValueChanged={({fields}: any) => {
           fields.forEach(async (field: any) => {
@@ -743,11 +765,15 @@ function DocumentSignScreen({route, navigation}: any) {
               style={{
                 marginTop: 15,
                 marginBottom: 10,
-              }}></Divider>
+              }}
+            />
             <TouchableOpacity
               onPress={() => {
-                if (action === 'upload') setSaveDlgVisible(true);
-                else if (action === 'edit') setConfirmDlgVisible(true);
+                if (action === 'upload') {
+                  setSaveDlgVisible(true);
+                } else if (action === 'edit') {
+                  setConfirmDlgVisible(true);
+                }
               }}
               style={{
                 display: 'flex',
@@ -833,8 +859,11 @@ function DocumentSignScreen({route, navigation}: any) {
               mode="outlined"
               placeholder="Mã bảo vệ"
               onChangeText={text => {
-                if (text.length >= 6) setDisabled(false);
-                else setDisabled(true);
+                if (text.length >= 6) {
+                  setDisabled(false);
+                } else {
+                  setDisabled(true);
+                }
                 setPassword(text);
               }}
               value={password}

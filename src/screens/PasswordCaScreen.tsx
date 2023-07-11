@@ -57,7 +57,9 @@ const PasswordCaScreen = ({navigation, route}: any) => {
               if (code.length === 6) {
                 pin.current = code;
                 setDisabled(false);
-              } else setDisabled(true);
+              } else {
+                setDisabled(true);
+              }
             }}
             autoFocusOnLoad={false}
             secureTextEntry

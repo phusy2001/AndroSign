@@ -3,7 +3,7 @@ import {Animated, Easing, StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function SplashScreen() {
-  const [spinValue, setSpinValue] = React.useState(new Animated.Value(0));
+  const [spinValue] = React.useState(new Animated.Value(0));
 
   React.useEffect(() => {
     Animated.timing(spinValue, {

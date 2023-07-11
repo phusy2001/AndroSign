@@ -1,15 +1,8 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {TextInput, Button, Text, IconButton} from 'react-native-paper';
-import {
-  View,
-  TextInput as NativeTextInput,
-  StyleSheet,
-  Keyboard,
-} from 'react-native';
+import {Button, Text, IconButton} from 'react-native-paper';
+import {View, StyleSheet} from 'react-native';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
-import {signupWithEmail} from '../services/auth';
 import UserAPI from '../services/user';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 
@@ -167,7 +160,9 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
               if (code.length === 6) {
                 pin.current = code;
                 setDisabled(false);
-              } else setDisabled(true);
+              } else {
+                setDisabled(true);
+              }
             }}
             autoFocusOnLoad={false}
             secureTextEntry

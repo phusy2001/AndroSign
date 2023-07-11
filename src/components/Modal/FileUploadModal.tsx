@@ -41,8 +41,11 @@ function FileUploadModal({
       setFolderName('');
       setSaveDlgVisible(false);
       uploadModalRef.current?.dismiss();
-      if (handleCreateFolder) handleCreateFolder();
-      else navigation.navigate('Folders');
+      if (handleCreateFolder) {
+        handleCreateFolder();
+      } else {
+        navigation.navigate('Folders');
+      }
     }
     setLoading(false);
   };

@@ -55,8 +55,9 @@ function FileEditModal({
   };
 
   const checkPermission = async () => {
-    if (Platform.OS === 'ios') downloadFile();
-    else
+    if (Platform.OS === 'ios') {
+      downloadFile();
+    } else {
       try {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -69,11 +70,15 @@ function FileEditModal({
             buttonPositive: 'Đồng ý',
           },
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) downloadFile();
-        else console.log('Storage Permission Not Granted');
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          downloadFile();
+        } else {
+          console.log('Storage Permission Not Granted');
+        }
       } catch (err) {
         console.log(err);
       }
+    }
   };
 
   const downloadFile = () => {

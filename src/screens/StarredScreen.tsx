@@ -16,7 +16,7 @@ import ListFooter from '../components/ListFooter';
 import StarredSVG from '../assets/images/starred_empty.svg';
 import RsEmptySVG from '../assets/images/result_empty.svg';
 
-function StarredScreen({navigation, route}: any) {
+function StarredScreen({navigation}: any) {
   const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
@@ -44,7 +44,9 @@ function StarredScreen({navigation, route}: any) {
         order,
         status,
       );
-      if (result.data.data.length < 10) setEnd(true);
+      if (result.data.data.length < 10) {
+        setEnd(true);
+      }
       const newData = result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
@@ -53,7 +55,9 @@ function StarredScreen({navigation, route}: any) {
   };
 
   const handleDrawer = React.useCallback(() => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+    if (!isDrawerOpen) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    }
   }, []);
 
   const refreshData = () => {
@@ -64,18 +68,24 @@ function StarredScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (isFocused) uploadModal.current?.dismiss();
+    if (isFocused) {
+      uploadModal.current?.dismiss();
+    }
   }, [isFocused]);
 
   React.useEffect(() => {
-    if (refresh > 0) loadData();
+    if (refresh > 0) {
+      loadData();
+    }
   }, [refresh]);
 
   React.useEffect(() => {
     if (!initial.current) {
       const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
-    } else initial.current = false;
+    } else {
+      initial.current = false;
+    }
   }, [searchQuery, sorting, order, status]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {
@@ -134,7 +144,9 @@ function StarredScreen({navigation, route}: any) {
   const renameDocument = async (id: string, name: string) => {
     try {
       const result = await DocumentAPI.renameDocument(id, name);
-      if (result.status === 'true') refreshData();
+      if (result.status === 'true') {
+        refreshData();
+      }
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',

@@ -11,13 +11,13 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await client.get(`/getMyFiles`, {
+    return await client.get('/getMyFiles', {
       params: {offset: pageNumber, keyword, sort, order, status},
     });
   },
 
   uploadDocument: async (formData: any) => {
-    return await client.post(`/uploadFile`, formData, {
+    return await client.post('/uploadFile', formData, {
       headers: {
         Accept: 'application/json',
         'content-type': 'multipart/form-data',
@@ -26,7 +26,7 @@ const DocumentAPI = {
   },
 
   getAnnotations: async (fileId: string) => {
-    return await client.get(`/getXfdf`, {
+    return await client.get('/getXfdf', {
       params: {id: fileId},
     });
   },
@@ -40,7 +40,7 @@ const DocumentAPI = {
     stepOld: number,
     passCa: string,
   ) => {
-    return await client.post(`/editFile`, {
+    return await client.post('/editFile', {
       id: fileId,
       xfdf,
       signed,
@@ -52,31 +52,31 @@ const DocumentAPI = {
   },
 
   deleteDocument: async (fileId: string) => {
-    return await client.post(`/deleteFile`, {id: fileId});
+    return await client.post('/deleteFile', {id: fileId});
   },
 
   getUserShared: async (fileId: string, pageNumber: number) => {
-    return await client.get(`/getUserShared`, {
+    return await client.get('/getUserShared', {
       params: {id: fileId, offset: pageNumber},
     });
   },
 
   deleteUserShared: async (fileId: string, userId: string) => {
-    return await client.post(`/deleteShared`, {
+    return await client.post('/deleteShared', {
       fileId,
       userId,
     });
   },
 
   addUserShared: async (email: string, fileId: string) => {
-    return await client.post(`/addShared`, {
+    return await client.post('/addShared', {
       email,
       id: fileId,
     });
   },
 
   createFolder: async (name: string, userId: string) => {
-    return await client.post(`/createFolder`, {
+    return await client.post('/createFolder', {
       name,
       user: userId,
     });
@@ -88,32 +88,32 @@ const DocumentAPI = {
     sort: string,
     order: string,
   ) => {
-    return await client.get(`/getFolders`, {
+    return await client.get('/getFolders', {
       params: {offset: pageNumber, keyword, sort, order},
     });
   },
 
   deleteFolder: async (folderId: string) => {
-    return await client.post(`/deleteFolder`, {
+    return await client.post('/deleteFolder', {
       id: folderId,
     });
   },
 
   getFilesInFolder: async (folderId: string, pageNumber: number) => {
-    return await client.get(`/getFilesInFolder`, {
+    return await client.get('/getFilesInFolder', {
       params: {id: folderId, offset: pageNumber},
     });
   },
 
   updateFileInFolder: async (fileId: string, folderId: string) => {
-    return await client.post(`/updateFileInFolder`, {
+    return await client.post('/updateFileInFolder', {
       fileId,
       folderId,
     });
   },
 
   getFolderListOfFile: async (fileId: string, pageNumber: number) => {
-    return await client.get(`/getFolderListOfFile`, {
+    return await client.get('/getFolderListOfFile', {
       params: {
         id: fileId,
         offset: pageNumber,
@@ -122,13 +122,13 @@ const DocumentAPI = {
   },
 
   markFile: async (fileId: string) => {
-    return await client.post(`/markFile`, {
+    return await client.post('/markFile', {
       id: fileId,
     });
   },
 
   unmarkFile: async (fileId: string) => {
-    return await client.post(`/unmarkFile`, {
+    return await client.post('/unmarkFile', {
       id: fileId,
     });
   },
@@ -140,7 +140,7 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await client.get(`/getStarredFiles`, {
+    return await client.get('/getStarredFiles', {
       params: {
         offset: pageNumber,
         keyword,
@@ -158,7 +158,7 @@ const DocumentAPI = {
     order: string,
     status: string,
   ) => {
-    return await client.get(`/getFilesShared`, {
+    return await client.get('/getFilesShared', {
       params: {
         offset: pageNumber,
         keyword,
@@ -175,7 +175,7 @@ const DocumentAPI = {
     sort: string,
     order: string,
   ) => {
-    return await client.get(`/getDeletedFiles`, {
+    return await client.get('/getDeletedFiles', {
       params: {
         offset: pageNumber,
         keyword,
@@ -186,19 +186,19 @@ const DocumentAPI = {
   },
 
   restoreFile: async (id: string) => {
-    return await client.post(`/restoreFile`, {
+    return await client.post('/restoreFile', {
       id,
     });
   },
 
   deletePermanently: async (id: string) => {
-    return await client.post(`/deletePermanently`, {
+    return await client.post('/deletePermanently', {
       id,
     });
   },
 
   getFileHistory: async (id: string, pageNumber: number) => {
-    return await client.get(`/getFileHistory`, {
+    return await client.get('/getFileHistory', {
       params: {
         id,
         offset: pageNumber,
@@ -207,14 +207,14 @@ const DocumentAPI = {
   },
 
   renameDocument: async (id: string, name: string) => {
-    return await client.post(`/renameFile`, {
+    return await client.post('/renameFile', {
       id,
       name,
     });
   },
 
   renameFolder: async (id: string, name: string) => {
-    return await client.post(`/renameFolder`, {
+    return await client.post('/renameFolder', {
       id,
       name,
     });

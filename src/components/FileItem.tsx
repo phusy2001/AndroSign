@@ -17,7 +17,7 @@ function FileItem({
       style={{marginBottom: 10, paddingVertical: 10}}
       id={item._id}
       onPress={() => {
-        if (!itemDeleted)
+        if (!itemDeleted) {
           navigation.navigate('DocumentSign', {
             id: item._id,
             name: item.name + '.pdf',
@@ -27,6 +27,7 @@ function FileItem({
               handleEditFunction();
             },
           });
+        }
       }}>
       <Card.Title
         title={
@@ -64,7 +65,8 @@ function FileItem({
                     borderRadius: 6,
                     backgroundColor: '#3CB371',
                     marginRight: 8,
-                  }}></View>
+                  }}
+                />
                 <Text style={{fontSize: 14}}>Hoàn thành</Text>
               </View>
             ) : item.stepUser === auth().currentUser?.uid ? (
@@ -88,7 +90,8 @@ function FileItem({
                     borderRadius: 6,
                     backgroundColor: '#146C94',
                     marginRight: 8,
-                  }}></View>
+                  }}
+                />
                 <Text style={{fontSize: 14}}>Lượt của bạn</Text>
               </View>
             ) : (
@@ -112,7 +115,8 @@ function FileItem({
                     borderRadius: 6,
                     backgroundColor: '#394867',
                     marginRight: 8,
-                  }}></View>
+                  }}
+                />
                 <Text style={{fontSize: 14}}>Đang chờ ký</Text>
               </View>
             )}

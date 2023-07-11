@@ -26,11 +26,9 @@
     "@shopify/flash-list": "^1.4.1",
     "@twotalltotems/react-native-otp-input": "^1.3.11",
     "axios": "^1.3.4",
-    "i18next": "^22.5.0",
     "moment": "^2.29.4",
     "react": "18.2.0",
     "react-hook-form": "^7.43.3",
-    "react-i18next": "^12.3.1",
     "react-native": "0.71.3",
     "react-native-config": "^1.5.0",
     "react-native-device-info": "^10.4.0",
@@ -51,9 +49,7 @@
     "react-native-vector-icons": "^9.2.0",
     "react-native-webview": "^11.26.1",
     "rn-fetch-blob": "^0.12.0",
-    "victory-native": "^36.6.8",
-    "yup": "^1.0.2",
-    "zustand": "^4.3.5"
+    "yup": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

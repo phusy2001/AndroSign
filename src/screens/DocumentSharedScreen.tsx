@@ -16,7 +16,7 @@ import ListFooter from '../components/ListFooter';
 import SharedSVG from '../assets/images/shared_empty.svg';
 import RsEmptySVG from '../assets/images/result_empty.svg';
 
-function DocumentSharedScreen({navigation, route}: any) {
+function DocumentSharedScreen({navigation}: any) {
   const initial = React.useRef(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const isFocused = useIsFocused();
@@ -45,7 +45,9 @@ function DocumentSharedScreen({navigation, route}: any) {
         order,
         status,
       );
-      if (result.data.data.length < 10) setEnd(true);
+      if (result.data.data.length < 10) {
+        setEnd(true);
+      }
       const newData = result.data.data;
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
@@ -55,7 +57,9 @@ function DocumentSharedScreen({navigation, route}: any) {
   };
 
   const handleDrawer = React.useCallback(() => {
-    if (!isDrawerOpen) navigation.dispatch(DrawerActions.openDrawer());
+    if (!isDrawerOpen) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    }
   }, []);
 
   const refreshData = () => {
@@ -66,18 +70,24 @@ function DocumentSharedScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (isFocused) uploadModal.current?.dismiss();
+    if (isFocused) {
+      uploadModal.current?.dismiss();
+    }
   }, [isFocused]);
 
   React.useEffect(() => {
-    if (refresh > 0) loadData();
+    if (refresh > 0) {
+      loadData();
+    }
   }, [refresh]);
 
   React.useEffect(() => {
     if (!initial.current) {
       const timeOut = setTimeout(() => refreshData(), 1000);
       return () => clearTimeout(timeOut);
-    } else initial.current = false;
+    } else {
+      initial.current = false;
+    }
   }, [searchQuery, sorting, order, status]);
 
   const handlePresentUploadModalPress = React.useCallback(() => {

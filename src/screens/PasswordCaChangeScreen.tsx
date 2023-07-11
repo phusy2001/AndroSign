@@ -48,8 +48,9 @@ function PasswordCaChangeScreen({navigation}: any) {
       type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
-    if (result.status === 'true')
+    if (result.status === 'true') {
       reset({oPassword: '', nPassword: '', nPassword2: ''});
+    }
   };
 
   return (

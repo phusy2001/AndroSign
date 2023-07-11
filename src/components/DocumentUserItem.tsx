@@ -47,7 +47,7 @@ function DocumentUserItem({item, data, setData}: any) {
         rules={{
           required: true,
         }}
-        render={({field: {onChange, onBlur, value}}) => (
+        render={({field: {onChange, value}}) => (
           <TextInput
             outlineStyle={{borderRadius: 6}}
             mode="outlined"

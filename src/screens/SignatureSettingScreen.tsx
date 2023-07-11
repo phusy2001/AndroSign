@@ -113,7 +113,7 @@ function SignatureSettingScreen({navigation}: any) {
           index={0}
           snapPoints={editSnapPoints}
           enablePanDownToClose={true}>
-          {(props: any) => {
+          {() => {
             //const {data} = props;
             return (
               <View>
@@ -131,7 +131,8 @@ function SignatureSettingScreen({navigation}: any) {
                   style={{
                     marginTop: 10,
                     marginBottom: 10,
-                  }}></Divider>
+                  }}
+                />
                 <TouchableOpacity
                   style={{
                     display: 'flex',
