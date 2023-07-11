@@ -14,6 +14,13 @@ import DocumentAPI from '../../services/document';
 import Toast from 'react-native-toast-message';
 import auth from '@react-native-firebase/auth';
 import Spinner from 'react-native-loading-spinner-overlay';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+import {Controller, useForm} from 'react-hook-form';
+
+const CreateFolderSchema = yup.object().shape({
+  folderName: yup.string().trim().required('Tên thư mục là bắt buộc'),
+});
 
 function FileUploadModal({
   uploadModalRef,
@@ -23,10 +30,22 @@ function FileUploadModal({
 }: any) {
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
-  const [folderName, setFolderName] = React.useState('');
+  // const [folderName, setFolderName] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    reset,
+  } = useForm({
+    resolver: yupResolver(CreateFolderSchema),
+  });
 
-  const createFolder = async () => {
+  const onSubmit = async (data: any) => {
+    createFolder(data.folderName);
+  };
+
+  const createFolder = async (folderName: string) => {
     setLoading(true);
     const result = await DocumentAPI.createFolder(
       folderName,
@@ -38,7 +57,7 @@ function FileUploadModal({
       position: 'bottom',
     });
     if (result.status === 'true') {
-      setFolderName('');
+      reset({folderName: ''});
       setSaveDlgVisible(false);
       uploadModalRef.current?.dismiss();
       if (handleCreateFolder) {
@@ -117,19 +136,34 @@ function FileUploadModal({
             <Text style={{fontSize: 18}}>Tạo mới thư mục</Text>
           </Dialog.Title>
           <Dialog.Content>
-            <TextInput
-              theme={{roundness: 10}}
-              mode="outlined"
-              placeholder="Tên thư mục"
-              onChangeText={text => setFolderName(text)}
-              value={folderName}
-              right={
-                <TextInput.Icon
-                  onPress={() => setFolderName('')}
-                  icon="close"
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <TextInput
+                  theme={{roundness: 10}}
+                  mode="outlined"
+                  placeholder="Tên thư mục"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  outlineColor={errors.folderName && 'red'}
+                  activeOutlineColor={errors.folderName && 'red'}
+                  right={
+                    <TextInput.Icon
+                      onPress={() => reset({folderName: ''})}
+                      icon="close"
+                    />
+                  }
                 />
-              }
+              )}
+              name="folderName"
             />
+            <Text style={{color: 'red'}}>
+              {errors.folderName && `${errors.folderName.message}`}
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setSaveDlgVisible(false)}>
@@ -142,7 +176,7 @@ function FileUploadModal({
                 Hủy
               </Text>
             </Button>
-            <Button onPress={createFolder}>
+            <Button onPress={handleSubmit(onSubmit)}>
               <Text
                 style={{
                   fontSize: 16,

@@ -77,7 +77,7 @@ function FolderEditModal({
           />
           <List.Item
             onPress={() => setRenDlgVisible(true)}
-            title={<Text style={{fontSize: 16}}>Đổi tên tài liệu</Text>}
+            title={<Text style={{fontSize: 16}}>Đổi tên thư mục</Text>}
             left={props => <List.Icon {...props} icon="folder-edit" />}
           />
           <List.Item
@@ -114,6 +114,7 @@ function FolderEditModal({
           setDlgVisible={setRenDlgVisible}
           handleRenameFunction={handleRenameFunction}
           item={item}
+          type={'folder'}
         />
       </Portal>
     </BottomSheetModal>

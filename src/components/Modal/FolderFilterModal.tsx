@@ -70,7 +70,7 @@ function FoldersFilterModal({
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <RadioButton value="name" />
               <View style={{marginLeft: 20}}>
-                <Text style={{fontSize: 16}}>Tên tài liệu</Text>
+                <Text style={{fontSize: 16}}>Tên thư mục</Text>
               </View>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>

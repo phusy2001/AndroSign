@@ -30,6 +30,13 @@ import SelectDropdown from 'react-native-select-dropdown';
 import auth from '@react-native-firebase/auth';
 import DocumentStepItem from '../components/DocumentStepItem';
 import Spinner from 'react-native-loading-spinner-overlay';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+import {Controller, useForm} from 'react-hook-form';
+
+const UploadFileSchema = yup.object().shape({
+  fileName: yup.string().trim().required('Tên tài liệu là bắt buộc'),
+});
 
 function DocumentSignScreen({route, navigation}: any) {
   const {id, name, path, file, action, handleFileCreated, handleEditFunction} =
@@ -48,7 +55,6 @@ function DocumentSignScreen({route, navigation}: any) {
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
   const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
-  const [fileName, setFileName] = React.useState(name.replace('.pdf', ''));
   const [confirmDlgVisible, setConfirmDlgVisible] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [password, setPassword] = React.useState('');
@@ -62,6 +68,21 @@ function DocumentSignScreen({route, navigation}: any) {
       index: '',
     },
   ]);
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    reset,
+  } = useForm({
+    resolver: yupResolver(UploadFileSchema),
+    defaultValues: {
+      fileName: name.replace('.pdf', ''),
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    saveDocument(data.fileName);
+  };
 
   React.useEffect(() => {
     RNPdftron.initialize('');
@@ -113,7 +134,7 @@ function DocumentSignScreen({route, navigation}: any) {
     ],
   };
 
-  const saveDocument = async () => {
+  const saveDocument = async (fileName?: string) => {
     setLoading(true);
     const params = {
       signed: 0,
@@ -813,15 +834,30 @@ function DocumentSignScreen({route, navigation}: any) {
             <Text style={{fontSize: 18}}>Lưu tài liệu thành...</Text>
           </Dialog.Title>
           <Dialog.Content>
-            <TextInput
-              theme={{roundness: 10}}
-              mode="outlined"
-              placeholder="Tên tài liệu"
-              onChangeText={text => setFileName(text)}
-              value={fileName}
-              right={
-                <TextInput.Icon onPress={() => setFileName('')} icon="close" />
-              }
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <TextInput
+                  theme={{roundness: 10}}
+                  mode="outlined"
+                  placeholder="Tên tài liệu"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  outlineColor={errors.fileName && 'red'}
+                  activeOutlineColor={errors.fileName && 'red'}
+                  right={
+                    <TextInput.Icon
+                      onPress={() => reset({fileName: ''})}
+                      icon="close"
+                    />
+                  }
+                />
+              )}
+              name="fileName"
             />
           </Dialog.Content>
           <Dialog.Actions>
@@ -835,7 +871,7 @@ function DocumentSignScreen({route, navigation}: any) {
                 Hủy
               </Text>
             </Button>
-            <Button onPress={saveDocument}>
+            <Button onPress={handleSubmit(onSubmit)}>
               <Text
                 style={{
                   fontSize: 16,
@@ -886,7 +922,7 @@ function DocumentSignScreen({route, navigation}: any) {
                 Hủy
               </Text>
             </Button>
-            <Button onPress={saveDocument} disabled={disabled}>
+            <Button onPress={() => saveDocument()} disabled={disabled}>
               <Text
                 style={{
                   fontSize: 16,
