@@ -8,6 +8,9 @@ import {useForm, Controller} from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import {signinWithEmail} from '../services/auth';
 import {storeData} from '../utils/asyncStore';
+import UserAPI from '../services/user';
+import auth from '@react-native-firebase/auth';
+import messaging from '@react-native-firebase/messaging';
 
 const SignInSchema = yup.object().shape({
   email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
@@ -31,29 +34,40 @@ function LoginScreen({navigation}: any) {
       const user = await signinWithEmail(data.email, data.password);
 
       if (user.user.emailVerified) {
-        // const resUser = await UserAPI.findUserByUid(user.user.uid);
-
-        // let fcmTokenList = resUser.data.fcm_tokens;
-
-        // if (!fcmTokenList?.includes(fcmToken)) {
-        //   fcmTokenList = [...fcmTokenList, fcmToken];
-        // }
-
-        // await UserAPI.updateUserByUid(user.user.uid, {
-        //   fcm_tokens: fcmTokenList,
-        // });
-
         navigation.navigate('Onboarding');
 
         user.user.getIdToken().then(async token => {
-          console.log('token when auth state change =>', token);
+          // console.log('token when auth state change =>', token);
           try {
             await storeData('userToken', token);
+
+            const resUser = await UserAPI.findUserByUid(user.user.uid);
+
+            let fcmTokenList = resUser.data.fcm_tokens;
+
+            const fcmToken = await messaging().getToken();
+
+            if (!fcmTokenList?.includes(fcmToken)) {
+              fcmTokenList = [...fcmTokenList, fcmToken];
+            }
+
+            UserAPI.updateUserByUid(user.user.uid, {
+              fcm_tokens: fcmTokenList,
+            });
           } catch (e) {
             console.log(e);
           }
         });
       } else {
+        // console.log(user);
+        const data = await UserAPI.getUserCreatedDate(user.user.uid);
+        const now = Date.now();
+        const created = new Date(data.data.created_at);
+        const duration = now - created.getTime();
+
+        if (duration > 259200000) user.user.sendEmailVerification();
+
+        await auth().signOut();
         Toast.show({
           text1: 'Vui lòng kiểm tra Email để kích hoạt tài khoản',
           type: 'info',

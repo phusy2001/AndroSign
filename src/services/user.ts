@@ -37,6 +37,10 @@ const UserAPI = {
   updateCaPassword(uid: string, body: any) {
     return client.put(`${service}/${uid}/updateUserCa`, body);
   },
+
+  getUserCreatedDate: (uid: string | undefined) => {
+    return client.get(`/${service}/${uid}/get-created-date`);
+  },
 };
 
 export default UserAPI;

@@ -119,17 +119,17 @@ export default function App() {
     requestPermission();
   }, []);
 
-  useEffect(() => {
-    const getFCMToken = async () => {
-      try {
-        const token = await messaging().getToken();
-        console.log('FCM token:', token);
-      } catch (error) {
-        console.log('Failed to get FCM token:', error);
-      }
-    };
-    getFCMToken();
-  }, []);
+  // useEffect(() => {
+  //   const getFCMToken = async () => {
+  //     try {
+  //       const token = await messaging().getToken();
+  //       console.log('FCM token:', token);
+  //     } catch (error) {
+  //       console.log('Failed to get FCM token:', error);
+  //     }
+  //   };
+  //   getFCMToken();
+  // }, []);
 
   return (
     <SafeAreaProvider>
