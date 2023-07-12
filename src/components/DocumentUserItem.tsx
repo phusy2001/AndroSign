@@ -1,6 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import {TextInput} from 'react-native-paper';
+import {Text, TextInput} from 'react-native-paper';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
@@ -26,22 +26,37 @@ function DocumentUserItem({item, data, setData}: any) {
   const onSubmit = async (form: any) => {
     const result = await UserAPI.findUserByEmail(form.email);
     if (result.status === 'true') {
-      item._id = result.data.uid;
-      item.name = result.data.display_name;
-      item.email = form.email;
+      if (data.some((e: any) => e.email === form.email)) {
+        const filteredData = data.filter((i: any) => i.index !== item.index);
+        setData(filteredData);
+        Toast.show({
+          text1: 'Người dùng này đã có trên danh sách',
+          type: 'info',
+          position: 'bottom',
+        });
+      } else {
+        item._id = result.data.uid;
+        item.name = result.data.display_name;
+        item.email = form.email;
+        Toast.show({
+          text1: result.message,
+          type: result.status === 'true' ? 'success' : 'error',
+          position: 'bottom',
+        });
+      }
     } else {
       const filteredData = data.filter((i: any) => i.index !== item.index);
       setData(filteredData);
+      Toast.show({
+        text1: result.message,
+        type: result.status === 'true' ? 'success' : 'error',
+        position: 'bottom',
+      });
     }
-    Toast.show({
-      text1: result.message,
-      type: result.status === 'true' ? 'success' : 'error',
-      position: 'bottom',
-    });
   };
 
   return (
-    <View style={{marginBottom: 15}}>
+    <View>
       <Controller
         control={control}
         rules={{
@@ -75,6 +90,9 @@ function DocumentUserItem({item, data, setData}: any) {
         )}
         name="email"
       />
+      <Text style={{color: 'red'}}>
+        {errors.email && `${errors.email.message}`}
+      </Text>
     </View>
   );
 }

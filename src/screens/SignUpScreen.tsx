@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message';
 import SignUpSVG from '../assets/images/signup.svg';
 
 const SignUpSchema = yup.object().shape({
-  username: yup.string().required('Tên người dùng là bắt buộc'),
+  username: yup.string().trim().required('Tên người dùng là bắt buộc'),
   email: yup
     .string()
     .email('Vui lòng nhập Email hợp lệ')

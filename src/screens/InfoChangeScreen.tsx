@@ -16,6 +16,7 @@ function InfoChangeScreen({route, navigation}: any) {
   const InfoSchema = yup.object().shape({
     display_name: yup
       .string()
+      .trim()
       .default(route.params?.user?.display_name ?? undefined),
     phone_number: yup
       .string()
