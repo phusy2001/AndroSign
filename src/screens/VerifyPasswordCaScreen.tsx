@@ -5,12 +5,14 @@ import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import auth from '@react-native-firebase/auth';
 import UserAPI from '../services/user';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const VerifyPasswordCaScreen = ({route, navigation}: any) => {
   const {caPassword, email, password, username} = route.params;
   const [disabled, setDisabled] = useState(true);
   const inputRef = useRef<any>();
   const pin = useRef('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -28,6 +30,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         visibilityTime: 2000,
       });
     } else {
+      setLoading(true);
       try {
         const {user} = await auth().createUserWithEmailAndPassword(
           email,
@@ -60,7 +63,8 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
             user.delete();
             await UserAPI.deleteUserByUid(user.uid);
             await auth().signOut();
-            navigation.navigate('Login');
+            // navigation.navigate('Login');
+            setLoading(false);
 
             Toast.show({
               text1:
@@ -73,7 +77,8 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
           user.delete();
           await UserAPI.deleteUserByUid(user.uid);
           await auth().signOut();
-          navigation.navigate('Login');
+          // navigation.navigate('Login');
+          setLoading(false);
 
           Toast.show({
             text1: 'Tạo người dùng thất bại',
@@ -88,6 +93,7 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
         //   displayName: username,
         // });
       } catch (error: any) {
+        setLoading(false);
         switch (error.code) {
           case 'auth/email-already-in-use':
             Toast.show({
@@ -131,6 +137,12 @@ const VerifyPasswordCaScreen = ({route, navigation}: any) => {
 
   return (
     <View style={styles.container}>
+      <Spinner
+        visible={loading}
+        animation="fade"
+        textContent={'Đang xử lý...'}
+        textStyle={{color: '#FFF', fontWeight: 'bold'}}
+      />
       <View
         style={{
           display: 'flex',

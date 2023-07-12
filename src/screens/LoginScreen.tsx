@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, KeyboardAvoidingView, Dimensions, Image} from 'react-native';
 import {Text, Button, TextInput} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import {storeData} from '../utils/asyncStore';
 import UserAPI from '../services/user';
 import auth from '@react-native-firebase/auth';
 import messaging from '@react-native-firebase/messaging';
+import {useIsFocused} from '@react-navigation/native';
 
 const SignInSchema = yup.object().shape({
   email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
@@ -21,11 +22,13 @@ function LoginScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
+  const isFocused = useIsFocused();
 
   const {
     control,
     handleSubmit,
     formState: {errors},
+    reset,
   } = useForm({
     resolver: yupResolver(SignInSchema),
   });
@@ -113,6 +116,10 @@ function LoginScreen({navigation}: any) {
       }
     }
   };
+
+  useEffect(() => {
+    reset({email: '', password: ''});
+  }, [isFocused]);
 
   // useEffect(() => {
   //   auth().onAuthStateChanged(user => {

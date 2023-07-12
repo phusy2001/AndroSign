@@ -859,6 +859,9 @@ function DocumentSignScreen({route, navigation}: any) {
               )}
               name="fileName"
             />
+            <Text style={{color: 'red'}}>
+              {errors.fileName && `${errors.fileName.message}`}
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setSaveDlgVisible(false)}>
