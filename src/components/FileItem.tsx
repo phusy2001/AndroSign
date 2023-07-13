@@ -20,7 +20,6 @@ function FileItem({
       onPress={debounce(
         () => {
           if (!itemDeleted) {
-            console.log('dsadsad');
             navigation.navigate('DocumentSign', {
               id: item._id,
               name: item.name + '.pdf',
@@ -32,7 +31,7 @@ function FileItem({
             });
           }
         },
-        3000,
+        1500,
         {leading: true, trailing: false},
       )}>
       <Card.Title
