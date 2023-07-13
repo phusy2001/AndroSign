@@ -657,12 +657,10 @@ function DocumentSignScreen({route, navigation}: any) {
                       },
                     ]);
                   } else {
-                    documentView.current!.setFlagsForAnnotations([
+                    documentView.current!.deleteAnnotations([
                       {
                         id: annotation.id,
                         pageNumber: annotation.pageNumber,
-                        flag: Config.AnnotationFlags.locked,
-                        flagValue: true,
                       },
                     ]);
                   }

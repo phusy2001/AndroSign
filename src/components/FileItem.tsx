@@ -4,6 +4,7 @@ import {View} from 'react-native';
 import {Card, IconButton, Text} from 'react-native-paper';
 import PdfSVG from '../assets/images/pdf.svg';
 import auth from '@react-native-firebase/auth';
+import {debounce} from 'lodash';
 
 function FileItem({
   item,
@@ -14,21 +15,26 @@ function FileItem({
 }: any) {
   return (
     <Card
-      style={{marginBottom: 10, paddingVertical: 10}}
+      style={{marginBottom: 10, paddingVertical: 5}}
       id={item._id}
-      onPress={() => {
-        if (!itemDeleted) {
-          navigation.navigate('DocumentSign', {
-            id: item._id,
-            name: item.name + '.pdf',
-            path: item.path,
-            action: 'edit',
-            handleEditFunction: () => {
-              handleEditFunction();
-            },
-          });
-        }
-      }}>
+      onPress={debounce(
+        () => {
+          if (!itemDeleted) {
+            console.log('dsadsad');
+            navigation.navigate('DocumentSign', {
+              id: item._id,
+              name: item.name + '.pdf',
+              path: item.path,
+              action: 'edit',
+              handleEditFunction: () => {
+                handleEditFunction();
+              },
+            });
+          }
+        },
+        3000,
+        {leading: true, trailing: false},
+      )}>
       <Card.Title
         title={
           <View
