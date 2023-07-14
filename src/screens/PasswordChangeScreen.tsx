@@ -20,7 +20,6 @@ const ChangePasswordSchema = yup.object().shape({
     ),
   nPassword2: yup
     .string()
-    .required('Vui lòng nhập lại mật khẩu mới')
     .oneOf([yup.ref('nPassword'), null], 'Mật khẩu không trùng nhau'),
 });
 

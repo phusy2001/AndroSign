@@ -25,7 +25,10 @@ function InfoChangeScreen({route, navigation}: any) {
         excludeEmptyString: true,
       })
       .default(route.params?.user?.phone_number ?? undefined),
-    address: yup.string().default(route.params?.user?.addresss ?? undefined),
+    address: yup
+      .string()
+      .trim()
+      .default(route.params?.user?.addresss ?? undefined),
   });
 
   const insets = useSafeAreaInsets();
