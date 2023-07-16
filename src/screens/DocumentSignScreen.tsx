@@ -260,7 +260,10 @@ function DocumentSignScreen({route, navigation}: any) {
         isEdited = true;
       }
     }
-    setLoading(false);
+    else {
+      setLoading(false);
+      navigation.goBack();
+    }
     if (action !== 'upload' && isEdited) {
       navigation.goBack();
     } else if (action === 'upload' && result.status === 'true') {
