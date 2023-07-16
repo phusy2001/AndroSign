@@ -236,7 +236,6 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('xfdf', xfdf);
       formData.append('file', file);
       result = await DocumentAPI.uploadDocument(formData);
-      setLoading(false);
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
@@ -252,7 +251,6 @@ function DocumentSignScreen({route, navigation}: any) {
         stepNow.current,
         password,
       );
-      setLoading(false);
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',
@@ -262,6 +260,7 @@ function DocumentSignScreen({route, navigation}: any) {
         isEdited = true;
       }
     }
+    setLoading(false);
     if (action !== 'upload' && isEdited) {
       navigation.goBack();
     } else if (action === 'upload' && result.status === 'true') {
