@@ -1,5 +1,5 @@
 import React from 'react';
-import {ImageBackground, StyleSheet, View} from 'react-native';
+import {ImageBackground, RefreshControl, StyleSheet, View} from 'react-native';
 import {Appbar, FAB, Searchbar, Text} from 'react-native-paper';
 import {FlashList} from '@shopify/flash-list';
 import {useIsFocused} from '@react-navigation/native';
@@ -29,6 +29,7 @@ function TrashScreen({navigation}: any) {
   const [refresh, setRefresh] = React.useState(0);
   const [sorting, setSorting] = React.useState<string>('updated');
   const [order, setOrder] = React.useState<string>('desc');
+  const [refreshing, setRefreshing] = React.useState(true);
   const uploadModal = React.useRef<BottomSheetModal>(null);
   const filterModal = React.useRef<BottomSheetModal>(null);
   const editModal = React.useRef<BottomSheetModal>(null);
@@ -49,6 +50,7 @@ function TrashScreen({navigation}: any) {
       setData(data.concat(newData));
       setPageNumber(pageNumber + 1);
       setIsLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -179,6 +181,12 @@ function TrashScreen({navigation}: any) {
             estimatedItemSize={100}
             ListFooterComponent={<ListFooter isLoading={isLoading} />}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => refreshData()}
+              />
+            }
           />
         ) : searchQuery !== '' ? (
           <View

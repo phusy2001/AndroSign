@@ -10,7 +10,19 @@ import auth from '@react-native-firebase/auth';
 import {FlashList} from '@shopify/flash-list';
 import UserAPI from '../services/user';
 import SplashScreen from './SplashScreen';
-import {createOrder, getPlans} from '../services/payment';
+import {checkQuota, createOrder, getPlans} from '../services/payment';
+import moment from 'moment';
+
+function formatPrice(price: number) {
+  let [wholeNumber, decimal] = price.toString().split('.');
+  wholeNumber = wholeNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  if (decimal) {
+    decimal = decimal.slice(0, 2).padEnd(2, '0');
+    return wholeNumber + '.' + decimal;
+  } else {
+    return wholeNumber;
+  }
+}
 
 function AccountScreen({navigation}: any) {
   const insets = useSafeAreaInsets();
@@ -18,6 +30,7 @@ function AccountScreen({navigation}: any) {
   const [user, setUser] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [plans, setPlans] = useState([]);
+  const [userPlan, setUserPlan] = useState<any>({});
 
   const handleDrawer = () => {
     if (!isDrawerOpen) {
@@ -42,10 +55,7 @@ function AccountScreen({navigation}: any) {
     React.useCallback(() => {
       const refreshUser = async () => {
         const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
-
         setUser(curUser.data);
-
-        setIsLoading(false);
       };
       refreshUser();
     }, []),
@@ -54,59 +64,51 @@ function AccountScreen({navigation}: any) {
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
-
       try {
-        const plansData = await getPlans();
-
-        setPlans(plansData);
+        const userPlan = await checkQuota();
+        setUserPlan(userPlan.data);
+        if (userPlan.data.type === 'free') {
+          const plansData = await getPlans();
+          setPlans(plansData);
+        }
+        setIsLoading(false);
       } catch (e) {
         console.log(e);
       }
     };
-
     fetchUser();
   }, []);
 
   const renderGroupHeader = ({item}: any) => {
     return (
-      <View
+      <TouchableOpacity
+        onPress={() => createOrderLink(item.plan_id)}
         style={{
+          paddingLeft: 20,
+          paddingTop: 15,
+          paddingRight: 20,
+          paddingBottom: 15,
           display: 'flex',
-          marginLeft: 20,
-          marginRight: 20,
-          backgroundColor: '#f7f3f9',
-          borderRadius: 5,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
-        <View
+        <Text
           style={{
-            paddingLeft: 20,
-            paddingTop: 15,
-            paddingRight: 20,
-            paddingBottom: 15,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+            fontSize: 16,
+            fontWeight: 'bold',
           }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            {item.plan_name}
-            <Text style={{fontSize: 14, color: '#808080'}}>
-              {' '}
-              {'Hàng tháng'}:
-            </Text>
+          {item.plan_name}
+          <Text style={{fontSize: 14, color: '#808080'}}>
+            {` ${item.plan_description}`}
           </Text>
-          <TouchableOpacity
-            onPress={() => createOrderLink(item.plan_id)}
-            style={{}}>
-            <View style={styles.button}>
-              <Text style={styles.text}>{item.plan_price}đ / tháng</Text>
-            </View>
-          </TouchableOpacity>
+        </Text>
+        <View style={styles.button}>
+          <Text style={styles.text}>
+            {formatPrice(item.plan_price_view)}đ/tháng
+          </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -192,6 +194,7 @@ function AccountScreen({navigation}: any) {
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
+              alignItems: 'center',
             }}>
             <Text
               style={{
@@ -204,7 +207,7 @@ function AccountScreen({navigation}: any) {
                 fontSize: 18,
                 fontWeight: 'bold',
               }}>
-              MIỄN PHÍ
+              {userPlan.type === 'free' ? 'MIỄN PHÍ' : userPlan.name}
             </Text>
           </View>
           <View
@@ -216,6 +219,7 @@ function AccountScreen({navigation}: any) {
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
+              alignItems: 'center',
             }}>
             <Text
               style={{
@@ -232,13 +236,42 @@ function AccountScreen({navigation}: any) {
               Đang kích hoạt
             </Text>
           </View>
-        </View>
-        <View style={{minHeight: 2}}>
-          <FlashList
-            renderItem={renderGroupHeader}
-            estimatedItemSize={90}
-            data={plans}
-          />
+          {userPlan.type !== 'free' ? (
+            <View
+              style={{
+                paddingLeft: 20,
+                paddingTop: 15,
+                paddingRight: 20,
+                paddingBottom: 15,
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                }}>
+                Ngày hết hạn:
+              </Text>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}>
+                {moment(userPlan.expired_on).format('DD/MM/YYYY')}
+              </Text>
+            </View>
+          ) : (
+            <></>
+          )}
+          <View style={{minHeight: 2}}>
+            <FlashList
+              renderItem={renderGroupHeader}
+              estimatedItemSize={90}
+              data={plans}
+            />
+          </View>
         </View>
         <Text
           style={{
@@ -252,7 +285,6 @@ function AccountScreen({navigation}: any) {
         </Text>
         <View
           style={{
-            height: 110,
             backgroundColor: '#f7f3f9',
             paddingLeft: 20,
             paddingRight: 20,
@@ -269,22 +301,6 @@ function AccountScreen({navigation}: any) {
                 display: 'flex',
               }}>
               <Text style={{fontSize: 16}}>Đổi mật khẩu</Text>
-              <IconButton icon="arrow-right" size={24} />
-            </View>
-          </TouchableOpacity>
-          <Divider bold={true} />
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('PasswordCaChange');
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                display: 'flex',
-              }}>
-              <Text style={{fontSize: 16}}>Đổi mật khẩu bảo vệ tài liệu</Text>
               <IconButton icon="arrow-right" size={24} />
             </View>
           </TouchableOpacity>
@@ -306,13 +322,13 @@ function AccountScreen({navigation}: any) {
           </TouchableOpacity> */}
         </View>
         <View style={{paddingVertical: 20, paddingHorizontal: 20}}>
-          <Text
+          {/* <Text
             style={{
               color: 'red',
               fontSize: 16,
             }}>
             Xoá tài khoản
-          </Text>
+          </Text> */}
         </View>
       </ScrollView>
     );
@@ -337,6 +353,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    fontSize: 14,
   },
   disabledText: {
     color: 'lightgray',

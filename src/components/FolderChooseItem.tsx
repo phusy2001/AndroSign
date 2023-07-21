@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import {Checkbox, Text} from 'react-native-paper';
 import DocumentAPI from '../services/document';
 import Toast from 'react-native-toast-message';
@@ -7,6 +7,7 @@ import Toast from 'react-native-toast-message';
 function FolderChooseItem({item, fileId}: any) {
   const [checked, setChecked] = React.useState(item.isStored);
   const [disabled, setDisabled] = React.useState(false);
+  const viewRef = React.useRef(null);
 
   const updateFileInFolder = async () => {
     const result = await DocumentAPI.updateFileInFolder(fileId, item._id);
@@ -29,7 +30,11 @@ function FolderChooseItem({item, fileId}: any) {
   }, [disabled]);
 
   return (
-    <View
+    <TouchableOpacity
+      ref={viewRef}
+      onPress={() => {
+        setDisabled(true);
+      }}
       style={{
         backgroundColor: '#F8F8F8',
         display: 'flex',
@@ -46,11 +51,8 @@ function FolderChooseItem({item, fileId}: any) {
       <Checkbox
         disabled={disabled}
         status={checked ? 'checked' : 'unchecked'}
-        onPress={() => {
-          setDisabled(true);
-        }}
       />
-    </View>
+    </TouchableOpacity>
   );
 }
 

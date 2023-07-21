@@ -17,6 +17,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {Controller, useForm} from 'react-hook-form';
+import {checkQuota} from '../../services/payment';
 
 const CreateFolderSchema = yup.object().shape({
   folderName: yup.string().trim().required('Tên thư mục là bắt buộc'),
@@ -30,7 +31,6 @@ function FileUploadModal({
 }: any) {
   const uploadSnapPoints = React.useMemo(() => ['25%'], []);
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
-  // const [folderName, setFolderName] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const {
     control,
@@ -43,6 +43,11 @@ function FileUploadModal({
 
   const onSubmit = async (data: any) => {
     createFolder(data.folderName);
+  };
+
+  const getUserQuotas = async () => {
+    const userQuotas = await checkQuota();
+    return userQuotas.data;
   };
 
   const createFolder = async (folderName: string) => {
@@ -114,14 +119,32 @@ function FileUploadModal({
       <View style={{padding: 20}}>
         <List.Section>
           <List.Item
-            onPress={() => {
-              setSaveDlgVisible(true);
+            onPress={async () => {
+              const result = await getUserQuotas();
+              if (result.type === 'free' && result.usage.folders > 10)
+                Toast.show({
+                  text1:
+                    'Thư mục đã đầy cho bản dùng thử. Vui lòng nâng cấp tài khoản để tiếp tục sử dụng',
+                  type: 'info',
+                  position: 'bottom',
+                });
+              else setSaveDlgVisible(true);
             }}
             title={<Text style={{fontSize: 16}}>Tạo thư mục</Text>}
             left={() => <List.Icon icon="folder-plus" />}
           />
           <List.Item
-            onPress={uploadFileFunc}
+            onPress={async () => {
+              const result = await getUserQuotas();
+              if (result.type === 'free' && result.usage.files > 50)
+                Toast.show({
+                  text1:
+                    'Tài liệu đã đầy cho bản dùng thử. Vui lòng nâng cấp tài khoản để tiếp tục sử dụng',
+                  type: 'info',
+                  position: 'bottom',
+                });
+              else uploadFileFunc();
+            }}
             title={<Text style={{fontSize: 16}}>Tải lên tài liệu</Text>}
             left={() => <List.Icon icon="file-upload" />}
           />
