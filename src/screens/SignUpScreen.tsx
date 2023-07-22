@@ -8,6 +8,9 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm, Controller} from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import SignUpSVG from '../assets/images/signup.svg';
+import Spinner from 'react-native-loading-spinner-overlay';
+import auth from '@react-native-firebase/auth';
+import UserAPI from '../services/user';
 
 const SignUpSchema = yup.object().shape({
   username: yup.string().trim().required('Tên người dùng là bắt buộc'),
@@ -33,6 +36,7 @@ function SignUpScreen({navigation}: any) {
   const screenHeight = Dimensions.get('window').height;
   const [hide, setHide] = useState(true);
   const [hide2, setHide2] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleSignUpError = (mssgError: string) => {
     Toast.show({
@@ -52,13 +56,76 @@ function SignUpScreen({navigation}: any) {
   });
   const onSubmit = async (data: any) => {
     try {
-      navigation.navigate('PasswordCa', {
+      setLoading(true);
+      const {user} = await auth().createUserWithEmailAndPassword(
+        data.email,
+        data.password,
+      );
+      const createdUser = await UserAPI.createUser({
+        display_name: data.username,
+        uid: user.uid,
         email: data.email,
-        password: data.password,
-        username: data.username,
       });
+      if (createdUser.status === 'true') {
+        user.sendEmailVerification();
+        await auth().signOut();
+        navigation.navigate('Login');
+        Toast.show({
+          text1: 'Đường dẫn kích hoạt đã được gửi đến Email của bạn',
+          type: 'info',
+          position: 'bottom',
+        });
+      } else {
+        user.delete();
+        await UserAPI.deleteUserByUid(user.uid);
+        await auth().signOut();
+        setLoading(false);
+        Toast.show({
+          text1: 'Gặp lỗi trong quá trình tạo tài khoản! Vui lòng thử lại',
+          type: 'error',
+          position: 'bottom',
+        });
+      }
     } catch (error: any) {
-      handleSignUpError(error.code);
+      // handleSignUpError(error.code);
+      setLoading(false);
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          Toast.show({
+            text1:
+              'Tài khoản này đã tồn tại. Vui lòng kiểm tra Email nếu tài khoản chưa kích hoạt!',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/invalid-email':
+          Toast.show({
+            text1: 'Email này không hợp lệ',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/operation-not-allowed':
+          Toast.show({
+            text1: 'Tài khoản của bạn chưa được kích hoạt',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        case 'auth/weak-password':
+          Toast.show({
+            text1: 'Mật khẩu của bạn yếu',
+            type: 'error',
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+          break;
+        default:
+          console.error(error);
+      }
     }
   };
 
@@ -73,6 +140,12 @@ function SignUpScreen({navigation}: any) {
         justifyContent: 'space-evenly',
         height: screenHeight,
       }}>
+      <Spinner
+        visible={loading}
+        animation="fade"
+        textContent={'Đang xử lý...'}
+        textStyle={{color: '#FFF', fontWeight: 'bold'}}
+      />
       <KeyboardAvoidingView behavior="position">
         <View>
           <View style={{alignItems: 'center'}}>

@@ -72,9 +72,9 @@ function DocumentShareScreen({navigation, route}: any) {
       type: result.status === 'true' ? 'success' : 'error',
       position: 'bottom',
     });
+    Keyboard.dismiss();
     if (result.status === 'true') {
       email = '';
-      Keyboard.dismiss();
       setData([]);
       setPageNumber(1);
       setEnd(false);

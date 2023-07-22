@@ -80,6 +80,9 @@ function MyDocumentScreen({navigation, route}: any) {
     }
     if (reload) {
       setSearchQuery('');
+      uploadModal.current?.dismiss();
+      editModal.current?.dismiss();
+      filterModal.current?.dismiss();
       refreshData();
     }
   }, [isFocused]);

@@ -99,9 +99,13 @@ const DocumentAPI = {
     });
   },
 
-  getFilesInFolder: async (folderId: string, pageNumber: number) => {
+  getFilesInFolder: async (
+    folderId: string,
+    pageNumber: number,
+    keyword: string,
+  ) => {
     return await client.get('/getFilesInFolder', {
-      params: {id: folderId, offset: pageNumber},
+      params: {id: folderId, offset: pageNumber, keyword},
     });
   },
 

@@ -58,7 +58,6 @@ function DocumentSignScreen({route, navigation}: any) {
   const [confirmDlgVisible, setConfirmDlgVisible] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [password, setPassword] = React.useState('');
-  const [disabled, setDisabled] = React.useState(true);
   const [stepItem, setStepItem] = React.useState<any[]>([]);
   const [userItem, setUserItem] = React.useState<any[]>([
     {
@@ -116,10 +115,9 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
-      // Config.Tools.annotationCreateFreeText,
+      Config.Tools.annotationCreateFreeText,
       Config.Tools.formCreateSignatureField,
-      // Config.Buttons.undo,
-      // Config.Buttons.redo,
+      Config.Tools.annotationCreateFreeTextDate,
     ],
   };
 
@@ -129,8 +127,8 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
       Config.Tools.pan,
-      // Config.Buttons.undo,
-      // Config.Buttons.redo,
+      // Config.Tools.annotationCreateFreeText,
+      // Config.Tools.annotationCreateFreeTextDate,
     ],
   };
 
@@ -200,23 +198,13 @@ function DocumentSignScreen({route, navigation}: any) {
                   'user',
                 );
             }
-          } else if (annotStep == stepNow.current) {
-            documentView.current!.setFlagsForAnnotations([
-              {
-                id: annotation.id,
-                pageNumber: annotation.pageNumber,
-                flag: Config.AnnotationFlags.locked,
-                flagValue: true,
-              },
-            ]);
           }
           params.changed = true;
         }
       }
     }
-    const xfdf = await documentView.current!.exportAnnotations();
     let result;
-    let isEdited = false;
+    const xfdf = await documentView.current!.exportAnnotations();
     const userIdArr = userItem
       .filter((item: any) => item._id !== auth().currentUser?.uid)
       .map((item: any) => item._id);
@@ -256,22 +244,20 @@ function DocumentSignScreen({route, navigation}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: result.status === 'true' ? 'bottom' : 'top',
       });
-      if (result.status === 'true') {
-        isEdited = true;
-      }
-    }
-    else {
+    } else {
       setLoading(false);
       navigation.goBack();
     }
-    if (action !== 'upload' && isEdited) {
+    if (action !== 'upload' && result.status === 'true') {
       navigation.goBack();
     } else if (action === 'upload' && result.status === 'true') {
       navigation.navigate('Home', {reload: true});
+    } else {
+      setLoading(false);
     }
-    if (handleFileCreated) {
+    if (handleFileCreated && result.status === 'true') {
       handleFileCreated();
-    } else if (handleEditFunction && isEdited) {
+    } else if (handleEditFunction && result.status === 'true') {
       handleEditFunction();
     }
   };
@@ -693,7 +679,7 @@ function DocumentSignScreen({route, navigation}: any) {
           }
         }}
         onAnnotationChanged={({action, annotations}: any) => {
-          if (action === 'add') {
+          if (action === 'add' && route.params.action === 'upload') {
             annotations.forEach((annotation: any) => {
               documentView.current!.setPropertiesForAnnotation(
                 annotation.id,
@@ -713,6 +699,19 @@ function DocumentSignScreen({route, navigation}: any) {
                   flagValue: false,
                 },
               ]);
+            });
+          } else if (action === 'add' && route.params.action === 'edit') {
+            annotations.forEach((annotation: any) => {
+              documentView.current!.setPropertiesForAnnotation(
+                annotation.id,
+                annotation.pageNumber,
+                {
+                  customData: {
+                    user: stepUser.current,
+                    step: `${stepNow.current}`,
+                  },
+                },
+              );
             });
           }
         }}
@@ -890,30 +889,8 @@ function DocumentSignScreen({route, navigation}: any) {
           style={{backgroundColor: '#fff'}}
           onDismiss={() => setConfirmDlgVisible(false)}>
           <Dialog.Title style={{textAlign: 'center'}}>
-            <Text style={{fontSize: 18}}>Nhập mã bảo vệ tài liệu của bạn</Text>
+            <Text style={{fontSize: 18}}>Bạn đã xác nhận ký tài liệu?</Text>
           </Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              theme={{roundness: 10}}
-              mode="outlined"
-              placeholder="Mã bảo vệ"
-              onChangeText={text => {
-                if (text.length >= 6) {
-                  setDisabled(false);
-                } else {
-                  setDisabled(true);
-                }
-                setPassword(text);
-              }}
-              value={password}
-              secureTextEntry
-              maxLength={6}
-              keyboardType="numeric"
-              right={
-                <TextInput.Icon onPress={() => setPassword('')} icon="close" />
-              }
-            />
-          </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setConfirmDlgVisible(false)}>
               <Text
@@ -925,11 +902,11 @@ function DocumentSignScreen({route, navigation}: any) {
                 Hủy
               </Text>
             </Button>
-            <Button onPress={() => saveDocument()} disabled={disabled}>
+            <Button onPress={() => saveDocument()}>
               <Text
                 style={{
                   fontSize: 16,
-                  color: disabled ? 'gray' : 'blue',
+                  color: 'blue',
                 }}>
                 Xác nhận
               </Text>

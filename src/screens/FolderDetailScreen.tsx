@@ -1,6 +1,11 @@
 import React from 'react';
 import {View, Dimensions} from 'react-native';
-import {Text, IconButton, ActivityIndicator} from 'react-native-paper';
+import {
+  Text,
+  IconButton,
+  ActivityIndicator,
+  Searchbar,
+} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {FlashList} from '@shopify/flash-list';
 import DocumentAPI from '../services/document';
@@ -25,11 +30,16 @@ function FolderDetailScreen({navigation, route}: any) {
   const [refresh, setRefresh] = React.useState(0);
   const [item, setItem] = React.useState({});
   const editModal = React.useRef<BottomSheetModal>(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   const loadData = async () => {
     if (end === false) {
       setIsLoading(true);
-      const result = await DocumentAPI.getFilesInFolder(id, pageNumber);
+      const result = await DocumentAPI.getFilesInFolder(
+        id,
+        pageNumber,
+        searchQuery,
+      );
       if (result.data.data.length < 10) {
         setEnd(true);
       }
@@ -41,10 +51,8 @@ function FolderDetailScreen({navigation, route}: any) {
   };
 
   React.useEffect(() => {
-    if (refresh > 0 && !initial.current) {
+    if (refresh > 0) {
       loadData();
-    } else {
-      initial.current = false;
     }
   }, [refresh]);
 
@@ -57,6 +65,15 @@ function FolderDetailScreen({navigation, route}: any) {
       setRefresh(refresh + 1);
     }
   }, [isFocused]);
+
+  React.useEffect(() => {
+    if (!initial.current) {
+      const timeOut = setTimeout(() => refreshData(), 1000);
+      return () => clearTimeout(timeOut);
+    } else {
+      initial.current = false;
+    }
+  }, [searchQuery]);
 
   const handlePressMoreFunction = React.useCallback((data: any) => {
     editModal.current?.present(data);
@@ -122,6 +139,7 @@ function FolderDetailScreen({navigation, route}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: result.status === 'true' ? 'bottom' : 'top',
       });
+      return result;
     } catch (error) {
       console.log(error);
     }
@@ -190,6 +208,12 @@ function FolderDetailScreen({navigation, route}: any) {
             paddingRight: 20,
             flex: 1,
           }}>
+          <Searchbar
+            style={{borderRadius: 8, marginBottom: 20, opacity: 0.8}}
+            placeholder="Tìm kiếm..."
+            onChangeText={(query: string) => setSearchQuery(query)}
+            value={searchQuery}
+          />
           {data.length !== 0 || initial.current ? (
             <FlashList
               data={data}
@@ -213,6 +237,7 @@ function FolderDetailScreen({navigation, route}: any) {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
+                marginBottom: 60,
               }}>
               <FileFolderEmptySVG width={170} height={180} />
               <Text
