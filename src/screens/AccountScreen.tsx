@@ -53,31 +53,26 @@ function AccountScreen({navigation}: any) {
 
   useFocusEffect(
     React.useCallback(() => {
-      const refreshUser = async () => {
-        const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
-        setUser(curUser.data);
+      const loadData = async () => {
+        setIsLoading(true);
+        try {
+          const curUser = await UserAPI.findUserByUid(auth().currentUser?.uid);
+          setUser(curUser.data);
+          const userPlan = await checkQuota();
+          setUserPlan(userPlan.data);
+          if (userPlan.data.type === 'free') {
+            const plansData = await getPlans();
+            setPlans(plansData);
+          } else setPlans([]);
+          setIsLoading(false);
+        } catch (e) {
+          console.log(e);
+        }
       };
-      refreshUser();
+
+      loadData();
     }, []),
   );
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      setIsLoading(true);
-      try {
-        const userPlan = await checkQuota();
-        setUserPlan(userPlan.data);
-        if (userPlan.data.type === 'free') {
-          const plansData = await getPlans();
-          setPlans(plansData);
-        }
-        setIsLoading(false);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    fetchUser();
-  }, []);
 
   const renderGroupHeader = ({item}: any) => {
     return (

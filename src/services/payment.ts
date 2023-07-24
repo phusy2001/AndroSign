@@ -22,3 +22,7 @@ export async function createOrder(user_id: string, plan_id: string) {
 export async function checkStatus(app_trans_id: string) {
   return await client.get(`/orders/status/${app_trans_id}`);
 }
+
+export async function updateStatus(app_trans_id: string) {
+  return await client.post(`/orders/status/${app_trans_id}`);
+}
