@@ -12,6 +12,8 @@ import UserAPI from '../services/user';
 import auth from '@react-native-firebase/auth';
 import messaging from '@react-native-firebase/messaging';
 import {useIsFocused} from '@react-navigation/native';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import Config from 'react-native-config';
 
 const SignInSchema = yup.object().shape({
   email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
@@ -238,8 +240,25 @@ function LoginScreen({navigation}: any) {
           Quên mật khẩu?
         </Text>
       </KeyboardAvoidingView>
+      <Text
+        style={{
+          textAlign: 'center',
+          fontSize: 16,
+          color: 'blue',
+        }}
+        onPress={() => {
+          InAppBrowser.isAvailable().then(() => {
+            return InAppBrowser.open(`${Config.ADMIN_URL}`, {
+              animated: true,
+              modalEnabled: true,
+              showTitle: true,
+            });
+          });
+        }}>
+        Chuyển đến trang quản trị viên
+      </Text>
       <Button
-        style={{marginTop: 20}}
+        style={{marginTop: -20}}
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         icon="login"

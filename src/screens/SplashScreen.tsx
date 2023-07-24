@@ -6,12 +6,14 @@ function SplashScreen() {
   const [spinValue] = React.useState(new Animated.Value(0));
 
   React.useEffect(() => {
-    Animated.timing(spinValue, {
-      toValue: 1,
-      duration: 1500,
-      easing: Easing.linear,
-      useNativeDriver: true,
-    }).start();
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    ).start();
   }, [spinValue]);
 
   return (
@@ -27,7 +29,10 @@ function SplashScreen() {
             },
           ],
         }}>
-        <Icon name="react" style={styles.icon} />
+        <Animated.Image
+          source={require('../assets/images/logo.png')}
+          style={{width: 150, height: 150}}
+        />
       </Animated.View>
     </View>
   );

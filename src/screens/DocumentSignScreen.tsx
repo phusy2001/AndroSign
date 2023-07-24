@@ -115,7 +115,7 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
-      Config.Tools.annotationCreateFreeText,
+      Config.Tools.formCreateTextField,
       Config.Tools.formCreateSignatureField,
       Config.Tools.annotationCreateFreeTextDate,
     ],
@@ -742,7 +742,22 @@ function DocumentSignScreen({route, navigation}: any) {
                     },
                   ]);
                 }
-              } else {
+              } else if (field.fieldValue !== '') {
+                const user =
+                  await documentView.current!.getCustomDataForAnnotation(
+                    currentAnnotation.current.id,
+                    currentAnnotation.current.pageNumber,
+                    'user',
+                  );
+                if (user !== auth().currentUser?.uid) {
+                  documentView.current!.deleteAnnotations([
+                    {
+                      id: currentAnnotation.current.id,
+                      pageNumber: currentAnnotation.current.pageNumber,
+                    },
+                  ]);
+                }
+              } else if (!field.fieldHasAppearance) {
                 documentView.current!.setPropertiesForAnnotation(
                   currentAnnotation.current.id,
                   currentAnnotation.current.pageNumber,
