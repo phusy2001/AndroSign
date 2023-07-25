@@ -44,7 +44,7 @@ function DeleteConfirmDialog({
           <Text
             style={{
               fontSize: 18,
-              color: 'blue',
+              color: 'red',
             }}>
             Xóa
           </Text>

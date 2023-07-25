@@ -1,7 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {View, ScrollView, StyleSheet} from 'react-native';
-import {Appbar, Text, Avatar, IconButton, Divider} from 'react-native-paper';
+import {
+  Appbar,
+  Text,
+  Avatar,
+  IconButton,
+  Divider,
+  Portal,
+} from 'react-native-paper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDrawerStatus} from '@react-navigation/drawer';
 import {DrawerActions, useFocusEffect} from '@react-navigation/native';
@@ -12,6 +19,10 @@ import UserAPI from '../services/user';
 import SplashScreen from './SplashScreen';
 import {checkQuota, createOrder, getPlans} from '../services/payment';
 import moment from 'moment';
+import DeleteConfirmDialog from '../components/Dialog/DeleteConfirmDialog';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {signout} from '../services/auth';
+import Toast from 'react-native-toast-message';
 
 function formatPrice(price: number) {
   let [wholeNumber, decimal] = price.toString().split('.');
@@ -31,6 +42,8 @@ function AccountScreen({navigation}: any) {
   const [isLoading, setIsLoading] = useState(true);
   const [plans, setPlans] = useState([]);
   const [userPlan, setUserPlan] = useState<any>({});
+  const [delDlgVisible, setDelDlgVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleDrawer = () => {
     if (!isDrawerOpen) {
@@ -49,6 +62,21 @@ function AccountScreen({navigation}: any) {
     } catch (error) {
       console.log('Tạo đơn hàng thất bai');
     }
+  };
+
+  const handleDeleteFunction = async (uid: string) => {
+    setLoading(true);
+    const result = await UserAPI.deleteUserByUid(uid);
+    setLoading(false);
+    Toast.show({
+      text1:
+        result.status === 'true'
+          ? 'Hoàn tất xóa tài khoản! Hẹn gặp lại bạn trong tương lai'
+          : 'Đã xảy ra lỗi! Vui lòng thử lại',
+      type: result.status === 'true' ? 'success' : 'error',
+      position: 'bottom',
+    });
+    if (result.status === 'true') navigation.navigate('Login');
   };
 
   useFocusEffect(
@@ -119,6 +147,12 @@ function AccountScreen({navigation}: any) {
           paddingTop: insets.top,
           backgroundColor: '#fff',
         }}>
+        <Spinner
+          visible={loading}
+          animation="fade"
+          textContent={'Đang thực hiện...'}
+          textStyle={{color: '#FFF', fontWeight: 'bold'}}
+        />
         <Appbar.Header style={{justifyContent: 'space-between'}}>
           <Appbar.Action icon="format-list-bulleted" onPress={handleDrawer} />
         </Appbar.Header>
@@ -144,7 +178,10 @@ function AccountScreen({navigation}: any) {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <Avatar.Text size={48} label="TL" />
+              <Avatar.Image
+                size={50}
+                source={require('../assets/images/avatar.png')}
+              />
             </View>
             <View style={{width: '70%', justifyContent: 'center'}}>
               <Text style={{fontSize: 18, fontWeight: 'bold'}}>
@@ -286,6 +323,22 @@ function AccountScreen({navigation}: any) {
           }}>
           <TouchableOpacity
             onPress={() => {
+              navigation.navigate('InfoChange', {user});
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                display: 'flex',
+              }}>
+              <Text style={{fontSize: 16}}>Thông tin cá nhân</Text>
+              <IconButton icon="arrow-right" size={24} />
+            </View>
+          </TouchableOpacity>
+          <Divider bold={true}></Divider>
+          <TouchableOpacity
+            onPress={() => {
               navigation.navigate('PasswordChange');
             }}>
             <View
@@ -317,14 +370,27 @@ function AccountScreen({navigation}: any) {
           </TouchableOpacity> */}
         </View>
         <View style={{paddingVertical: 20, paddingHorizontal: 20}}>
-          {/* <Text
+          <Text
+            onPress={() => setDelDlgVisible(true)}
             style={{
               color: 'red',
               fontSize: 16,
             }}>
-            Xoá tài khoản
-          </Text> */}
+            Xoá tài khoản & dữ liệu
+          </Text>
         </View>
+        <Portal>
+          <DeleteConfirmDialog
+            dlgVisible={delDlgVisible}
+            setDlgVisible={setDelDlgVisible}
+            handleDeleteFunction={handleDeleteFunction}
+            type={'vĩnh viễn tài khoản'}
+            item={{_id: auth().currentUser?.uid}}
+            description={
+              'Tài khoản của bạn sẽ bị xóa hoàn toàn dữ liệu khỏi hệ thống và không thể phục hồi kể cả dịch vụ đã thanh toán.'
+            }
+          />
+        </Portal>
       </ScrollView>
     );
   }

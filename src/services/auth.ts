@@ -15,9 +15,7 @@ export function signupWithEmail(email: string, password: string) {
 //Sign out
 export async function signout() {
   const uid = auth().currentUser?.uid;
-
   const fcmToken = await AsyncStorage.getItem('fcmToken');
-
   if (fcmToken) {
     try {
       await UserAPI.removeFcmToken({
@@ -28,7 +26,6 @@ export async function signout() {
       console.log(error);
     }
   }
-
   return auth().signOut();
 }
 
