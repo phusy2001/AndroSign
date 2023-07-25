@@ -115,9 +115,9 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
     [Config.CustomToolbarKey.Items]: [
-      Config.Tools.formCreateTextField,
+      // Config.Tools.formCreateTextField,
       Config.Tools.formCreateSignatureField,
-      Config.Tools.annotationCreateFreeTextDate,
+      // Config.Tools.annotationCreateFreeTextDate,
     ],
   };
 
