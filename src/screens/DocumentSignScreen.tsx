@@ -742,7 +742,7 @@ function DocumentSignScreen({route, navigation}: any) {
                     },
                   ]);
                 }
-              } else if (field.fieldValue !== '') {
+              } else if (field.fieldValue && field.fieldValue !== '') {
                 const user =
                   await documentView.current!.getCustomDataForAnnotation(
                     currentAnnotation.current.id,
