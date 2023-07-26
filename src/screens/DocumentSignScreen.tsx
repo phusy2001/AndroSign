@@ -244,6 +244,7 @@ function DocumentSignScreen({route, navigation}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: result.status === 'true' ? 'bottom' : 'top',
       });
+      if (result.status === 'false') setLoading(false)
     } else {
       setLoading(false);
       navigation.goBack();
