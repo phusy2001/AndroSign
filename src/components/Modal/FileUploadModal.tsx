@@ -1,5 +1,9 @@
 import React from 'react';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
 import {View} from 'react-native';
 import {
   Dialog,
@@ -29,9 +33,17 @@ function FileUploadModal({
   handleCreateFolder,
   handleCreateFile,
 }: any) {
-  const uploadSnapPoints = React.useMemo(() => ['25%'], []);
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
+
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+
   const {
     control,
     handleSubmit,
@@ -108,7 +120,9 @@ function FileUploadModal({
       ref={uploadModalRef}
       index={0}
       backdropComponent={renderBackdrop}
-      snapPoints={uploadSnapPoints}
+      snapPoints={animatedSnapPoints}
+      handleHeight={animatedHandleHeight}
+      contentHeight={animatedContentHeight}
       enablePanDownToClose={true}>
       <Spinner
         visible={loading}
@@ -116,7 +130,7 @@ function FileUploadModal({
         textContent={'Đang xử lý...'}
         textStyle={{color: '#FFF', fontWeight: 'bold'}}
       />
-      <View style={{padding: 20}}>
+      <View style={{padding: 20}} onLayout={handleContentLayout}>
         <List.Section>
           <List.Item
             onPress={async () => {

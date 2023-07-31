@@ -1,5 +1,9 @@
 import React from 'react';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
 import {View} from 'react-native';
 import {Divider, List, Text, Portal} from 'react-native-paper';
 import FolderSVG from '../../assets/images/folder.svg';
@@ -16,7 +20,14 @@ function FolderEditModal({
 }: any) {
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
   const [renDlgVisible, setRenDlgVisible] = React.useState(false);
-  const editSnapPoints = React.useMemo(() => ['43%'], []);
+
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -36,9 +47,11 @@ function FolderEditModal({
       ref={editModalRef}
       index={0}
       backdropComponent={renderBackdrop}
-      snapPoints={editSnapPoints}
+      snapPoints={animatedSnapPoints}
+      handleHeight={animatedHandleHeight}
+      contentHeight={animatedContentHeight}
       enablePanDownToClose={true}>
-      <View>
+      <View onLayout={handleContentLayout}>
         <View
           style={{
             flexDirection: 'row',
@@ -88,18 +101,6 @@ function FolderEditModal({
             )}
           />
         </List.Section>
-        {/* <View style={{paddingLeft: 20, paddingRight: 20}}>
-          <Divider bold={true} />
-        </View>
-        <List.Section>
-          <List.Item
-            onPress={() => setDelDlgVisible(true)}
-            title={<Text style={{fontSize: 16, color: 'red'}}>Xoá</Text>}
-            left={props => (
-              <List.Icon {...props} color="red" icon="trash-can" />
-            )}
-          />
-        </List.Section> */}
       </View>
       <Portal>
         <DeleteConfirmDialog

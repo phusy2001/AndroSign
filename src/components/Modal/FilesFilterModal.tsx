@@ -1,5 +1,9 @@
 import React from 'react';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
 import {View} from 'react-native';
 import {RadioButton, Text} from 'react-native-paper';
 
@@ -12,10 +16,13 @@ function FilesFilterModal({
   status,
   setStatus,
 }: any) {
-  const filterSnapPoints = React.useMemo(
-    () => (status ? ['80%'] : ['50%']),
-    [],
-  );
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -35,9 +42,11 @@ function FilesFilterModal({
       ref={filterModalRef}
       index={0}
       backdropComponent={renderBackdrop}
-      snapPoints={filterSnapPoints}
+      snapPoints={animatedSnapPoints}
+      handleHeight={animatedHandleHeight}
+      contentHeight={animatedContentHeight}
       enablePanDownToClose={true}>
-      <View style={{padding: 20}}>
+      <View style={{padding: 20}} onLayout={handleContentLayout}>
         {status && (
           <View style={{marginBottom: 15}}>
             <Text variant="labelLarge" style={{fontSize: 20, marginBottom: 10}}>

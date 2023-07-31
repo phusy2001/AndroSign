@@ -2,7 +2,11 @@ import React from 'react';
 import {PermissionsAndroid, Platform, View} from 'react-native';
 import moment from 'moment';
 import PdfSVG from '../../assets/images/pdf.svg';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
 import {Divider, List, Text, Portal} from 'react-native-paper';
 import DeleteConfirmDialog from '../Dialog/DeleteConfirmDialog';
 import DocumentAPI from '../../services/document';
@@ -25,8 +29,13 @@ function FileEditModal({
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
   const [renDlgVisible, setRenDlgVisible] = React.useState(false);
 
-  const editSnapPoints =
-    typeEdit === 'owned' || item.fileOwner ? ['76%'] : ['42%'];
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -97,9 +106,7 @@ function FileEditModal({
     };
     config(options)
       .fetch('GET', item.path)
-      .then(res => {
-        // console.log(JSON.stringify(res));
-      });
+      .then(res => {});
   };
 
   return (
@@ -107,9 +114,11 @@ function FileEditModal({
       ref={editModalRef}
       index={0}
       backdropComponent={renderBackdrop}
-      snapPoints={editSnapPoints}
+      snapPoints={animatedSnapPoints}
+      handleHeight={animatedHandleHeight}
+      contentHeight={animatedContentHeight}
       enablePanDownToClose={true}>
-      <View>
+      <View onLayout={handleContentLayout}>
         <View
           style={{
             flexDirection: 'row',

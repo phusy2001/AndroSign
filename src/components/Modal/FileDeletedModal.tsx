@@ -1,5 +1,9 @@
 import React from 'react';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
 import moment from 'moment';
 import {View} from 'react-native';
 import {Divider, List, Portal, Text} from 'react-native-paper';
@@ -13,7 +17,14 @@ function FileDeletedModal({
   handleRestoreFunction,
 }: any) {
   const [delDlgVisible, setDelDlgVisible] = React.useState(false);
-  const editSnapPoints = React.useMemo(() => ['35%'], []);
+
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
 
   const renderBackdrop = React.useCallback(
     (props: any) => (
@@ -33,9 +44,11 @@ function FileDeletedModal({
       ref={editModalRef}
       index={0}
       backdropComponent={renderBackdrop}
-      snapPoints={editSnapPoints}
+      snapPoints={animatedSnapPoints}
+      handleHeight={animatedHandleHeight}
+      contentHeight={animatedContentHeight}
       enablePanDownToClose={true}>
-      <View>
+      <View onLayout={handleContentLayout}>
         <View
           style={{
             flexDirection: 'row',
