@@ -52,6 +52,7 @@ function FileItem({
             ) : item.completed ? (
               <View
                 style={{
+                  width: 113,
                   marginLeft: 10,
                   display: 'flex',
                   flexDirection: 'row',
@@ -77,6 +78,7 @@ function FileItem({
             ) : item.stepUser === auth().currentUser?.uid ? (
               <View
                 style={{
+                  width: 113,
                   marginLeft: 10,
                   display: 'flex',
                   flexDirection: 'row',
@@ -102,6 +104,7 @@ function FileItem({
             ) : (
               <View
                 style={{
+                  width: 113,
                   marginLeft: 10,
                   display: 'flex',
                   flexDirection: 'row',
@@ -131,13 +134,14 @@ function FileItem({
           'Cập nhật lần cuối: ' +
           moment(item.updated_at).format('DD/MM/YY HH:mm')
         }
+        titleNumberOfLines={10}
         left={() => <PdfSVG width={40} height={50} />}
       />
       <Card.Content
         style={{
           position: 'absolute',
           top: item.total === 0 || itemDeleted ? '20%' : '35%',
-          right: 0,
+          right: -5,
         }}>
         <IconButton
           onPress={() => onPressMoreFunction(item)}

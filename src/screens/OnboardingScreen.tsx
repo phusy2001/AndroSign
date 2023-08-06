@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {Button, IconButton, Text} from 'react-native-paper';
@@ -6,35 +5,33 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
 import {getData, storeData} from '../utils/asyncStore';
 import SplashScreen from './SplashScreen';
-import {navigate} from '../navigation/RootNavigation';
 
 const slides = [
   {
     title: 'Chào mừng đến với AndroSign',
     description:
-      'Ký nhiều hơn, ký nhanh hơn với một người đồng hành đáng tin cậy. Đăng ký và tham gia cùng chúng tôi!',
+      'Chuyển đổi tài liệu giấy thành phiên bản điện tử dễ dàng với ứng dụng ký kết văn bản.',
     image: require('../assets/images/onboarding.png'),
   },
   {
-    title: 'Chào mừng đến với AndroSign',
+    title: 'Dễ dàng quản lý và lưu trữ tài liệu',
     description:
-      'Ký nhiều hơn, ký nhanh hơn với một người đồng hành đáng tin cậy. Đăng ký và tham gia cùng chúng tôi!',
-    image: require('../assets/images/onboarding.png'),
+      'Ký và chia sẻ văn bản mọi lúc, mọi nơi chỉ với vài thao tác đơn giản.',
+    image: require('../assets/images/onboarding1.png'),
   },
   {
-    title: 'Chào mừng đến với AndroSign',
+    title: 'Trải nghiệm ký kết văn bản hiệu quả',
     description:
-      'Ký nhiều hơn, ký nhanh hơn với một người đồng hành đáng tin cậy. Đăng ký và tham gia cùng chúng tôi!',
-    image: require('../assets/images/onboarding.png'),
+      'Tiết kiệm thời gian và giấy tờ với việc ký kết văn bản ngay trên điện thoại Android của bạn.',
+    image: require('../assets/images/onboarding2.png'),
   },
 ];
 
-function OnboardingScreen({navigation}) {
+function OnboardingScreen({navigation}: any) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
-
   const insets = useSafeAreaInsets();
-  const swiperRef = React.useRef<ScrollView>(null);
+  const swiperRef = React.useRef<any>(null);
 
   const handleIndexChange = (index: number) => {
     setCurrentIndex(index);
@@ -47,12 +44,10 @@ function OnboardingScreen({navigation}) {
   };
 
   const handleGetStarted = async () => {
-    // Handle button press on last slide
     try {
       await storeData('hasLoggedIn', 'false');
       navigation.navigate('Drawer', {screen: 'Home'});
     } catch (error) {
-      // Handle error here
       console.log(error);
       return false;
     }
@@ -63,7 +58,6 @@ function OnboardingScreen({navigation}) {
     try {
       const value = await getData('hasLoggedIn');
       if (value !== null) {
-        // Value exists, not first login
         if (value === true) {
           setIsLoading(false);
           return true;
@@ -76,13 +70,11 @@ function OnboardingScreen({navigation}) {
           return false;
         }
       } else {
-        // Value does not exist, first login
         await storeData('hasLoggedIn', 'true');
         setIsLoading(false);
         return true;
       }
     } catch (error) {
-      // Handle error here
       console.log(error);
       return false;
     }
@@ -114,21 +106,26 @@ function OnboardingScreen({navigation}) {
         showsButtons>
         {slides.map((slide, index) => (
           <View key={index} style={styles.slideContainer}>
-            <Text style={{textAlign: 'center'}}>Logo here</Text>
-            <Image source={slide.image} style={styles.image} />
+            <Image
+              source={slide.image}
+              resizeMode="contain"
+              style={styles.image}
+            />
             <Text style={styles.title}>{slide.title}</Text>
             <Text style={styles.description}>{slide.description}</Text>
             {currentIndex === slides.length - 1 ? (
               <Button
                 style={styles.button}
                 mode="contained"
-                onPress={handleGetStarted}>
-                Bắt đầu
+                onPress={handleGetStarted}
+                icon="arrow-right"
+                contentStyle={{flexDirection: 'row-reverse'}}>
+                <Text style={{fontSize: 16, color: 'white'}}>Bắt đầu</Text>
               </Button>
             ) : (
               <IconButton
                 icon="arrow-right-circle-outline"
-                size={50}
+                size={46}
                 onPress={handleNext}
               />
             )}
@@ -147,14 +144,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 25,
   },
   image: {
-    width: '100%',
+    marginTop: 50,
     height: 250,
-    marginTop: 70,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
-    marginBottom: 10,
+    marginTop: 30,
     textAlign: 'center',
   },
   description: {
@@ -162,12 +158,11 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     marginTop: 14,
-    marginHorizontal: 30,
+    marginHorizontal: 18,
   },
   button: {
-    width: '100%',
+    width: '90%',
     marginTop: 25,
-    paddingVertical: 5,
     borderRadius: 45,
   },
 });
