@@ -52,6 +52,9 @@ function DocumentSignScreen({route, navigation}: any) {
   const stepNow = React.useRef(0);
   const stepUser = React.useRef('null');
   const savedXfdf = React.useRef('');
+  const [initial, setInitial] = React.useState(
+    action === 'edit' ? true : false,
+  );
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
   const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
@@ -87,6 +90,12 @@ function DocumentSignScreen({route, navigation}: any) {
     RNPdftron.initialize('');
     RNPdftron.enableJavaScript(true);
     RNPdftron.clearSavedViewerState();
+    if (action === 'edit' && initial) {
+      const timer = setTimeout(() => {
+        setInitial(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const handleConfirm = React.useCallback((data: any) => {
@@ -244,23 +253,18 @@ function DocumentSignScreen({route, navigation}: any) {
         type: result.status === 'true' ? 'success' : 'error',
         position: result.status === 'true' ? 'bottom' : 'top',
       });
-      if (result.status === 'false') setLoading(false)
+      if (result.status === 'false') setLoading(false);
     } else {
       setLoading(false);
       navigation.goBack();
     }
-    if (action !== 'upload' && result.status === 'true') {
-      navigation.goBack();
-    } else if (action === 'upload' && result.status === 'true') {
+    if (action !== 'upload' && result.status === 'true') navigation.goBack();
+    else if (action === 'upload' && result.status === 'true')
       navigation.navigate('Home', {reload: true});
-    } else {
-      setLoading(false);
-    }
-    if (handleFileCreated && result.status === 'true') {
-      handleFileCreated();
-    } else if (handleEditFunction && result.status === 'true') {
+    else setLoading(false);
+    if (handleFileCreated && result.status === 'true') handleFileCreated();
+    else if (handleEditFunction && result.status === 'true')
       handleEditFunction();
-    }
   };
 
   if (progress === 'user' && action === 'upload') {
@@ -491,6 +495,14 @@ function DocumentSignScreen({route, navigation}: any) {
         textContent={'Đang xử lý...'}
         textStyle={{color: '#FFF', fontWeight: 'bold'}}
       />
+      <Spinner
+        visible={initial}
+        animation="fade"
+        textContent={'Đang tải tài liệu...'}
+        textStyle={{color: 'black', fontWeight: 'bold'}}
+        color="black"
+        overlayColor="rgba(255, 255, 255, 1)"
+      />
       <View
         style={{
           display: 'flex',
@@ -593,7 +605,8 @@ function DocumentSignScreen({route, navigation}: any) {
         rememberLastUsedTool={false}
         showSavedSignatures={false}
         saveStateEnabled={false}
-        annotationPermissionCheckEnabled={true}
+        followSystemDarkMode={false}
+        downloadDialogEnabled={false}
         annotationToolbars={
           action === 'edit' || totalStep.current === 0
             ? [toolbarEdit]
@@ -605,7 +618,7 @@ function DocumentSignScreen({route, navigation}: any) {
             stepNow.current = result.data.data.stepNow;
             stepUser.current = result.data.data.stepUser;
             let base64 = '';
-            for (let i = 0; i < result.data.data.xfdf.data.length; ++i) {
+            for (let i = 0; i < result.data.data.xfdf.data.length; i++) {
               base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
             }
             documentView
@@ -692,14 +705,6 @@ function DocumentSignScreen({route, navigation}: any) {
                   },
                 },
               );
-              documentView.current!.setFlagsForAnnotations([
-                {
-                  id: annotation.id,
-                  pageNumber: annotation.pageNumber,
-                  flag: Config.AnnotationFlags.locked,
-                  flagValue: false,
-                },
-              ]);
             });
           } else if (action === 'add' && route.params.action === 'edit') {
             annotations.forEach((annotation: any) => {

@@ -31,8 +31,8 @@ function FileItem({
             });
           }
         },
-        1500,
-        {leading: true, trailing: false},
+        2000,
+        {leading: true, trailing: true},
       )}>
       <Card.Title
         title={
