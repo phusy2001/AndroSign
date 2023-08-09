@@ -623,52 +623,64 @@ function DocumentSignScreen({route, navigation}: any) {
         onDocumentLoaded={async () => {
           if (action === 'edit') {
             const result = await DocumentAPI.getAnnotations(id);
-            stepNow.current = result.data.data.stepNow;
-            stepUser.current = result.data.data.stepUser;
-            let base64 = '';
-            for (let i = 0; i < result.data.data.xfdf.data.length; i++) {
-              base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
-            }
-            documentView
-              .current!.importAnnotations(base64)
-              .then((importedAnnotations: any) => {
-                importedAnnotations.forEach(async (annotation: any) => {
-                  console.log(annotation);
-                  if (!annotsIdArr.current.has(annotation.id)) {
-                    annotsIdArr.current.add(annotation.id);
-                    const step =
-                      await documentView.current!.getCustomDataForAnnotation(
-                        annotation.id,
-                        annotation.pageNumber,
-                        'step',
-                      );
-                    const user =
-                      await documentView.current!.getCustomDataForAnnotation(
-                        annotation.id,
-                        annotation.pageNumber,
-                        'user',
-                      );
-                    if (
-                      user === auth().currentUser?.uid &&
-                      step == stepNow.current
-                    ) {
-                      documentView.current!.setFlagsForAnnotations([
-                        {
-                          id: annotation.id,
-                          pageNumber: annotation.pageNumber,
-                          flag: Config.AnnotationFlags.hidden,
-                          flagValue: false,
-                        },
-                      ]);
-                    } else if (step >= stepNow.current && stepNow.current > 0) {
-                      documentView.current!.setFlagsForAnnotations([
-                        {
-                          id: annotation.id,
-                          pageNumber: annotation.pageNumber,
-                          flag: Config.AnnotationFlags.hidden,
-                          flagValue: true,
-                        },
-                      ]);
+            if (result.data.data.stepUser !== 'null') {
+              stepNow.current = result.data.data.stepNow;
+              stepUser.current = result.data.data.stepUser;
+              let base64 = '';
+              for (let i = 0; i < result.data.data.xfdf.data.length; i++) {
+                base64 += String.fromCharCode(result.data.data.xfdf.data[i]);
+              }
+              documentView
+                .current!.importAnnotations(base64)
+                .then((importedAnnotations: any) => {
+                  importedAnnotations.forEach(async (annotation: any) => {
+                    console.log(annotation);
+                    if (!annotsIdArr.current.has(annotation.id)) {
+                      annotsIdArr.current.add(annotation.id);
+                      const step =
+                        await documentView.current!.getCustomDataForAnnotation(
+                          annotation.id,
+                          annotation.pageNumber,
+                          'step',
+                        );
+                      const user =
+                        await documentView.current!.getCustomDataForAnnotation(
+                          annotation.id,
+                          annotation.pageNumber,
+                          'user',
+                        );
+                      if (
+                        user === auth().currentUser?.uid &&
+                        step == stepNow.current
+                      ) {
+                        documentView.current!.setFlagsForAnnotations([
+                          {
+                            id: annotation.id,
+                            pageNumber: annotation.pageNumber,
+                            flag: Config.AnnotationFlags.hidden,
+                            flagValue: false,
+                          },
+                        ]);
+                      } else if (
+                        step >= stepNow.current &&
+                        stepNow.current > 0
+                      ) {
+                        documentView.current!.setFlagsForAnnotations([
+                          {
+                            id: annotation.id,
+                            pageNumber: annotation.pageNumber,
+                            flag: Config.AnnotationFlags.hidden,
+                            flagValue: true,
+                          },
+                        ]);
+                      } else {
+                        documentView.current!.deleteAnnotations([
+                          {
+                            id: annotation.id,
+                            pageNumber: annotation.pageNumber,
+                          },
+                        ]);
+                      }
                     } else {
                       documentView.current!.deleteAnnotations([
                         {
@@ -677,9 +689,9 @@ function DocumentSignScreen({route, navigation}: any) {
                         },
                       ]);
                     }
-                  }
+                  });
                 });
-              });
+            }
           } else if (action === 'upload' && savedXfdf.current) {
             documentView
               .current!.importAnnotations(savedXfdf.current)
