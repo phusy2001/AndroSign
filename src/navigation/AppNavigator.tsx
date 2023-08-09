@@ -31,6 +31,7 @@ import PasswordCaScreen from '../screens/PasswordCaScreen';
 import VerifyPasswordCaScreen from '../screens/VerifyPasswordCaScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import PasswordCaChangeScreen from '../screens/PasswordCaChangeScreen';
+import HelpScreen from '../screens/HelpScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
@@ -75,6 +76,11 @@ export const DrawerNavigator = () => {
       <Drawer.Screen
         name="Trash"
         component={TrashScreen}
+        options={{headerShown: false, unmountOnBlur: true}}
+      />
+      <Drawer.Screen
+        name="Help"
+        component={HelpScreen}
         options={{headerShown: false, unmountOnBlur: true}}
       />
     </Drawer.Navigator>

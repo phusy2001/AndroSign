@@ -70,13 +70,19 @@ function CustomDrawer(props: any) {
             onPress={() => props.navigation.navigate('Trash')}
           />
           <View style={{paddingHorizontal: 20}}>
-            <Divider bold={false} style={{marginVertical: 40}} />
+            <Divider bold={false} style={{marginVertical: 30}} />
           </View>
           <DrawerItem
             icon={() => <Icon name="account" size={24} color="#000" />}
             label="Tài khoản"
             labelStyle={{fontSize: 16}}
             onPress={() => props.navigation.navigate('AccountNavigator')}
+          />
+          <DrawerItem
+            icon={() => <Icon name="help-circle" size={24} color="#000" />}
+            label="Trợ giúp"
+            labelStyle={{fontSize: 16}}
+            onPress={() => props.navigation.navigate('Help')}
           />
         </View>
         <View style={{paddingHorizontal: 20}}>

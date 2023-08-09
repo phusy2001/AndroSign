@@ -55,6 +55,7 @@ function DocumentSignScreen({route, navigation}: any) {
   const [initial, setInitial] = React.useState(
     action === 'edit' ? true : false,
   );
+  const annotsIdArr = React.useRef(new Set());
   const currentAnnotation = React.useRef({id: '', pageNumber: 0});
   const [progress, setProgress] = React.useState('user');
   const [saveDlgVisible, setSaveDlgVisible] = React.useState(false);
@@ -625,46 +626,50 @@ function DocumentSignScreen({route, navigation}: any) {
               .current!.importAnnotations(base64)
               .then((importedAnnotations: any) => {
                 importedAnnotations.forEach(async (annotation: any) => {
-                  const step =
-                    await documentView.current!.getCustomDataForAnnotation(
-                      annotation.id,
-                      annotation.pageNumber,
-                      'step',
-                    );
-                  const user =
-                    await documentView.current!.getCustomDataForAnnotation(
-                      annotation.id,
-                      annotation.pageNumber,
-                      'user',
-                    );
-                  if (
-                    user === auth().currentUser?.uid &&
-                    step == stepNow.current
-                  ) {
-                    documentView.current!.setFlagsForAnnotations([
-                      {
-                        id: annotation.id,
-                        pageNumber: annotation.pageNumber,
-                        flag: Config.AnnotationFlags.hidden,
-                        flagValue: false,
-                      },
-                    ]);
-                  } else if (step >= stepNow.current && stepNow.current > 0) {
-                    documentView.current!.setFlagsForAnnotations([
-                      {
-                        id: annotation.id,
-                        pageNumber: annotation.pageNumber,
-                        flag: Config.AnnotationFlags.hidden,
-                        flagValue: true,
-                      },
-                    ]);
-                  } else {
-                    documentView.current!.deleteAnnotations([
-                      {
-                        id: annotation.id,
-                        pageNumber: annotation.pageNumber,
-                      },
-                    ]);
+                  console.log(annotation);
+                  if (!annotsIdArr.current.has(annotation.id)) {
+                    annotsIdArr.current.add(annotation.id);
+                    const step =
+                      await documentView.current!.getCustomDataForAnnotation(
+                        annotation.id,
+                        annotation.pageNumber,
+                        'step',
+                      );
+                    const user =
+                      await documentView.current!.getCustomDataForAnnotation(
+                        annotation.id,
+                        annotation.pageNumber,
+                        'user',
+                      );
+                    if (
+                      user === auth().currentUser?.uid &&
+                      step == stepNow.current
+                    ) {
+                      documentView.current!.setFlagsForAnnotations([
+                        {
+                          id: annotation.id,
+                          pageNumber: annotation.pageNumber,
+                          flag: Config.AnnotationFlags.hidden,
+                          flagValue: false,
+                        },
+                      ]);
+                    } else if (step >= stepNow.current && stepNow.current > 0) {
+                      documentView.current!.setFlagsForAnnotations([
+                        {
+                          id: annotation.id,
+                          pageNumber: annotation.pageNumber,
+                          flag: Config.AnnotationFlags.hidden,
+                          flagValue: true,
+                        },
+                      ]);
+                    } else {
+                      documentView.current!.deleteAnnotations([
+                        {
+                          id: annotation.id,
+                          pageNumber: annotation.pageNumber,
+                        },
+                      ]);
+                    }
                   }
                 });
               });

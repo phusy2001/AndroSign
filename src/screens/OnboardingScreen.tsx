@@ -114,20 +114,31 @@ function OnboardingScreen({navigation}: any) {
             <Text style={styles.title}>{slide.title}</Text>
             <Text style={styles.description}>{slide.description}</Text>
             {currentIndex === slides.length - 1 ? (
-              <Button
-                style={styles.button}
-                mode="contained"
-                onPress={handleGetStarted}
-                icon="arrow-right"
-                contentStyle={{flexDirection: 'row-reverse'}}>
-                <Text style={{fontSize: 16, color: 'white'}}>Bắt đầu</Text>
-              </Button>
+              <>
+                <Button
+                  style={styles.button2}
+                  mode="contained"
+                  onPress={() => {
+                    navigation.navigate('Help');
+                  }}
+                  contentStyle={{flexDirection: 'row-reverse'}}>
+                  <Text style={{fontSize: 16, color: 'white'}}>
+                    Hướng dẫn sử dụng
+                  </Text>
+                </Button>
+                <Button
+                  style={styles.button}
+                  mode="contained"
+                  onPress={handleGetStarted}
+                  icon="arrow-right"
+                  contentStyle={{flexDirection: 'row-reverse'}}>
+                  <Text style={{fontSize: 16, color: 'white'}}>
+                    Đi vào màn hình chính
+                  </Text>
+                </Button>
+              </>
             ) : (
-              <IconButton
-                icon="arrow-right-circle-outline"
-                size={46}
-                onPress={handleNext}
-              />
+              <IconButton icon="arrow-right" size={46} onPress={handleNext} />
             )}
           </View>
         ))}
@@ -162,8 +173,14 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '90%',
+    marginTop: 20,
+    borderRadius: 45,
+  },
+  button2: {
+    width: '90%',
     marginTop: 25,
     borderRadius: 45,
+    backgroundColor: '#17a2b8',
   },
 });
 
