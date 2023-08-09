@@ -21,6 +21,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetModal,
   BottomSheetBackdrop,
+  useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DocumentAPI from '../services/document';
@@ -43,7 +44,13 @@ function DocumentSignScreen({route, navigation}: any) {
     route.params;
   const screenHeight = Dimensions.get('window').height;
   const insets = useSafeAreaInsets();
-  const confirmSnapPoints = React.useMemo(() => ['30%'], []);
+  const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const {
+    animatedHandleHeight,
+    animatedSnapPoints,
+    animatedContentHeight,
+    handleContentLayout,
+  } = useBottomSheetDynamicSnapPoints(snapPoints);
   const confirmModal = React.useRef<BottomSheetModal>(null);
   const documentView = React.useRef(null);
   const stepCount = React.useRef(1);
@@ -792,10 +799,12 @@ function DocumentSignScreen({route, navigation}: any) {
         <BottomSheetModal
           ref={confirmModal}
           index={0}
-          snapPoints={confirmSnapPoints}
+          snapPoints={animatedSnapPoints}
+          handleHeight={animatedHandleHeight}
+          contentHeight={animatedContentHeight}
           backdropComponent={renderBackdrop}
           enablePanDownToClose={true}>
-          <View>
+          <View onLayout={handleContentLayout}>
             <Text
               style={{
                 fontWeight: 'bold',
