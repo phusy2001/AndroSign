@@ -40,8 +40,16 @@ const UploadFileSchema = yup.object().shape({
 });
 
 function DocumentSignScreen({route, navigation}: any) {
-  const {id, name, path, file, action, handleFileCreated, handleEditFunction} =
-    route.params;
+  const {
+    id,
+    name,
+    ext,
+    path,
+    file,
+    action,
+    handleFileCreated,
+    handleEditFunction,
+  } = route.params;
   const screenHeight = Dimensions.get('window').height;
   const insets = useSafeAreaInsets();
   const snapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
@@ -86,7 +94,7 @@ function DocumentSignScreen({route, navigation}: any) {
   } = useForm({
     resolver: yupResolver(UploadFileSchema),
     defaultValues: {
-      fileName: name.replace('.pdf', ''),
+      fileName: name.replace(`.${ext}`, ''),
     },
   });
 
@@ -239,7 +247,9 @@ function DocumentSignScreen({route, navigation}: any) {
       formData.append('stepNow', params.step);
       formData.append('stepUser', params.user);
       formData.append('xfdf', xfdf);
-      formData.append('file', file);
+      if (ext === 'pdf') formData.append('file', file);
+      else formData.append('base64Content', file);
+      formData.append('ext', ext);
       result = await DocumentAPI.uploadDocument(formData);
       Toast.show({
         text1: result.message,
@@ -602,7 +612,8 @@ function DocumentSignScreen({route, navigation}: any) {
       )}
       <DocumentView
         ref={documentView}
-        document={path}
+        isBase64String={ext === 'pdf' || !ext ? false : true}
+        document={ext === 'pdf' || !ext ? path : file}
         showLeadingNavButton={false}
         bottomToolbarEnabled={false}
         hideTopAppNavBar={true}
@@ -634,7 +645,6 @@ function DocumentSignScreen({route, navigation}: any) {
                 .current!.importAnnotations(base64)
                 .then((importedAnnotations: any) => {
                   importedAnnotations.forEach(async (annotation: any) => {
-                    console.log(annotation);
                     if (!annotsIdArr.current.has(annotation.id)) {
                       annotsIdArr.current.add(annotation.id);
                       const step =
@@ -863,6 +873,7 @@ function DocumentSignScreen({route, navigation}: any) {
                 flexDirection: 'row',
                 paddingLeft: 15,
                 paddingRight: 15,
+                paddingBottom: 20,
                 alignItems: 'center',
               }}>
               <IconButton icon="close" size={22} iconColor="red" />

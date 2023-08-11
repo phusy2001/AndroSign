@@ -89,17 +89,55 @@ function FileUploadModal({
   const uploadFileFunc = React.useCallback(async () => {
     const response = await DocumentPicker.pick({
       presentationStyle: 'fullScreen',
-      type: [types.pdf],
+      type: [
+        types.doc,
+        types.docx,
+        types.pdf,
+        // types.ppt,
+        // types.pptx,
+        types.xls,
+        types.xlsx,
+        types.plainText,
+        types.images,
+      ],
     });
-    navigation.navigate('DocumentSign', {
-      name: response[0].name,
-      path: response[0].uri,
-      file: response[0],
-      action: 'upload',
-      handleFileCreated: () => {
-        handleCreateFile();
-      },
-    });
+    const parts = response[0].name!.split('.');
+    const ext = parts.pop();
+    if (ext !== 'pdf') {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', response[0]);
+      const result = await DocumentAPI.convertDocument(formData);
+      if (result.status === 'true')
+        navigation.navigate('DocumentSign', {
+          name: response[0].name,
+          path: response[0].uri,
+          file: result.data,
+          action: 'upload',
+          ext: ext,
+          handleFileCreated: () => {
+            handleCreateFile();
+          },
+        });
+      else
+        Toast.show({
+          text1: 'Đã xảy ra lỗi khi lấy thông tin tài liệu! Vui lòng thử lại',
+          type: 'error',
+          position: 'top',
+        });
+      setLoading(false);
+    } else {
+      navigation.navigate('DocumentSign', {
+        name: response[0].name,
+        path: response[0].uri,
+        file: response[0],
+        action: 'upload',
+        ext: ext,
+        handleFileCreated: () => {
+          handleCreateFile();
+        },
+      });
+    }
   }, []);
 
   const renderBackdrop = React.useCallback(

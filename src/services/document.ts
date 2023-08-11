@@ -223,6 +223,15 @@ const DocumentAPI = {
       name,
     });
   },
+
+  convertDocument: async (formData: any) => {
+    return await client.post('/convertFile', formData, {
+      headers: {
+        Accept: 'application/json',
+        'content-type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export default DocumentAPI;
