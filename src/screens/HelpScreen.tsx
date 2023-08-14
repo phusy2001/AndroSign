@@ -6,22 +6,31 @@ import Swiper from 'react-native-swiper';
 
 const slides = [
   {
-    title: 'Chào mừng đến với AndroSign',
-    description:
-      'Chuyển đổi tài liệu giấy thành phiên bản điện tử dễ dàng với ứng dụng ký kết văn bản.',
-    image: require('../assets/images/onboarding.png'),
+    image: require('../assets/images/guide/IMG_9765.png'),
   },
   {
-    title: 'Dễ dàng quản lý và lưu trữ tài liệu',
-    description:
-      'Ký và chia sẻ văn bản mọi lúc, mọi nơi chỉ với vài thao tác đơn giản.',
-    image: require('../assets/images/onboarding1.png'),
+    image: require('../assets/images/guide/IMG_9766.png'),
   },
   {
-    title: 'Trải nghiệm ký kết văn bản hiệu quả',
-    description:
-      'Tiết kiệm thời gian và giấy tờ với việc ký kết văn bản ngay trên điện thoại Android của bạn.',
-    image: require('../assets/images/onboarding2.png'),
+    image: require('../assets/images/guide/IMG_9767.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9768.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9769.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9770.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9771.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9772.png'),
+  },
+  {
+    image: require('../assets/images/guide/IMG_9773.png'),
   },
 ];
 
@@ -29,17 +38,6 @@ function HelpScreen({navigation}: any) {
   const screenHeight = Dimensions.get('window').height;
   const insets = useSafeAreaInsets();
   const swiperRef = React.useRef<any>(null);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-
-  const handleIndexChange = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const handleNext = () => {
-    if (swiperRef.current) {
-      swiperRef.current.scrollBy(1);
-    }
-  };
 
   return (
     <View
@@ -80,12 +78,7 @@ function HelpScreen({navigation}: any) {
             paddingRight: 20,
             flex: 1,
           }}>
-          <Swiper
-            ref={swiperRef}
-            showsPagination
-            loop={false}
-            onIndexChanged={handleIndexChange}
-            showsButtons>
+          <Swiper ref={swiperRef} showsPagination loop={false} showsButtons>
             {slides.map((slide, index) => (
               <View key={index} style={styles.slideContainer}>
                 <Image
@@ -93,27 +86,6 @@ function HelpScreen({navigation}: any) {
                   resizeMode="contain"
                   style={styles.image}
                 />
-                <Text style={styles.title}>{slide.title}</Text>
-                <Text style={styles.description}>{slide.description}</Text>
-                {currentIndex === slides.length - 1 ? (
-                  <Button
-                    style={styles.button}
-                    mode="contained"
-                    onPress={() => {
-                      navigation.navigate('Help');
-                    }}
-                    contentStyle={{flexDirection: 'row-reverse'}}>
-                    <Text style={{fontSize: 16, color: 'white'}}>
-                      Hướng dẫn sử dụng
-                    </Text>
-                  </Button>
-                ) : (
-                  <IconButton
-                    icon="arrow-right"
-                    size={46}
-                    onPress={handleNext}
-                  />
-                )}
               </View>
             ))}
           </Swiper>
@@ -132,7 +104,7 @@ const styles = StyleSheet.create({
   },
   image: {
     marginTop: 50,
-    height: 250,
+    height: 450,
   },
   title: {
     fontSize: 20,
