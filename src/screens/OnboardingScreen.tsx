@@ -119,7 +119,7 @@ function OnboardingScreen({navigation}: any) {
                   style={styles.button2}
                   mode="contained"
                   onPress={() => {
-                    navigation.navigate('Help');
+                    navigation.navigate('Drawer', {screen: 'Help'});
                   }}
                   contentStyle={{flexDirection: 'row-reverse'}}>
                   <Text style={{fontSize: 16, color: 'white'}}>
