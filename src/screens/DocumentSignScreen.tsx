@@ -139,22 +139,14 @@ function DocumentSignScreen({route, navigation}: any) {
     [Config.CustomToolbarKey.Id]: 'AndroSign',
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
-    [Config.CustomToolbarKey.Items]: [
-      // Config.Tools.formCreateTextField,
-      Config.Tools.formCreateSignatureField,
-      // Config.Tools.annotationCreateFreeTextDate,
-    ],
+    [Config.CustomToolbarKey.Items]: [Config.Tools.formCreateSignatureField],
   };
 
   const toolbarEdit = {
     [Config.CustomToolbarKey.Id]: 'AndroSign',
     [Config.CustomToolbarKey.Name]: 'AndroSign',
     [Config.CustomToolbarKey.Icon]: Config.ToolbarIcons.FillAndSign,
-    [Config.CustomToolbarKey.Items]: [
-      Config.Tools.pan,
-      // Config.Tools.annotationCreateFreeText,
-      // Config.Tools.annotationCreateFreeTextDate,
-    ],
+    [Config.CustomToolbarKey.Items]: [Config.Tools.pan],
   };
 
   const saveDocument = async (fileName?: string) => {
@@ -172,49 +164,27 @@ function DocumentSignScreen({route, navigation}: any) {
     for (let i = 1; i <= pageCount; i++) {
       const annotations = await documentView.current!.getAnnotationsOnPage(i);
       for (const annotation of annotations) {
-        params.total += 1;
-        const value = await documentView.current!.getCustomDataForAnnotation(
-          annotation.id,
-          annotation.pageNumber,
-          'progress',
-        );
-        if (value === 'done') {
-          params.signed += 1;
-        }
-        if (action === 'upload') {
-          const annotStep =
-            await documentView.current!.getCustomDataForAnnotation(
-              annotation.id,
-              annotation.pageNumber,
-              'step',
-            );
-          if (params.totalStep.indexOf(annotStep) === -1) {
-            params.totalStep.push(annotStep);
+        if (annotation.type === 'FormCreateTextField') {
+          params.total += 1;
+          const value = await documentView.current!.getCustomDataForAnnotation(
+            annotation.id,
+            annotation.pageNumber,
+            'progress',
+          );
+          if (value === 'done') {
+            params.signed += 1;
           }
-          if (annotStep < params.step || params.count === 0) {
-            params.step = annotStep;
-            params.user =
+          if (action === 'upload') {
+            const annotStep =
               await documentView.current!.getCustomDataForAnnotation(
                 annotation.id,
                 annotation.pageNumber,
-                'user',
+                'step',
               );
-            params.count = 1;
-          }
-        } else if (
-          action === 'edit' &&
-          stepUser.current === auth().currentUser?.uid
-        ) {
-          const annotStep =
-            await documentView.current!.getCustomDataForAnnotation(
-              annotation.id,
-              annotation.pageNumber,
-              'step',
-            );
-          if (annotStep > stepNow.current) {
-            const diff = annotStep - stepNow.current;
-            if (params.count > diff || params.count === 0) {
-              params.count = diff;
+            if (params.totalStep.indexOf(annotStep) === -1) {
+              params.totalStep.push(annotStep);
+            }
+            if (annotStep < params.step || params.count === 0) {
               params.step = annotStep;
               params.user =
                 await documentView.current!.getCustomDataForAnnotation(
@@ -222,9 +192,33 @@ function DocumentSignScreen({route, navigation}: any) {
                   annotation.pageNumber,
                   'user',
                 );
+              params.count = 1;
             }
+          } else if (
+            action === 'edit' &&
+            stepUser.current === auth().currentUser?.uid
+          ) {
+            const annotStep =
+              await documentView.current!.getCustomDataForAnnotation(
+                annotation.id,
+                annotation.pageNumber,
+                'step',
+              );
+            if (annotStep > stepNow.current) {
+              const diff = annotStep - stepNow.current;
+              if (params.count > diff || params.count === 0) {
+                params.count = diff;
+                params.step = annotStep;
+                params.user =
+                  await documentView.current!.getCustomDataForAnnotation(
+                    annotation.id,
+                    annotation.pageNumber,
+                    'user',
+                  );
+              }
+            }
+            params.changed = true;
           }
-          params.changed = true;
         }
       }
     }
