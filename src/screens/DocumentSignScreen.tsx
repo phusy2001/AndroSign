@@ -250,7 +250,11 @@ function DocumentSignScreen({route, navigation}: any) {
       if (ext === 'pdf') formData.append('file', file);
       else formData.append('base64Content', file);
       formData.append('ext', ext);
-      result = await DocumentAPI.uploadDocument(formData);
+      try {
+        result = await DocumentAPI.uploadDocument(formData);
+      } catch (error: any) {
+        result = await DocumentAPI.uploadDocument(formData);
+      }
       Toast.show({
         text1: result.message,
         type: result.status === 'true' ? 'success' : 'error',

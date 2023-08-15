@@ -107,25 +107,47 @@ function FileUploadModal({
       setLoading(true);
       const formData = new FormData();
       formData.append('file', response[0]);
-      const result = await DocumentAPI.convertDocument(formData);
-      if (result.status === 'true')
-        navigation.navigate('DocumentSign', {
-          name: response[0].name,
-          path: response[0].uri,
-          file: result.data,
-          action: 'upload',
-          ext: ext,
-          handleFileCreated: () => {
-            handleCreateFile();
-          },
-        });
-      else
-        Toast.show({
-          text1: 'Đã xảy ra lỗi khi lấy thông tin tài liệu! Vui lòng thử lại',
-          type: 'error',
-          position: 'top',
-        });
-      setLoading(false);
+      try {
+        const result = await DocumentAPI.convertDocument(formData);
+        if (result.status === 'true')
+          navigation.navigate('DocumentSign', {
+            name: response[0].name,
+            path: response[0].uri,
+            file: result.data,
+            action: 'upload',
+            ext: ext,
+            handleFileCreated: () => {
+              handleCreateFile();
+            },
+          });
+        else
+          Toast.show({
+            text1: 'Đã xảy ra lỗi khi lấy thông tin tài liệu! Vui lòng thử lại',
+            type: 'error',
+            position: 'top',
+          });
+        setLoading(false);
+      } catch (error: any) {
+        const result = await DocumentAPI.convertDocument(formData);
+        if (result.status === 'true')
+          navigation.navigate('DocumentSign', {
+            name: response[0].name,
+            path: response[0].uri,
+            file: result.data,
+            action: 'upload',
+            ext: ext,
+            handleFileCreated: () => {
+              handleCreateFile();
+            },
+          });
+        else
+          Toast.show({
+            text1: 'Đã xảy ra lỗi khi lấy thông tin tài liệu! Vui lòng thử lại',
+            type: 'error',
+            position: 'top',
+          });
+        setLoading(false);
+      }
     } else {
       navigation.navigate('DocumentSign', {
         name: response[0].name,
